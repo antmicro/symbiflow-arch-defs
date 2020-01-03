@@ -164,3 +164,12 @@ add_xc_board(
   PART xc7z020clg400-1
   PROG_CMD "${OPENOCD} -f ${OPENOCD_DATADIR}/scripts/interface/ftdi/digilent-hs1.cfg -f ${OPENOCD_DATADIR}/scripts/target/zynq_7000.cfg -c \\\"ftdi_tdo_sample_edge falling $<SEMICOLON> adapter_khz 1000000 $<SEMICOLON> init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
+
+add_xc_board(
+  BOARD netv2-pcie
+  DEVICE xc7a50t-netv2-pcie
+  PACKAGE test
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+  PART xc7a35tfgg484-2
+)
