@@ -94,8 +94,8 @@ function(DEFINE_XC_PINMAP_CSV_INSTALL_TARGET)
 
   get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
-    message(STATUS "Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
-    return()
+    #message(STATUS "Skipping pinmap installation for ${DEVICE}-${PACKAGE} part: ${PART}")
+    #return()
   endif()
 
   get_target_property(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)

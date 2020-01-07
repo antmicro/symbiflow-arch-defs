@@ -24,8 +24,9 @@ function(INSTALL_DEVICE_FILES)
 
   get_target_property(USE_ROI ${DEVICE_TYPE} USE_ROI)
   if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
-    message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
-    return()
+    # message(STATUS "Skipping device files installation for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE}")
+    # return()
+    message(STATUS "Building device files for ${DEVICE}-${PACKAGE} type: ${DEVICE_TYPE} with ROI")
   endif()
 
   get_target_property(LIMIT_GRAPH_TO_DEVICE ${DEVICE_TYPE} LIMIT_GRAPH_TO_DEVICE)
