@@ -1207,6 +1207,8 @@ function(ADD_FPGA_TARGET)
     "${multiValueArgs}"
     ${ARGN}
   )
+ 
+  get_target_property_required(PYTHON3 env PYTHON3)
 
   get_target_property_required(PYTHON3 env PYTHON3)
 
