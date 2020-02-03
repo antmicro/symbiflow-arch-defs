@@ -40,3 +40,12 @@
 [submodule "third_party/prjuray"]
 	path = third_party/prjuray
 	url = https://github.com/SymbiFlow/prjuray.git
+[submodule "third_party/quicklogic-fasm-utils"]
+	path = quicklogic/utils/fasm-utils
+	url = https://github.com/QuickLogic-Corp/quicklogic-fasm-utils.git
+[submodule "third_party/quicklogic-quicklogic-fasm"]
+	path = quicklogic/utils/quicklogic-fasm
+	url = https://github.com/QuickLogic-Corp/quicklogic-fasm.git
+[submodule "third_party/ql-eos-s3"]
+	path = third_party/ql-eos-s3
+	url = https://github.com/QuickLogic-Corp/EOS-S3
