@@ -1977,7 +1977,7 @@ module IBUF (
 endmodule
 
 module OBUF (
-  input I,
+  input  I,
   output O
   );
 
@@ -2091,6 +2091,128 @@ module OBUF (
     .SLEW(SLEW)
   ) _TECHMAP_REPLACE_ (
     .I(I),
+    .O(O)
+  );
+
+endmodule
+
+module OBUFT (
+  input  I,
+  input  T,
+  output O
+  );
+
+  parameter IOSTANDARD = "LVCMOS33";
+  parameter DRIVE = 12;
+  parameter SLEW = "SLOW";
+  parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
+
+  OBUFT_VPR # (
+    .LVCMOS12_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
+    ),
+    .LVCMOS12_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 4)
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "FAST")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "SLOW") || 
+      (IOSTANDARD == "SSTL135" && SLEW == "SLOW") || 
+      (IOSTANDARD == "SSTL15" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "SSTL135") || 
+      (IOSTANDARD == "SSTL15")
+    ),
+    .LVCMOS12_LVCMOS25_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 8) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 8)
+    ),
+    .LVCMOS15_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 12)
+    ),
+    .LVCMOS15_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 8)
+    ),
+    .LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 4)
+    ),
+    .LVCMOS15_SSTL15_DRIVE_I16_I_FIXED(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 16) || 
+      (IOSTANDARD == "SSTL15")
+    ),
+    .LVCMOS18_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 12) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 8)
+    ),
+    .LVCMOS18_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 16)
+    ),
+    .LVCMOS18_DRIVE_I24(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 24)
+    ),
+    .LVCMOS25_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 12)
+    ),
+    .LVCMOS25_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 16)
+    ),
+    .LVCMOS33_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 8) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 8)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 4) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 4)
+    ),
+    .LVTTL_DRIVE_I24(
+      (IOSTANDARD == "LVTTL" && DRIVE == 24)
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "SSTL135")
+    ),
+    .SSTL135_SSTL15_SLEW_FAST(
+      (IOSTANDARD == "SSTL135" && SLEW == "FAST") || 
+      (IOSTANDARD == "SSTL15" && SLEW == "FAST")
+    ),
+
+    .PULLTYPE_PULLUP(PULLTYPE == "PULLUP"),
+    .PULLTYPE_PULLDOWN(PULLTYPE == "PULLDOWN"),
+    .PULLTYPE_NONE(PULLTYPE == "NONE"),
+    .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
+
+    .PULLTYPE(PULLTYPE),
+    .IOSTANDARD(IOSTANDARD),
+    .DRIVE(DRIVE),
+    .SLEW(SLEW)
+  ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .T(1'b0),
     .O(O)
   );
 

@@ -442,14 +442,17 @@ def process_single_ended_iob(top, iob):
     # Output
     elif is_output:
 
-        # TODO: Could be a OBUFT?
-        bel = Bel('OBUF')
+        # OBUF or OBUFT. They cannot be distinguished so we insert OBUFT. If it
+        # originally was an OBUF then the T will be routed to 1'b0.
+        bel = Bel('OBUFT')
         top_wire = top.add_top_out_port(tile_name, iob_site.name, 'OPAD')
         bel.connections['O'] = top_wire
 
         # Note this looks weird, but the BEL pin is I, and the site wire
         # is called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
+
+        site.add_sink(bel, 'T', 'T')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
         append_obuf_iostandard_params(top, site, bel, iostd_out, slew, in_term)
