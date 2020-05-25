@@ -2089,6 +2089,7 @@ module OBUF (
     .IOSTANDARD(IOSTANDARD),
     .DRIVE(DRIVE),
     .SLEW(SLEW)
+
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .O(O)
@@ -2107,114 +2108,140 @@ module OBUFT (
   parameter SLEW = "SLOW";
   parameter PULLTYPE = "NONE";  // Not supported by Vivado ?
 
-  OBUFT_VPR # (
-    .LVCMOS12_DRIVE_I12(
-      (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
-    ),
-    .LVCMOS12_DRIVE_I4(
-      (IOSTANDARD == "LVCMOS12" && DRIVE == 4)
-    ),
-    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
-      (IOSTANDARD == "LVCMOS12" && SLEW == "FAST") || 
-      (IOSTANDARD == "LVCMOS15" && SLEW == "FAST") || 
-      (IOSTANDARD == "LVCMOS18" && SLEW == "FAST") || 
-      (IOSTANDARD == "LVCMOS25" && SLEW == "FAST") || 
-      (IOSTANDARD == "LVCMOS33" && SLEW == "FAST") || 
-      (IOSTANDARD == "LVTTL" && SLEW == "FAST")
-    ),
-    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW(
-      (IOSTANDARD == "LVCMOS12" && SLEW == "SLOW") || 
-      (IOSTANDARD == "LVCMOS15" && SLEW == "SLOW") || 
-      (IOSTANDARD == "LVCMOS18" && SLEW == "SLOW") || 
-      (IOSTANDARD == "LVCMOS25" && SLEW == "SLOW") || 
-      (IOSTANDARD == "LVCMOS33" && SLEW == "SLOW") || 
-      (IOSTANDARD == "LVTTL" && SLEW == "SLOW") || 
-      (IOSTANDARD == "SSTL135" && SLEW == "SLOW") || 
-      (IOSTANDARD == "SSTL15" && SLEW == "SLOW")
-    ),
-    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN(
-      (IOSTANDARD == "LVCMOS12") || 
-      (IOSTANDARD == "LVCMOS15") || 
-      (IOSTANDARD == "LVCMOS18") || 
-      (IOSTANDARD == "SSTL135") || 
-      (IOSTANDARD == "SSTL15")
-    ),
-    .LVCMOS12_LVCMOS25_DRIVE_I8(
-      (IOSTANDARD == "LVCMOS12" && DRIVE == 8) || 
-      (IOSTANDARD == "LVCMOS25" && DRIVE == 8)
-    ),
-    .LVCMOS15_DRIVE_I12(
-      (IOSTANDARD == "LVCMOS15" && DRIVE == 12)
-    ),
-    .LVCMOS15_DRIVE_I8(
-      (IOSTANDARD == "LVCMOS15" && DRIVE == 8)
-    ),
-    .LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4(
-      (IOSTANDARD == "LVCMOS15" && DRIVE == 4) || 
-      (IOSTANDARD == "LVCMOS18" && DRIVE == 4) || 
-      (IOSTANDARD == "LVCMOS25" && DRIVE == 4)
-    ),
-    .LVCMOS15_SSTL15_DRIVE_I16_I_FIXED(
-      (IOSTANDARD == "LVCMOS15" && DRIVE == 16) || 
-      (IOSTANDARD == "SSTL15")
-    ),
-    .LVCMOS18_DRIVE_I12_I8(
-      (IOSTANDARD == "LVCMOS18" && DRIVE == 12) || 
-      (IOSTANDARD == "LVCMOS18" && DRIVE == 8)
-    ),
-    .LVCMOS18_DRIVE_I16(
-      (IOSTANDARD == "LVCMOS18" && DRIVE == 16)
-    ),
-    .LVCMOS18_DRIVE_I24(
-      (IOSTANDARD == "LVCMOS18" && DRIVE == 24)
-    ),
-    .LVCMOS25_DRIVE_I12(
-      (IOSTANDARD == "LVCMOS25" && DRIVE == 12)
-    ),
-    .LVCMOS25_DRIVE_I16(
-      (IOSTANDARD == "LVCMOS25" && DRIVE == 16)
-    ),
-    .LVCMOS33_DRIVE_I16(
-      (IOSTANDARD == "LVCMOS33" && DRIVE == 16)
-    ),
-    .LVCMOS33_LVTTL_DRIVE_I12_I16(
-      (IOSTANDARD == "LVCMOS33" && DRIVE == 12) || 
-      (IOSTANDARD == "LVTTL" && DRIVE == 16)
-    ),
-    .LVCMOS33_LVTTL_DRIVE_I12_I8(
-      (IOSTANDARD == "LVCMOS33" && DRIVE == 8) || 
-      (IOSTANDARD == "LVTTL" && DRIVE == 12) || 
-      (IOSTANDARD == "LVTTL" && DRIVE == 8)
-    ),
-    .LVCMOS33_LVTTL_DRIVE_I4(
-      (IOSTANDARD == "LVCMOS33" && DRIVE == 4) || 
-      (IOSTANDARD == "LVTTL" && DRIVE == 4)
-    ),
-    .LVTTL_DRIVE_I24(
-      (IOSTANDARD == "LVTTL" && DRIVE == 24)
-    ),
-    .SSTL135_DRIVE_I_FIXED(
-      (IOSTANDARD == "SSTL135")
-    ),
-    .SSTL135_SSTL15_SLEW_FAST(
-      (IOSTANDARD == "SSTL135" && SLEW == "FAST") || 
-      (IOSTANDARD == "SSTL15" && SLEW == "FAST")
-    ),
+  parameter _TECHMAP_CONSTMSK_T_ = 1'bx;
+  parameter _TECHMAP_CONSTVAL_T_ = 1'bx;
 
-    .PULLTYPE_PULLUP(PULLTYPE == "PULLUP"),
-    .PULLTYPE_PULLDOWN(PULLTYPE == "PULLDOWN"),
-    .PULLTYPE_NONE(PULLTYPE == "NONE"),
-    .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
+  // When OBUFT.T is connected to const0 Vivado actually routes it to const1
+  // end enables (i.e. not disables) the T1 inverter in OLOGIC. To avoid
+  // routing T to const0 by VPR the OBUFT is replaced with an OBUF where the
+  // T connection is implicit so the FASM feature ZINV_T1 will not be emitted.
+  generate if (_TECHMAP_CONSTVAL_T_ == 1'b0) begin
 
-    .PULLTYPE(PULLTYPE),
-    .IOSTANDARD(IOSTANDARD),
-    .DRIVE(DRIVE),
-    .SLEW(SLEW)
-  ) _TECHMAP_REPLACE_ (
-    .I(I),
-    .T(1'b0),
-    .O(O)
-  );
+    OBUF # (
+      .PULLTYPE(PULLTYPE),
+      .IOSTANDARD(IOSTANDARD),
+      .DRIVE(DRIVE),
+      .SLEW(SLEW)
+
+    ) _TECHMAP_REPLACE_ (
+      .I(I),
+      .O(O)
+    );
+
+  // Map to the VPR version of OBUFT.
+  end else begin
+
+    OBUFT_VPR # (
+      .LVCMOS12_DRIVE_I12(
+        (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
+      ),
+      .LVCMOS12_DRIVE_I4(
+        (IOSTANDARD == "LVCMOS12" && DRIVE == 4)
+      ),
+      .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
+        (IOSTANDARD == "LVCMOS12" && SLEW == "FAST") || 
+        (IOSTANDARD == "LVCMOS15" && SLEW == "FAST") || 
+        (IOSTANDARD == "LVCMOS18" && SLEW == "FAST") || 
+        (IOSTANDARD == "LVCMOS25" && SLEW == "FAST") || 
+        (IOSTANDARD == "LVCMOS33" && SLEW == "FAST") || 
+        (IOSTANDARD == "LVTTL" && SLEW == "FAST")
+      ),
+      .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SSTL15_SLEW_SLOW(
+        (IOSTANDARD == "LVCMOS12" && SLEW == "SLOW") || 
+        (IOSTANDARD == "LVCMOS15" && SLEW == "SLOW") || 
+        (IOSTANDARD == "LVCMOS18" && SLEW == "SLOW") || 
+        (IOSTANDARD == "LVCMOS25" && SLEW == "SLOW") || 
+        (IOSTANDARD == "LVCMOS33" && SLEW == "SLOW") || 
+        (IOSTANDARD == "LVTTL" && SLEW == "SLOW") || 
+        (IOSTANDARD == "SSTL135" && SLEW == "SLOW") || 
+        (IOSTANDARD == "SSTL15" && SLEW == "SLOW")
+      ),
+      .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_SSTL15_STEPDOWN(
+        (IOSTANDARD == "LVCMOS12") || 
+        (IOSTANDARD == "LVCMOS15") || 
+        (IOSTANDARD == "LVCMOS18") || 
+        (IOSTANDARD == "SSTL135") || 
+        (IOSTANDARD == "SSTL15")
+      ),
+      .LVCMOS12_LVCMOS25_DRIVE_I8(
+        (IOSTANDARD == "LVCMOS12" && DRIVE == 8) || 
+        (IOSTANDARD == "LVCMOS25" && DRIVE == 8)
+      ),
+      .LVCMOS15_DRIVE_I12(
+        (IOSTANDARD == "LVCMOS15" && DRIVE == 12)
+      ),
+      .LVCMOS15_DRIVE_I8(
+        (IOSTANDARD == "LVCMOS15" && DRIVE == 8)
+      ),
+      .LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4(
+        (IOSTANDARD == "LVCMOS15" && DRIVE == 4) || 
+        (IOSTANDARD == "LVCMOS18" && DRIVE == 4) || 
+        (IOSTANDARD == "LVCMOS25" && DRIVE == 4)
+      ),
+      .LVCMOS15_SSTL15_DRIVE_I16_I_FIXED(
+        (IOSTANDARD == "LVCMOS15" && DRIVE == 16) || 
+        (IOSTANDARD == "SSTL15")
+      ),
+      .LVCMOS18_DRIVE_I12_I8(
+        (IOSTANDARD == "LVCMOS18" && DRIVE == 12) || 
+        (IOSTANDARD == "LVCMOS18" && DRIVE == 8)
+      ),
+      .LVCMOS18_DRIVE_I16(
+        (IOSTANDARD == "LVCMOS18" && DRIVE == 16)
+      ),
+      .LVCMOS18_DRIVE_I24(
+        (IOSTANDARD == "LVCMOS18" && DRIVE == 24)
+      ),
+      .LVCMOS25_DRIVE_I12(
+        (IOSTANDARD == "LVCMOS25" && DRIVE == 12)
+      ),
+      .LVCMOS25_DRIVE_I16(
+        (IOSTANDARD == "LVCMOS25" && DRIVE == 16)
+      ),
+      .LVCMOS33_DRIVE_I16(
+        (IOSTANDARD == "LVCMOS33" && DRIVE == 16)
+      ),
+      .LVCMOS33_LVTTL_DRIVE_I12_I16(
+        (IOSTANDARD == "LVCMOS33" && DRIVE == 12) || 
+        (IOSTANDARD == "LVTTL" && DRIVE == 16)
+      ),
+      .LVCMOS33_LVTTL_DRIVE_I12_I8(
+        (IOSTANDARD == "LVCMOS33" && DRIVE == 8) || 
+        (IOSTANDARD == "LVTTL" && DRIVE == 12) || 
+        (IOSTANDARD == "LVTTL" && DRIVE == 8)
+      ),
+      .LVCMOS33_LVTTL_DRIVE_I4(
+        (IOSTANDARD == "LVCMOS33" && DRIVE == 4) || 
+        (IOSTANDARD == "LVTTL" && DRIVE == 4)
+      ),
+      .LVTTL_DRIVE_I24(
+        (IOSTANDARD == "LVTTL" && DRIVE == 24)
+      ),
+      .SSTL135_DRIVE_I_FIXED(
+        (IOSTANDARD == "SSTL135")
+      ),
+      .SSTL135_SSTL15_SLEW_FAST(
+        (IOSTANDARD == "SSTL135" && SLEW == "FAST") || 
+        (IOSTANDARD == "SSTL15" && SLEW == "FAST")
+      ),
+
+      .PULLTYPE_PULLUP(PULLTYPE == "PULLUP"),
+      .PULLTYPE_PULLDOWN(PULLTYPE == "PULLDOWN"),
+      .PULLTYPE_NONE(PULLTYPE == "NONE"),
+      .PULLTYPE_KEEPER(PULLTYPE == "KEEPER"),
+
+      .PULLTYPE(PULLTYPE),
+      .IOSTANDARD(IOSTANDARD),
+      .DRIVE(DRIVE),
+      .SLEW(SLEW)
+
+    ) _TECHMAP_REPLACE_ (
+      .I(I),
+      .T(T),
+      .O(O)
+    );
+
+  end endgenerate
 
 endmodule
 
