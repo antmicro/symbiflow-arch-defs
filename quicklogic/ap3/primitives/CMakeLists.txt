@@ -1,0 +1,8 @@
+add_subdirectory(vpr_pad)
+add_subdirectory(vcc)
+add_subdirectory(gnd)
+add_subdirectory(fpga_interconnect)
+add_subdirectory(clock)
+add_subdirectory(logic)
+add_subdirectory(syn_pad)
+add_subdirectory(gmux)
