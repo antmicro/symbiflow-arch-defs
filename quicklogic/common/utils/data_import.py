@@ -25,18 +25,51 @@ from connections import hop_to_str, get_name_and_hop, is_regular_hop_wire
 # pin should be of type "input"/"output" or "clock".
 CLOCK_PINS = {
     "LOGIC": ("QCK", ),
-    "CLOCK": ("IC", ),
+    "CLOCK": ("IC", "IP", ),
     "GMUX": (
         "IP",
         "IC",
         "IZ",
+        "GCLKIN",
     ),
+    "QMUX": (
+        "QCLKIN0",
+        "HSCKIN",
+        "IZ",
+        "GMUXIN",
+    ),
+    "QPMUX": (
+        "GMUXIN",
+        "QCLKIN",
+        "IZ",
+    ),
+    "SQMUX": ( 
+        "QMUXIN", 
+        "IZ",
+    ),
+    "SQEMUX": (
+        "QMUXIN",
+        "IZ",
+    ),
+    "CAND": (
+        "IC",
+        "CLKIN",
+        "IZ",
+    ),
+    "CANDEN": (
+        "CLKIN",
+        "IZ",
+    ),
+    "IO_REG": ("IQC", ),
     "RAM": (
+        "RCLK", 
+        "WCLK", 
         "CLK1_0",
         "CLK1_1",
         "CLK2_0",
         "CLK2_1",
     ),
+    "DSP": ("CLOCK", ),
 }
 
 # A list of const pins
@@ -145,9 +178,9 @@ def parse_library(xml_library):
             for i in [1, 2]:
                 cell_pins.append(
                     Pin(
-                        name="QCLKIN{}".format(i),
-                        direction=PinDirection.INPUT,
-                        attrib={"hardWired": "true"}
+                        name = "QCLKIN{}".format(i),
+                        direction = PinDirection.INPUT,
+                        attrib = {"hardWired": "true"}
                     )
                 )
 
@@ -179,18 +212,6 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
     xml_logic = xml_placement.find("LOGIC")
     assert xml_logic is not None
 
-    exceptions = set()
-    xml_exceptions = xml_logic.find("EXCEPTIONS")
-    if xml_exceptions is not None:
-        for xml in xml_exceptions:
-            tag = xml.tag.upper()
-
-            # FIXME: Is this connect decoding of those werid loc specs?
-            x = 1 + ord(tag[0]) - ord("A")
-            y = 1 + int(tag[1:])
-
-            exceptions.add(Loc(x=x, y=y, z=0))
-
     xml_logicmatrix = xml_logic.find("LOGICMATRIX")
     assert xml_logicmatrix is not None
 
@@ -198,6 +219,40 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
     nx = int(xml_logicmatrix.get("COLUMNS"))
     y0 = int(xml_logicmatrix.get("START_ROW"))
     ny = int(xml_logicmatrix.get("ROWS"))
+
+    exceptions = set()
+    xml_exceptions = xml_logic.find("EXCEPTIONS")
+    if xml_exceptions is not None:
+        for xml in xml_exceptions:
+            tag = xml.tag.upper()
+            colX = ""
+            rowY = ""
+            if tag == "SKIP_ROW":
+                y = int(xml.get("ROW_NUM"))
+                for c in range(x0, nx+1, 1):
+                    exceptions.add(Loc(x=c, y=y, z=0))
+            else:    
+                for ch in tag:
+                    if (ch.isnumeric()) == True:
+                        rowY += ch
+                    else :
+                        colX += ch    
+
+                x = 0    
+                count = len(colX)
+                for i in colX:
+                    if(count is 1):
+                        x += (1 + ord(i) - ord("A"))
+                    else :
+                        x += (1 + ord(i) - ord("A"))*((count-1)*26)
+                    count -= 1
+
+                y = int(rowY)    
+                exceptions.add(Loc(x=x, y=y, z=0))
+            
+            # FIXME: Is this connect decoding of those werid loc specs?
+            #x = 1 + ord(tag[0]) - ord("A")
+            #y = 1 + int(tag[1:])
 
     for j in range(ny):
         for i in range(nx):
@@ -324,6 +379,22 @@ def parse_placement(xml_placement, cells_library):
         xmax = max(xmax, x1) if xmax is not None else x1
         ymin = min(ymin, y0) if ymin is not None else y0
         ymax = max(ymax, y1) if ymax is not None else y1
+        xml_subquadrants = [x for x in xml_quadrant if x.tag.startswith("Sub")]
+        subquadrants = {}
+        for xml_subquadrant in xml_subquadrants:
+            name = xml_subquadrant.get("name")
+            x0 = int(xml_subquadrant.get("ColStartNum"))
+            x1 = int(xml_subquadrant.get("ColEndNum"))
+            y0 = int(xml_subquadrant.get("RowStartNum"))
+            y1 = int(xml_subquadrant.get("RowEndNum"))
+
+            quadrants[name] = Quadrant(
+                name=name,
+                x0=x0,
+                x1=x1,
+                y0=y0,
+                y1=y1,
+            ) 
 
     # Define the initial tile grid. Group cells with the same location
     # together.
@@ -392,20 +463,39 @@ def parse_placement(xml_placement, cells_library):
 
 
 def populate_switchboxes(xml_sbox, switchbox_grid):
-    """
-    Assings each tile in the grid its switchbox type.
-    """
-    xmin = int(xml_sbox.attrib["ColStartNum"])
-    xmax = int(xml_sbox.attrib["ColEndNum"])
-    ymin = int(xml_sbox.attrib["RowStartNum"])
-    ymax = int(xml_sbox.attrib["RowEndNum"])
 
-    for y, x in itertools.product(range(ymin, ymax + 1), range(xmin,
-                                                               xmax + 1)):
-        loc = Loc(x, y, 0)
+    if xml_sbox.get("ColStartNum") is None:
+        xml_matrices = [x for x in xml_sbox if x.tag.startswith("Matrix")]
+        for curr_matrix in xml_matrices:
+            """
+            Assings each tile in the grid its switchbox type.
+            """
+            xmin = int(curr_matrix.attrib["ColStartNum"])
+            xmax = int(curr_matrix.attrib["ColEndNum"])
+            ymin = int(curr_matrix.attrib["RowStartNum"])
+            ymax = int(curr_matrix.attrib["RowEndNum"])
 
-        assert loc not in switchbox_grid, loc
-        switchbox_grid[loc] = xml_sbox.tag
+            for y, x in itertools.product(range(ymin, ymax + 1), range(xmin,
+                                                                    xmax + 1)):
+                loc = Loc(x, y, 0)
+
+                assert loc not in switchbox_grid, loc
+                switchbox_grid[loc] = xml_sbox.tag
+    else:
+        """
+        Assings each tile in the grid its switchbox type.
+        """
+        xmin = int(xml_sbox.attrib["ColStartNum"])
+        xmax = int(xml_sbox.attrib["ColEndNum"])
+        ymin = int(xml_sbox.attrib["RowStartNum"])
+        ymax = int(xml_sbox.attrib["RowEndNum"])
+
+        for y, x in itertools.product(range(ymin, ymax + 1), range(xmin,
+                                                                xmax + 1)):
+            loc = Loc(x, y, 0)
+
+            assert loc not in switchbox_grid, loc
+            switchbox_grid[loc] = xml_sbox.tag
 
 
 # =============================================================================
@@ -588,30 +678,32 @@ def parse_switchbox(xml_sbox, xml_common=None):
                 mux.inputs[pin.id] = pin
 
                 # Add internal connection
-                if stage_type == "STREET" and stage_id > 0:
-                    conn_stage_id = int(xml_input.attrib["Stage"])
-                    conn_switch_id = int(xml_input.attrib["SwitchNum"])
-                    conn_pin_id = int(xml_input.attrib["SwitchOutputNum"])
+                if stage_type == "STREET":
+                    if xml_input.get("Stage", None) is not None:
+                        if xml_input.get("Stage") is not None:
+                            conn_stage_id = int(xml_input.attrib["Stage"])
+                            conn_switch_id = int(xml_input.attrib["SwitchNum"])
+                            conn_pin_id = int(xml_input.attrib["SwitchOutputNum"])
 
-                    conn = SwitchConnection(
-                        src=SwitchboxPinLoc(
-                            stage_id=conn_stage_id,
-                            switch_id=conn_switch_id,
-                            mux_id=conn_pin_id,
-                            pin_id=0,
-                            pin_direction=PinDirection.OUTPUT
-                        ),
-                        dst=SwitchboxPinLoc(
-                            stage_id=stage.id,
-                            switch_id=switch.id,
-                            mux_id=mux.id,
-                            pin_id=inp_pin_id,
-                            pin_direction=PinDirection.INPUT
-                        ),
-                    )
+                            conn = SwitchConnection(
+                                src=SwitchboxPinLoc(
+                                    stage_id=conn_stage_id,
+                                    switch_id=conn_switch_id,
+                                    mux_id=conn_pin_id,
+                                    pin_id=0,
+                                    pin_direction=PinDirection.OUTPUT
+                                ),
+                                dst=SwitchboxPinLoc(
+                                    stage_id=stage.id,
+                                    switch_id=switch.id,
+                                    mux_id=mux.id,
+                                    pin_id=inp_pin_id,
+                                    pin_direction=PinDirection.INPUT
+                                ),
+                            )
 
-                    assert conn not in switchbox.connections, conn
-                    switchbox.connections.add(conn)
+                            assert conn not in switchbox.connections, conn
+                            switchbox.connections.add(conn)
 
         # Add switches to the stage
         stage.switches = switches
@@ -744,7 +836,9 @@ def parse_wire_mapping_table(xml_root, switchbox_grid, switchbox_types):
     return wire_maps
 
 
-def parse_port_mapping_table(xml_root, switchbox_grid):
+# =============================================================================
+
+def parse_itf_port_mapping_table(xml_root, switchbox_grid):        
     """
     Parses switchbox port mapping tables. Returns a dict indexed by locations
     containing a dict with switchbox port to tile port name correspondence.
@@ -754,7 +848,6 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
     # Sections are named "*_Table"
     xml_tables = [e for e in xml_root if e.tag.endswith("_Table")]
     for xml_table in xml_tables:
-
         # Get the origin
         origin = xml_table.tag.split("_")[0]
         assert origin in ["Left", "Right", "Top", "Bottom"], origin
@@ -826,14 +919,130 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
 
                     # Append mapping
                     key = (pin_name, pin_direction)
-                    assert key not in port_maps[loc], (loc, key)
 
+                    assert key not in port_maps[loc], (loc, key)
                     port_maps[loc][key] = mapped_name
 
     # Make a normal dict
     port_maps = dict(port_maps)
 
     return port_maps
+
+# =============================================================================
+
+# parses RAM/DSP port mapping to its corresponding FFB interface port mapping
+def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_grid, cells_library):
+
+    for xml_table in xml_root:
+        if xml_table.tag != "DSP" and xml_table.tag != "RAM":
+            continue
+
+        # Get switchbox types affected by the mapping
+        sbox_types_xml = xml_table.find("SBoxTypes")
+        assert sbox_types_xml is not None
+        switchbox_types = set(
+            [
+                v for k, v in sbox_types_xml.attrib.items()
+                if k.startswith("type")
+            ]
+        )
+
+        # Get switchbox types affected by the mapping
+        mcell_types_xml = xml_table.find("MCellType")
+        assert mcell_types_xml is not None
+        mcell_types = set(
+            [
+                v for k, v in mcell_types_xml.attrib.items()
+                if k.startswith("type")
+            ]
+        )
+
+        curr_mcell_type = ""
+        for mcell_type in mcell_types:
+            curr_mcell_type = mcell_type
+            break
+
+        # Get their locations
+        # Assuming that both RAM/DSP occupies for SBOX of 4 locations
+        locs = []
+        count = 0
+        for loc, type in switchbox_grid.items():
+            if type in switchbox_types:
+                if loc.x == 1:
+                    locs.append(loc)
+
+                if count == 4:
+                    locs.append(loc)
+                    count = 1
+                else:
+                    count += 1    
+
+        tile_type = {}
+        for curr_loc, tile in tile_grid.items():    
+            if tile is None:
+                continue
+
+            for loc in locs:    
+                if curr_loc == loc:
+                    tile_type[loc] = tile.type
+
+        # Look for a tile that has the cell with the same cell type as current parsed
+        for curr_loc in locs:
+
+            if curr_mcell_type is not tile_type[curr_loc]:
+                continue
+
+            # Parse the port mapping table(s)
+            for port_mapping_xml in xml_table.findall("PortMappingTable"):
+
+                # Get the direction of the switchbox offset
+                orientation = port_mapping_xml.attrib["Orientation"]
+                if orientation == "Horizontal":
+                    #assert origin in ["Top", "Bottom"], (origin, orientation)
+                    dx, dy = (+1, 0)
+                elif orientation == "Vertical":
+                    #assert origin in ["Left", "Right"], (origin, orientation)
+                    dx, dy = (0, +1)
+
+                # Process the mapping of switchbox output ports
+                for index_xml in port_mapping_xml.findall("Index"):
+                    pin_names = [e for e in index_xml if e.tag.startswith("Mapped_Interface_Name")]
+                    output_num = index_xml.attrib["SwitchOutputNum"]    
+
+                    # Determine the mapped port direction
+                    if output_num == "-1":
+                        pin_direction = PinDirection.INPUT
+                    else:
+                        pin_direction = PinDirection.OUTPUT
+
+                    sbox_xmls = [e for e in index_xml if e.tag.startswith("SBox")]
+                    for sbox_xml in sbox_xmls:
+
+                        offset = int(sbox_xml.attrib["Offset"])
+                        mapped_name = sbox_xml.get("MTB_PortName", None)
+
+                        # "-1" means unconnected
+                        if mapped_name == "-1":
+                            mapped_name = None
+
+                        # Get the location for the map
+                        loc = Loc(
+                            x=curr_loc.x + dx * offset,
+                            y=curr_loc.y + dy * offset,
+                            z=0
+                        )
+
+                        # Append mapping
+                        for pin_name in pin_names:
+                            key = (pin_name, pin_direction)
+                            port_maps[loc][key] = mapped_name
+
+
+    # Make a normal dict
+    #port_maps = dict(port_maps)
+
+    #return port_maps
+        
 
 
 # =============================================================================
@@ -900,6 +1109,13 @@ def parse_clock_network(xml_clock_network):
             clock_cell = parse_cell(xml_cell, xml_quad.tag)
             clock_cells[clock_cell.name] = clock_cell
 
+    xml_sqmux = xml_clock_network.find("SQMUX")
+    if xml_sqmux is not None:
+        for xml_quad in xml_sqmux:
+            for xml_cell in xml_quad.findall("Cell"):
+                clock_cell = parse_cell(xml_cell)
+                clock_cells[clock_cell.name] = clock_cell
+
     # Parse CAND cells
     xml_cand = xml_clock_network.find("COL_CLKEN")
     assert xml_cand is not None
@@ -921,11 +1137,11 @@ def parse_clock_network(xml_clock_network):
             del pin_map["EN"]
 
         clock_cells[cell_name] = ClockCell(
-            name=cell.name,
-            type=cell.type,
-            loc=cell.loc,
-            quadrant=cell.quadrant,
-            pin_map=pin_map
+            name = cell.name,
+            type = cell.type,
+            loc = cell.loc,
+            quadrant = cell.quadrant,
+            pin_map = pin_map
         )
 
     return clock_cells
@@ -1247,6 +1463,7 @@ def import_data(xml_root):
     Imports the Quicklogic FPGA tilegrid and routing data from the given
     XML tree
     """
+    device_name = xml_root.get("name")
 
     # Get the "Library" section
     xml_library = xml_root.find("Library")
@@ -1312,8 +1529,10 @@ def import_data(xml_root):
     assert xml_portmap is not None
 
     # Import switchbox port mapping
-    port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
+    port_maps = parse_itf_port_mapping_table(xml_portmap, switchbox_grid)
 
+    parse_ramdsp_port_mapping_table(xml_portmap, switchbox_grid, port_maps, tile_grid, cells_library)
+    
     # Supply port mapping table with global clock mux map
     populate_clk_mux_port_maps(
         port_maps, clock_cells, tile_grid, cells_library
@@ -1337,14 +1556,15 @@ def import_data(xml_root):
             del switchbox_types[type]
 
     # Get the "Packages" section
+    package_pinmaps = {}
     xml_packages = xml_root.find("Packages")
-    assert xml_packages is not None
-
-    # Import BIDIR cell names to package pin mapping
-    package_pinmaps = parse_pinmap(xml_packages, tile_grid)
+    if xml_packages is not None:
+        # Import BIDIR cell names to package pin mapping
+        package_pinmaps = parse_pinmap(xml_packages, tile_grid)
 
     return {
         "quadrants": quadrants,
+        "device_name": device_name,
         "cells_library": cells_library,
         "tile_types": tile_types,
         "tile_grid": tile_grid,
@@ -1495,6 +1715,7 @@ def main():
     # Prepare the database
     db_root = {
         "phy_quadrants": data["quadrants"],
+        "device_name": data["device_name"],
         "cells_library": data["cells_library"],
         "tile_types": data["tile_types"],
         "phy_tile_grid": data["tile_grid"],

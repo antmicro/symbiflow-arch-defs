@@ -89,6 +89,8 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_types[tile_type.type] = tile_type
 
 
+# =============================================================================
+
 def make_tile_type(cells, cells_library, tile_types):
     """
     Creates a tile type given a list of cells that constitute to it.
@@ -150,6 +152,7 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
 
 
 def process_tilegrid(
+        device_name,
         tile_types,
         tile_grid,
         clock_cells,
@@ -168,6 +171,7 @@ def process_tilegrid(
     ram_blocks = []
     mult_blocks = []
     vpr_clock_cells = {}
+    dsp_blocks = []
 
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
@@ -228,7 +232,7 @@ def process_tilegrid(
 
         # The tile contains a BIDIR or CLOCK cell. it is an IO tile
         tile_type = tile_types[tile.type]
-        if "BIDIR" in tile_type.cells or "CLOCK" in tile_type.cells:
+        if "BIDIR" in tile_type.cells or "IO_REG" in tile_type.cells or "CLOCK" in tile_type.cells:
 
             # For the BIDIR cell create a synthetic tile
             if "BIDIR" in tile_type.cells:
@@ -241,6 +245,16 @@ def process_tilegrid(
                 vpr_tile_grid[vpr_loc] = Tile(
                     type=new_type.type, name=tile.name, cells=cells
                 )
+            elif "IO_REG" in tile_type.cells :
+                assert tile_type.cells["IO_REG"] == 1
+
+                cells = [c for c in tile.cells if c.type == "IO_REG"]
+                new_type = make_tile_type(cells, cells_library, tile_types)
+
+                add_loc_map(phy_loc, vpr_loc)
+                vpr_tile_grid[vpr_loc] = Tile(
+                    type=new_type.type, name=tile.name, cells=cells
+                )    
 
             # For the CLOCK cell create a synthetic tile
             if "CLOCK" in tile_type.cells:
@@ -279,7 +293,7 @@ def process_tilegrid(
 # Mults and RAMs occupy multiple cells
 # We'll create a synthetic tile with a single cell for each
 # RAM and MULT block
-        if "RAM" in tile_type.cells or "MULT" in tile_type.cells:
+        if "RAM" in tile_type.cells or "MULT" in tile_type.cells or "DSP" in tile_type.cells:
             for cell in tile.cells:
                 # Check if the current location is not taken
                 # this could happen because RAM and MULTS share
@@ -290,28 +304,30 @@ def process_tilegrid(
                     cells_set = ram_blocks
                 elif cell.type == 'MULT':
                     cells_set = mult_blocks
+                elif cell.type == 'DSP':
+                    cells_set = dsp_blocks
                 else:
                     continue
 
                 # Find free location in the physical tile grid close to the
                 # original one. Once found, convert it to location in the
                 # VPR tile grid.
-                for ox, oy in ((0, 0), (0, -1), (0, +1), (-1, 0), (+1, 0)):
-                    test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy, z=0)
-                    if is_loc_free(test_loc, tile_grid):
-                        new_loc = Loc(
-                            x=vpr_loc.x + ox, y=vpr_loc.y + oy, z=vpr_loc.z
+                new_loc = vpr_loc
+                if phy_loc.y <= 1: 
+                    for ox, oy in ((0, -1), (0, +1), (-1, 0), (+1, 0)):
+                        test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy)
+                        if is_loc_free(test_loc, tile_grid):
+                            new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy)
+                            break
+                    else:
+                        assert False, "No free location to place {} tile".format(
+                            cell.type
                         )
-                        break
-                else:
-                    assert False, "No free location to place {} tile".format(
-                        cell.type
-                    )
 
-                # The VPR location is already occupied. Probably another
-                # instance of the same cell is already there.
-                if not is_loc_free(new_loc, vpr_tile_grid):
-                    continue
+                    # The VPR location is already occupied. Probably another
+                    # instance of the same cell is already there.
+                    if not is_loc_free(new_loc, vpr_tile_grid):
+                        continue
 
                 if cell.name not in cells_set:
                     cells_set.append(cell.name)
@@ -423,19 +439,32 @@ def process_tilegrid(
 
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
-    for const, loc in [("VCC", Loc(x=2, y=1, z=0)), ("GND", Loc(x=3, y=1,
-                                                                z=0))]:
+    if device_name == "QL745A":
+        for const, loc in [("VCC", Loc(x=0, y=0)), ("GND", Loc(x=0, y=0))]:
 
-        # Verify that the location is empty
-        assert is_loc_free(vpr_tile_grid, loc), (const, loc)
+            # Verify that the location is empty
+            assert is_loc_free(vpr_tile_grid, loc), (const, loc)
 
-        # Add the tile instance
-        name = "SYN_{}".format(const)
-        vpr_tile_grid[loc] = Tile(
-            type=name,
-            name=name,
-            cells=[Cell(type=const, index=0, name=const, alias=None)]
-        )
+            # Add the tile instance
+            name = "SYN_{}".format(const)
+            vpr_tile_grid[loc] = Tile(
+                type=name,
+                name=name,
+                cells=[Cell(type=const, index=0, name=const, alias=None)]
+            )
+    else:
+        for const, loc in [("VCC", Loc(x=2, y=1)), ("GND", Loc(x=3, y=1))]:
+
+            # Verify that the location is empty
+            assert is_loc_free(vpr_tile_grid, loc), (const, loc)
+
+            # Add the tile instance
+            name = "SYN_{}".format(const)
+            vpr_tile_grid[loc] = Tile(
+                type=name,
+                name=name,
+                cells=[Cell(type=const, index=0, name=const, alias=None)]
+            )
 
     # Extend the grid by 1 on the right and bottom side. Fill missing locs
     # with empty tiles.
@@ -674,6 +703,7 @@ def process_connections(
     # handle RAM and MULT locations
     ram_locations = {}
     mult_locations = {}
+    dsp_locations = {}
     for loc, tile in vpr_tile_grid.items():
         if tile is None:
             continue
@@ -682,6 +712,8 @@ def process_connections(
         if tile.type == "RAM":
             ram_locations[cell_name] = loc
         if tile.type == "MULT":
+            mult_locations[cell_name] = loc
+        if tile.type == "DSP":
             mult_locations[cell_name] = loc
 
     ram_cell = 0
@@ -698,7 +730,7 @@ def process_connections(
             # FIXME: The above will fail on cell with index >= 10
 
             # We handle on MULT and RAM here
-            if cell_type != "MULT" and cell_type != "RAM":
+            if cell_type != "MULT" and cell_type != "RAM" and cell_type != "DSP":
                 continue
 
             loc = loc_map.bwd[ep.loc]
@@ -709,8 +741,10 @@ def process_connections(
 
             if cell_type == "MULT":
                 loc = mult_locations[cell_name]
-            else:
+            elif cell_type == "RAM":
                 loc = ram_locations[cell_name]
+            else:
+                loc = dsp_locations[cell_name]
 
             eps[j] = ConnectionLoc(
                 loc=loc,
@@ -1026,14 +1060,16 @@ def main():
     with open(args.phy_db, "rb") as fp:
         db = pickle.load(fp)
 
-        phy_quadrants = db["phy_quadrants"]
+        device_name = db["device_name"]
         cells_library = db["cells_library"]
         tile_types = db["tile_types"]
         phy_tile_grid = db["phy_tile_grid"]
-        phy_clock_cells = db["phy_clock_cells"]
         switchbox_types = db["switchbox_types"]
         phy_switchbox_grid = db["switchbox_grid"]
-        switchbox_timing = db["switchbox_timing"]
+
+        if "switchbox_timing" in db:
+            switchbox_timing = db["switchbox_timing"]
+
         connections = db["connections"]
         package_pinmaps = db["package_pinmaps"]
 
@@ -1061,13 +1097,18 @@ def main():
     grid_max = max(tl_max[0], sb_max[0]), max(tl_max[1], sb_max[1])
 
     # Compute VPR grid offset w.r.t the physical grid and its size
-    grid_offset = GRID_MARGIN[0] - grid_min[0], \
-                  GRID_MARGIN[1] - grid_min[1]
+    grid_offset = grid_min[0], grid_min[1]
+    grid_size = (grid_max[0] - grid_min[0] + 1),\
+                (grid_max[1] - grid_min[1] + 1) 
 
-    grid_size = GRID_MARGIN[0] + GRID_MARGIN[2] + \
-                (grid_max[0] - grid_min[0] + 1), \
-                GRID_MARGIN[1] + GRID_MARGIN[3] + \
-                (grid_max[1] - grid_min[1] + 1)
+    if device_name != "QL745A":
+        grid_offset = GRID_MARGIN[0] - grid_min[0], \
+                      GRID_MARGIN[1] - grid_min[1]
+
+        grid_size = GRID_MARGIN[0] + GRID_MARGIN[2] + \
+                    (grid_max[0] - grid_min[0] + 1), \
+                    GRID_MARGIN[1] + GRID_MARGIN[3] + \
+                    (grid_max[1] - grid_min[1] + 1)
 
     # Remap quadrant locations
     vpr_quadrants = {}
@@ -1081,7 +1122,7 @@ def main():
         )
 
     # Process the tilegrid
-    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
+    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(device_name,
         tile_types, phy_tile_grid, phy_clock_cells, cells_library, grid_size,
         grid_offset, grid_limit
     )
