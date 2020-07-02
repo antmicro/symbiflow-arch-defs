@@ -358,7 +358,10 @@ def build_gmux_qmux_connections(
     # GMUX "IP" inputs are global clock wires too
     for clock_mux in clock_cells.values():
         if clock_mux.type == "GMUX":
-            clock_wires.append(clock_mux.pin_map["IP"])
+            if "IP" in clock_mux.pin_map.keys():
+                clock_wires.append(clock_mux.pin_map["IP"])
+            elif "GCLKIN" in clock_mux.pin_map.keys():
+                clock_wires.append(clock_mux.pin_map["GCLKIN"])    
 
     # Conections between clock cells (muxes)
     connections = []
