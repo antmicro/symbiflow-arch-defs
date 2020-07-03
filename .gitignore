@@ -15,3 +15,5 @@ model.xml
 pb_type.xml
 *.sort.xml
 *~
+.*.swp
+.DS_Store
