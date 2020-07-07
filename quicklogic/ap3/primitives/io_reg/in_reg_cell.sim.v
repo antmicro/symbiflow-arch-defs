@@ -1,6 +1,6 @@
 `timescale 1ns/10ps
 (* whitebox *)
-module INREG_CELL(IQC, ISEL_$inp, FIXHOLD_$inp, QRT, A2F_$inp, IQZ_$out);
+module IN_REG_CELL(IQC, ISEL_$inp, FIXHOLD_$inp, QRT, A2F_$inp, IQZ_$out);
     input IQC, ISEL_$inp, FIXHOLD_$inp, QRT, A2F_$inp;
     output IQZ_$out;
 

@@ -54,7 +54,7 @@ module  in_reg(clk, sel, hold, rst, dataIn, dataOut);
     input clk, sel, hold, rst, dataIn;
     output dataOut;
 
-    INREG_CELL#() _TECHMAP_REPLACE_(
+    IN_REG_CELL#() _TECHMAP_REPLACE_(
         .IQC(clk), 
         .ISEL_$inp(sel), 
         .FIXHOLD_$inp(hold), 
@@ -69,7 +69,7 @@ module  out_reg(clk, sel, rst, dataIn, dataOut);
     input clk, sel, rst, dataIn;
     output dataOut;
 
-    OUTREG_CELL#() _TECHMAP_REPLACE_(
+    OUT_REG_CELL#() _TECHMAP_REPLACE_(
         .IQC(clk), 
         .OSEL_$inp(sel), 
         .QRT(rst), 

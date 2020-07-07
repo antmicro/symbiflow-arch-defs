@@ -1,3 +1,8 @@
+#include(../common/cmake/quicklogic_fasm.cmake)
+#add_quicklogic_fasm_package()
+
+#include(../common/cmake/quicklogic_timings.cmake)
+
 add_subdirectory(primitives)
 
 set(CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/techmap/cells_map.v)
@@ -17,7 +22,7 @@ include(../common/cmake/quicklogic_board.cmake)
 include(../common/cmake/quicklogic_jlink.cmake)
 
 
-set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
+#set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 #set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
 get_target_property_required(PYTHON3 env PYTHON3)
@@ -32,8 +37,8 @@ get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
   set(YOSYS_CONV_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/conv.tcl)
 
 define_arch(
-  ARCH ql-s3
-  FAMILY pp3
+  ARCH ql-ap3
+  FAMILY ap3
   YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
   YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
   YOSYS_TECHMAP ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap
@@ -83,7 +88,6 @@ define_arch(
     ${QLFASM_TARGET}
   BITSTREAM_EXTENSION bit
 
-  message(STATUS, "+++++++++++++ CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
   CELLS_SIM
     ${CELLS_SIM_FILE}
 
@@ -107,8 +111,8 @@ define_arch(
 )
 
 define_ql_toolchain_target(
-  FAMILY pp3
-  ARCH ql-s3
+  FAMILY ap3
+  ARCH ql-ap3
   ROUTE_CHAN_WIDTH 100
   CELLS_SIM ${CELLS_SIM_FILE}
   VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
@@ -119,5 +123,5 @@ unset(PYTHON3)
 
 add_subdirectory(devices)
 include(boards.cmake)
-add_subdirectory(tests)
+#add_subdirectory(tests)
 

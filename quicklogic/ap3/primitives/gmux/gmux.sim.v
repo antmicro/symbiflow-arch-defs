@@ -1,5 +1,5 @@
-`include "./gmux_CLK.sim.v"
-`include "./gmux_HSCK.sim.v"
+`include "./gmux_clk.sim.v"
+`include "./gmux_hsck.sim.v"
 
 
 (* MODES="CLK;HSCK" *)

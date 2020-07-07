@@ -1,7 +1,7 @@
 
 `timescale 1ns/10ps
 (* whitebox *)
-module OUTREG_CELL(IQC, OSEL_$inp, QRT, OQI_$inp, F2A_$out);
+module OUT_REG_CELL(IQC, OSEL_$inp, QRT, OQI_$inp, F2A_$out);
     input IQC, OSEL_$inp, QRT, OQI_$inp;
     output F2A_$out;
 
