@@ -299,15 +299,50 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
 
                 loc = Loc(x, y, 0)
                 alias = xml.get("Alias", None)
+                if cell_type == "IO_REG":
+                    for io_reg_idx in range (1, 33):
+                        counter = 0
+                        for portIdx in range (0, 30):
+                            if portIdx < 8:
+                                if portIdx is 0:
+                                    counter = 0
+                                else:
+                                    counter += 1
 
-                cellgrid[loc].append(
-                    Cell(
-                        type=cell_type,
-                        index=None,
-                        name=cell_name,
-                        alias=alias,
+                                name = cell_name + "_A2F_" + str(counter)
+                            elif portIdx < 26:
+                                if portIdx is 8:
+                                    counter = 0
+                                else:
+                                    counter += 1
+
+                                name = cell_name + "_F2A_" + str(counter)
+                            else:
+                                if portIdx is 26:
+                                    counter = 0
+                                else:
+                                    counter += 1
+
+                                name = cell_name + "_F2A_DEF_" + str(counter)
+                            
+                            loc = Loc(x,y,portIdx)    
+                            cellgrid[loc].append( 
+                                Cell(
+                                    type=cell_type,
+                                    index=None,
+                                    name=name,
+                                    alias=alias,
+                                )
+                            )
+                else :
+                    cellgrid[loc].append(
+                        Cell(
+                            type=cell_type,
+                            index=None,
+                            name=cell_name,
+                            alias=alias,
+                        )
                     )
-                )
 
         # Got something else, parse recursively
         else:
@@ -1061,6 +1096,7 @@ def parse_clock_network(xml_clock_network, device_name):
         # "QCLKIN0=GMUX_1" then "QCLKIN1=GMUX_2" etc ?!?!
 
         # For now let's assume that yes and add the missing pins
+
         if device_name == "QLAL4S3B":
             if xml_cell.attrib["type"] == "QMUX":
                 gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
@@ -1427,6 +1463,7 @@ def parse_pinmap(xml_root, tile_grid, device_name):
                 # Check if there is a CLOCK cell at the same location
                 cells = [c for c in tile.cells if c.type == "CLOCK"]
                 if len(cells):
+
                     if device_name != "QL745A":
                         assert len(cells) == 1, cells
 
@@ -1440,7 +1477,6 @@ def parse_pinmap(xml_root, tile_grid, device_name):
 
         # Convert to a regular dict
         pin_map[pkg_name] = dict(**pkg_pin_map)
-
     return pin_map
 
 
