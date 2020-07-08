@@ -7,7 +7,8 @@ import fasm
 from connections import get_name_and_hop
 
 from pathlib import Path
-from data_structs import Loc, SwitchboxPinLoc, PinDirection, Tile
+from data_structs import Loc, SwitchboxPinLoc, PinDirection, Tile, ConnectionType
+from utils import get_quadrant_for_loc
 from verilogmodule import VModule
 
 from quicklogic_fasm.qlfasm import QL732BAssembler, load_quicklogic_database
@@ -49,6 +50,7 @@ class Fasm2Bels(object):
         '''
 
         # load vpr_db data
+        self.quadrants = vpr_db["phy_quadrants"]
         self.cells_library = vpr_db["cells_library"]
         #self.loc_map = db["loc_map"]
         self.vpr_tile_types = vpr_db["tile_types"]
@@ -72,7 +74,7 @@ class Fasm2Bels(object):
         ramlocs = dict()
         multlocs = dict()
 
-        assp_tile = self.vpr_tile_grid[Loc(1, 1)]
+        assp_tile = self.vpr_tile_grid[Loc(1, 1, 0)]
         assp_cell = assp_tile.cells[0]
         for phy_loc, tile in self.vpr_tile_grid.items():
             tile_type = self.vpr_tile_types[tile.type]
@@ -123,7 +125,12 @@ class Fasm2Bels(object):
             'QMUX': self.parse_logic_line,
             'GMUX': self.parse_logic_line,
             'INTERFACE': self.parse_interface_line,
-            'ROUTING': self.parse_routing_line
+            'ROUTING': self.parse_routing_line,
+            'CAND0': self.parse_colclk_line,
+            'CAND1': self.parse_colclk_line,
+            'CAND2': self.parse_colclk_line,
+            'CAND3': self.parse_colclk_line,
+            'CAND4': self.parse_colclk_line,
         }
 
         # a mapping from cell type to a set of possible pin names
@@ -138,7 +145,7 @@ class Fasm2Bels(object):
         self.multiloccells = {
             'ASSP':
                 MultiLocCellMapping(
-                    'ASSP', assplocs, Loc(1, 1), self.pinnames['ASSP']
+                    'ASSP', assplocs, Loc(1, 1, 0), self.pinnames['ASSP']
                 )
         }
         for ram in ramlocs:
@@ -162,6 +169,11 @@ class Fasm2Bels(object):
         self.designconnections = defaultdict(dict)
         # a dictionary holding hops from routing
         self.designhops = defaultdict(dict)
+
+        # Clock column drivers (CAND) data
+        self.colclk_data = defaultdict(lambda: defaultdict(list))
+        # A map of clock wires that connect to switchboxes
+        self.cand_map = defaultdict(lambda: dict())
 
     def parse_logic_line(self, feature: Feature):
         '''Parses a setting for a BEL.
@@ -232,6 +244,9 @@ class Fasm2Bels(object):
             )
         )
 
+    def parse_colclk_line(self, feature: Feature):
+        self.colclk_data[feature.loc][feature.typ].append(feature)
+
     def parse_fasm_lines(self, fasmlines):
         '''Parses FASM lines.
 
@@ -242,7 +257,7 @@ class Fasm2Bels(object):
         '''
 
         loctyp = re.compile(
-            r'^X(?P<x>[0-9]+)Y(?P<y>[0-9]+)\.(?P<type>[A-Z]+)\.(?P<signature>.*)$'
+            r'^X(?P<x>[0-9]+)Y(?P<y>[0-9]+)\.(?P<type>[A-Z]+[0-4]?)\.(?P<signature>.*)$'
         )  # noqa: E501
 
         for line in fasmlines:
@@ -253,7 +268,7 @@ class Fasm2Bels(object):
                 raise self.Fasm2BelsException(
                     f'FASM features have unsupported format:  {line.set_feature}'
                 )  # noqa: E501
-            loc = Loc(x=int(match.group('x')), y=int(match.group('y')))
+            loc = Loc(x=int(match.group('x')), y=int(match.group('y')), z=0)
             typ = match.group('type')
             feature = Feature(
                 loc=loc,
@@ -374,7 +389,7 @@ class Fasm2Bels(object):
         for k, v in routes.items():
             if v is not None:
                 if re.match('[VH][0-9][LRBT][0-9]', k):
-                    self.designhops[(loc.x, loc.y)][k] = v
+                    self.designhops[Loc(loc.x, loc.y, 0)][k] = v
                 else:
                     self.designconnections[loc][k] = v
 
@@ -389,7 +404,7 @@ class Fasm2Bels(object):
                 hop = get_name_and_hop(source)
                 tloc = loc
                 while hop[1] is not None:
-                    tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1])
+                    tloc = Loc(tloc[0] + hop[1][0], tloc[1] + hop[1][1], 0)
                     # in some cases BEL is distanced from a switchbox, in those
                     # cases the hop will not point to another hop. We should
                     # simply return the pin here in the correct location
@@ -465,6 +480,380 @@ class Fasm2Bels(object):
                 newdesignconnections[dstloc][pin] = (srcloc, src[1])
         self.designconnections = newdesignconnections
 
+    def get_clock_for_gmux(self, gmux, loc):
+        '''Returns location of a CLOCK cell associated with the given GMUX
+        cell. Returns None if not found
+
+        Parameters
+        ----------
+        gmux: str
+            The GMUX cell name
+        loc: Loc
+            The GMUX location
+
+        Returns
+        -------
+        Loc: the new location of the cell or None
+        '''
+
+        connections = [c for c in self.connections if c.src.type == ConnectionType.TILE and c.dst.type == ConnectionType.TILE]
+        for connection in connections:
+
+            # Only to a GMUX at the given location
+            dst = connection.dst
+            if dst.loc != loc or "GMUX" not in dst.pin:
+                continue
+
+            # GMUX cells are named "GMUX<index>".
+            cell, pin = dst.pin.split("_", maxsplit=1)
+            match = re.match(r"GMUX(?P<idx>[0-9]+)", cell)
+            if match is None:
+                continue
+
+            # Not the cell that we are looking for
+            if cell != gmux:
+                continue
+
+            # We are only interested in the IP connection
+            if pin != "IP":
+                continue
+
+            # Must go from CLOCK<n>.IC pin
+            cell, pin = connection.src.pin.split("_", maxsplit=1)
+            if not cell.startswith("CLOCK") or pin != "IC":
+                continue
+
+            # Return the source location
+            return connection.src.loc
+
+        # Not found
+        return None
+
+    def get_gmux_for_qmux(self, qmux, loc):
+        '''Returns a map of the given QMUX selection to driving GMUX cells.
+
+        Parameters
+        ----------
+        qmux: str
+            The QMUX cell name
+        loc: Loc
+            The QMUX location
+
+        Returns
+        -------
+        Dict: A dict indexed by the selection index holding tuples with format:
+            (loc, cell, pin)
+        '''
+
+        sel_map = {}
+
+        connections = [c for c in self.connections if c.dst.type == ConnectionType.CLOCK]
+        for connection in connections:
+
+            # Only to a QMUX at the given location
+            dst = connection.dst
+            if dst.loc != loc or "QMUX" not in dst.pin:
+                continue
+
+            # QMUX cells are named "QMUX_<quad><index>".
+            cell, pin = dst.pin.split(".", maxsplit=1)
+            match = re.match(r"QMUX_(?P<quad>[A-Z]+)(?P<idx>[0-9]+)", cell)
+            if match is None:
+                continue
+
+            # This is not for the given QMUX
+            if qmux != "QMUX{}".format(match.group("idx")):
+                continue
+
+            # Get the QCLKIN pin index. These are named "QCLKIN<index>"
+            match = re.match(r"QCLKIN(?P<idx>[0-9]+)", pin)
+            if match is None:
+                continue
+
+            # Get the source endpoint of the connection
+            cell, pin = connection.src.pin.split("_", maxsplit=1)
+            index = int(match.group("idx"))
+
+            # Store it
+            sel_map[index] = (connection.src.loc, cell, pin,)
+
+        return sel_map
+
+    def get_qmux_for_cand(self, cand, loc):
+        ''' Returns a QMUX cell and its location that drives the given CAND
+        cell.
+
+        Parameters
+        ----------
+        cand: str
+            The CAND cell name
+        loc: Loc
+            The CAND location
+
+        Returns
+        -------
+        Tuple: A tuple holding (loc, cell)
+        '''
+
+        connections = [c for c in self.connections if c.dst.type == ConnectionType.CLOCK]
+        for connection in connections:
+
+            # Only to a CAND at the given location
+            # Note: Check also the row above. CAND cells are located in two
+            # rows but with fasm features everything gets aligned to even rows
+            dst = connection.dst
+            if (dst.loc != loc and dst.loc != Loc(loc.x, loc.y - 1, loc.z)) or \
+               "CAND" not in dst.pin:
+                continue
+
+            # CAND cells are named "CAND<index>_<quad>_<column>".
+            cell, pin = dst.pin.split(".", maxsplit=1)
+            match = re.match(r"CAND(?P<idx>[0-9]+)_(?P<quad>[A-Z]+)_(?P<col>[0-9]+)", cell)
+            if match is None:
+                continue
+
+            # This is not for the given CAND
+            if cand != "CAND{}".format(match.group("idx")):
+                continue
+
+            # QMUX cells are named "QMUX_<quad><index>".
+            cell, pin = connection.src.pin.split(".", maxsplit=1)
+            match = re.match(r"QMUX_(?P<quad>[A-Z]+)(?P<idx>[0-9]+)", cell)
+            if match is None:
+                continue
+
+            # Return the QMUX and its location
+            return "QMUX{}".format(match.group("idx")), connection.src.loc
+
+        # None found
+        return None, None
+
+    def resolve_gmux(self):
+        '''Resolves GMUX cells, updates the designconnections map. Also creates
+        connections to CLOCK cells whenever necessary.
+
+        Returns
+        -------
+        Dict: A map of GMUX names to their output wires
+        '''
+
+        # Process GMUX
+        gmux_map  = dict()
+        gmux_locs = [l for l, t in self.vpr_tile_grid.items() if "GMUX" in t.type]
+        for loc in gmux_locs:
+
+            # Group GMUX input pin connections by GMUX cell names
+            gmux_connections = defaultdict(lambda: dict())
+            for cell_pin, conn in self.designconnections[loc].items():
+                cell, pin = cell_pin.split("_", maxsplit=1)
+                gmux_connections[cell][pin] = conn
+
+            # Examine each GMUX config
+            for gmux, connections in gmux_connections.items():
+
+                # FIXME: Handle IS0 inversion (if any)
+
+                # The IS0 pin has to be routed
+                if "IS0" not in connections:
+                    print("WARNING: Pin '{}.IS0' at '{}' is unrouted!".format(gmux, loc))
+                    continue
+
+                # TODO: For now support only static GMUX settings
+                if connections["IS0"][1] not in ["GND", "VCC"]:
+                    print("WARNING: Non-static GMUX selection (at '{}') not supported yet!".format(loc))
+                    continue
+
+                # Static selection
+                sel = int(connections["IS0"][1] == "VCC")
+
+                # IP selected
+                if sel == 0:
+
+                    # Create a global clock wire for the CLOCK pad
+                    match = re.match(r"GMUX(?P<idx>[0-9]+)", gmux)
+                    assert match is not None, gmux                
+
+                    idx = int(match.group("idx"))
+                    wire = "CLK{}".format(idx)
+
+                    # Get the clock pad location
+                    clock_loc = self.get_clock_for_gmux(gmux, loc)
+                    assert clock_loc is not None, gmux
+
+                    # Connect it to the output wire of the GMUX
+                    self.designconnections[clock_loc]["CLOCK0_IC"] = (None, wire)
+
+                    # The GMUX is implicit. Remove all connections to it
+                    self.designconnections[loc] = {
+                        k: v for k, v in self.designconnections[loc].items() \
+                        if not k.startswith(gmux)
+                    }
+
+                # IC selected
+                else:
+
+                    # Create a wire for the GMUX output
+                    wire = "{}_X{}Y{}".format(gmux, loc.x, loc.y)
+
+                    # Remove the IS0 connection
+                    del self.designconnections[loc]["{}_IS0".format(gmux)]
+
+                    # Connect the output
+                    self.designconnections[loc]["{}_IZ".format(gmux)] = (None, wire)
+
+                # Store the wire
+                gmux_map[gmux] = wire
+
+        return gmux_map
+
+    def resolve_qmux(self, gmux_map):
+        '''Resolves QMUX cells, updates the designconnections map.
+
+        Parameters
+        ----------
+        gmux_map: Dict
+            A map of QMUX cells to their GMUX driving wires.
+
+        Returns
+        -------
+        Dict: A map of locations and QMUX names to their driving wires
+        '''
+
+        # Process QMUX
+        qmux_map  = defaultdict(lambda: dict())
+        qmux_locs = [l for l, t in self.vpr_tile_grid.items() if "QMUX" in t.type]
+        for loc in qmux_locs:
+
+            # Group QMUX input pin connections by QMUX cell names
+            qmux_connections = defaultdict(lambda: dict())
+            for cell_pin, conn in self.designconnections[loc].items():
+                cell, pin = cell_pin.split("_", maxsplit=1)
+                qmux_connections[cell][pin] = conn
+
+            # Examine each QMUX config
+            for qmux, connections in qmux_connections.items():
+
+                # FIXME: Handle IS0 and IS1 inversion (if any)
+
+                # Both IS0 and IS1 must be routed to something
+                if "IS0" not in connections:
+                    print("WARNING: Pin '{}.IS0' at '{}' is unrouted!".format(qmux, loc))
+                if "IS1" not in connections:
+                    print("WARNING: Pin '{}.IS1' at '{}' is unrouted!".format(qmux, loc))
+
+                if "IS0" not in connections or "IS1" not in connections:
+                    continue
+
+                # TODO: For now support only static QMUX settings
+                if connections["IS0"][1] not in ["GND", "VCC"]:
+                    print("WARNING: Non-static QMUX selection (at '{}') not supported yet!".format(loc))
+                    continue
+                if connections["IS1"][1] not in ["GND", "VCC"]:
+                    print("WARNING: Non-static QMUX selection (at '{}') not supported yet!".format(loc))
+                    continue
+
+                # Get associated GMUXes
+                sel_map = self.get_gmux_for_qmux(qmux, loc)
+
+                # Static selection
+                sel = int(connections["IS0"][1] == "VCC") * 2 + \
+                      int(connections["IS1"][1] == "VCC")
+
+                # Input from the routing network selected, create a new wire
+                if sel == 3:
+
+                    # Create a wire for the QMUX output
+                    wire = "{}_X{}Y{}".format(qmux, loc.x, loc.y)
+
+                    # Remove IS0 and IS1 from the connection map.
+                    del self.designconnections[loc]["{}_IS0".format(qmux)]
+                    del self.designconnections[loc]["{}_IS1".format(qmux)]
+
+                    # Connect the output
+                    self.designconnections[loc]["{}_IZ".format(qmux)] = (None, wire)
+
+                # Input from a GMUX is selected, assign its wire here
+                else:
+
+                    # Use the wire of that GMUX
+                    gmux_loc, gmux_cell, gmux_pin = sel_map[sel]
+                    wire = gmux_map[gmux_cell]
+
+                    # The QMUX is implicit. Remove all connections to it
+                    self.designconnections[loc] = {
+                        k: v for k, v in self.designconnections[loc].items() \
+                        if not k.startswith(qmux)
+                    }
+
+                # Store the wire
+                qmux_map[loc][qmux] = wire
+
+        return dict(qmux_map)
+
+    
+    def resolve_cand(self, qmux_map):
+        '''Resolves CAND cells, creates the cand_map map.
+
+        Parameters
+        ----------
+        qmux_map: Dict
+            A map of locations and CAND names to their driving QMUXes.
+
+        Returns
+        -------
+        None
+        '''
+
+        # Process CAND
+        for loc, all_features in self.colclk_data.items():
+            for cand, features in all_features.items():
+
+                hilojoint = False
+                enjoint = False
+
+                for feature in features:
+                    if feature.signature == "I_hilojoint":
+                        hilojoint = bool(feature.value)
+                    if feature.signature == "I_enjoint":
+                        enjoint = bool(feature.value)
+
+                # TODO: Do not support dynamically enabled CANDs for now.
+                assert enjoint is False, "Dynamically enabled CANDs are not supported yet"
+
+                # Statically disabled, skip this one
+                if hilojoint is False:
+                    continue
+
+                # Find a QMUX driving this CAND cell
+                qmux_cell, qmux_loc = self.get_qmux_for_cand(cand, loc)
+                assert qmux_cell is not None, (cand, loc)
+
+                # Get the wire
+                wire = qmux_map[qmux_loc][qmux_cell]
+
+                # Populate the column clock to switchbox connection map
+                quadrant = get_quadrant_for_loc(loc, self.quadrants)
+                for y in range(quadrant.y0, quadrant.y1+1):
+                    sb_loc = Loc(loc.x, y, 0)
+                    self.cand_map[sb_loc][cand] = wire
+
+    def resolve_global_clock_network(self):
+        '''Resolves the global clock network. Creates the cand_map, updates
+        the designconnections.
+
+        Returns
+        -------
+        None
+        '''
+
+        # Resolve GMUXes
+        gmux_map = self.resolve_gmux()
+        # Resolve QMUXes
+        qmux_map = self.resolve_qmux(gmux_map)
+        # Resolve CANDs
+        self.resolve_cand(qmux_map)
+
+
     def produce_verilog(self, pcf_data):
         '''Produces string containing Verilog module representing FASM.
 
@@ -472,10 +861,12 @@ class Fasm2Bels(object):
         -------
         str, str: a Verilog module and PCF
         '''
+
         module = VModule(
             self.vpr_tile_grid, self.vpr_tile_types, self.cells_library,
             pcf_data, self.belinversions, self.interfaces,
-            self.designconnections, self.inversionpins, self.io_to_fbio
+            self.designconnections, self.cand_map, self.inversionpins,
+            self.io_to_fbio
         )
         module.parse_bels()
         verilog = module.generate_verilog()
@@ -498,6 +889,7 @@ class Fasm2Bels(object):
         self.parse_fasm_lines(fasmlines)
         self.resolve_connections()
         self.resolve_multiloc_cells()
+        self.resolve_global_clock_network()
         verilog, pcf, qcf = self.produce_verilog(pcf_data)
         return verilog, pcf, qcf
 
@@ -507,7 +899,9 @@ def parse_pcf(pcf):
     with open(pcf, 'r') as fp:
         for l in fp:
             line = l.strip().split()
-            if len(line) != 3:
+            if len(line) < 3:
+                continue
+            if len(line) > 3 and not line[3].startswith("#"):
                 continue
             if line[0] != 'set_io':
                 continue

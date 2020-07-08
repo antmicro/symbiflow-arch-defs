@@ -24,6 +24,7 @@ class VModule(object):
             belinversions,
             interfaces,
             designconnections,
+            cand_map,
             inversionpins,
             io_to_fbio,
             useinversionpins=True
@@ -40,6 +41,7 @@ class VModule(object):
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
+        self.cand_map = cand_map
         self.inversionpins = inversionpins
         self.useinversionpins = useinversionpins
         self.io_to_fbio = io_to_fbio
@@ -64,7 +66,25 @@ class VModule(object):
             'BIDIR': 'gpio_cell_macro',
             'RAM': 'ram8k_2x1_cell_macro',
             'MULT': 'qlal4s3_mult_cell_macro',
+            'GMUX': 'gclkbuff',
+            'QMUX': 'qhsckbuff',
+            'CLOCK': 'ckpad',
             'inv': 'inv'
+        }
+
+        self.qlal4s3_pinmap = {
+            "ckpad": {
+                "IP": "P",
+                "IC": "Q",
+            },
+            "gclkbuff": {
+                "IC": "A",
+                "IZ": "Z",
+            },
+            "qhsckbuff": {
+                "HSCKIN": "A",
+                "IZ": "Z"
+            },
         }
 
     def group_vector_signals(self, signals, io=False):
@@ -202,6 +222,7 @@ class VModule(object):
 
         params = []
         moduletype = self.qlal4s3bmapping[typ]
+        pin_map = self.qlal4s3_pinmap.get(moduletype, dict())
         result = f'    {moduletype} {name} ('
         fixedparameters = self.group_array_values(parameters)
         # get inputs, strip vector's pin indexes
@@ -213,6 +234,7 @@ class VModule(object):
         dummy_wires = []
 
         for inpname, inp in fixedparameters.items():
+            mapped_inpname = pin_map.get(inpname, inpname)
             if isinstance(inp, dict):
                 arr = []
                 dummy_wire = f'{moduletype}_{name}_{inpname}'
@@ -232,13 +254,13 @@ class VModule(object):
                     else:
                         arr.append(inp[i])
                 arrlist = ', '.join(arr)
-                params.append(f'.{inpname}({{{arrlist}}})')
+                params.append(f'.{mapped_inpname}({{{arrlist}}})')
                 if need_dummy:
                     dummy_wires.append(
                         f'    wire [{max_dummy_index}:0] {dummy_wire};'
                     )
             else:
-                params.append(f'.{inpname}({inp})')
+                params.append(f'.{mapped_inpname}({inp})')
         if self.useinversionpins:
             if typ in self.inversionpins:
                 for toinvert, inversionpin in self.inversionpins[typ].items():
@@ -246,11 +268,16 @@ class VModule(object):
                         params.append(f".{inversionpin}(1'b1)")
                     else:
                         params.append(f".{inversionpin}(1'b0)")
-        # handle BIDIRs
-        if typ == 'BIDIR':
+
+        # handle BIDIRs and CLOCKs
+        if typ in ['CLOCK', 'BIDIR']:
             bloc = loc2str(loc)
             ioname = self.get_io_name(loc)
-            params.append(f".IP({ioname})")
+
+            moduletype = self.qlal4s3bmapping[typ]
+            pin_map = self.qlal4s3_pinmap.get(moduletype, dict())
+
+            params.append(".{}({})".format(pin_map.get("IP", "IP"), ioname))
 
         result += f',\n{" " * len(result)}'.join(sorted(params)) + ');\n'
         wires = ''
@@ -264,13 +291,19 @@ class VModule(object):
         '''Forms element name from its type and FASM feature name.'''
         return f'{type}_X{loc.x}_Y{loc.y}'
 
+    @staticmethod
+    def get_element_type(type):
+        match = re.match(r"(?P<type>[A-Za-z]+)(?P<index>[0-9]+)?", type)
+        assert match is not None, type
+        return match.group("type")
+
     def get_bel_type_and_connections(self, loc, connections, direction):
         '''For a given connection list returns a dictionary
         with bel types and connections to them
         '''
 
         tile_type = self.vpr_tile_grid[loc].type
-        cells = self.vpr_tile_types[tile_type].cells
+        cells = self.vpr_tile_grid[loc].cells
 
         if type(connections) == str:
             inputnames = [connections]
@@ -280,16 +313,36 @@ class VModule(object):
         else:
             inputnames = [name for name in connections.keys()]
 
+        # Some switchbox inputs are named like "<cell><cell_index>_<pin>"
+        # Make a list of them for compatison in the following step.
+        cell_input_names = defaultdict(lambda: [])
+        for name in inputnames:
+            fields = name.split("_", maxsplit=1)
+            if len(fields) == 2:
+                cell, pin = fields
+                cell_input_names[cell].append(pin)
+
         used_cells = []
         for cell in cells:
+            cell_name = "{}{}".format(cell.type, cell.index)
+
             cellpins = [
                 pin.name
-                for pin in self.cells_library[cell].pins
+                for pin in self.cells_library[cell.type].pins
                 if pin.direction == direction
             ]
+
             # check every connection pin if it has
             cell_fit = True
             for pin in cellpins:
+
+                # Cell name and pin name match
+                if cell_name in cell_input_names:
+                    if pin in cell_input_names[cell_name]:
+                        used_cells.append(cell)
+                        break
+
+                # The pin name matches exactly the specified input name
                 if pin in inputnames:
                     used_cells.append(cell)
                     break
@@ -297,15 +350,26 @@ class VModule(object):
         # assing connection to a cell
         cell_connections = {}
         for cell in used_cells:
-            cell_connections[cell] = dict()
+            cell_name = "{}{}".format(cell.type, cell.index)
+
+            cell_connections[cell_name] = dict()
             cellpins = [
                 pin.name
-                for pin in self.cells_library[cell].pins
+                for pin in self.cells_library[cell.type].pins
                 if pin.direction == direction
             ]
-            for pin in connections.keys():
-                if pin in cellpins:
-                    cell_connections[cell][pin] = connections[pin]
+
+            for key in connections.keys():
+                if key in cellpins:
+                    cell_connections[cell_name][key] = connections[key]
+
+                # Some switchbox inputs are named like 
+                # "<cell><cell_index>_<pin>". Break down the name and check.
+                fields = key.split("_", maxsplit=1)
+                if len(fields) == 2:
+                    key_cell, key_pin = fields
+                    if key_cell == cell_name and key_pin in cellpins:
+                        cell_connections[cell_name][key_pin] = connections[key]
 
         return cell_connections
 
@@ -389,7 +453,7 @@ class VModule(object):
             if srctype not in self.elements[wire[0]]:
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0], srctype, self.get_element_name(srctype, wire[0]),
+                    wire[0], self.get_element_type(srctype), self.get_element_name(srctype, wire[0]),
                     {srconame: wirename}
                 )
             else:
@@ -428,15 +492,37 @@ class VModule(object):
 
         # parse outputs first to properly handle namings
         for currloc, connections in self.designconnections.items():
-            if self.vpr_tile_grid[currloc].type == 'SYN_IO':
-                if 'OQI' in connections:
-                    self.ios[currloc] = VerilogIO(
-                        name=self.new_io_name('output'),
-                        direction='output',
-                        ioloc=currloc
+            type_connections = self.get_bel_type_and_connections(
+                currloc, connections, PinDirection.OUTPUT
+            )
+
+            for currtype, connections in type_connections.items():
+                currname = self.get_element_name(currtype, currloc)
+                outputs = {}
+
+                # Check each output
+                for output_name, (loc, wire,) in connections.items():
+
+                    # That wire is connected to something. Skip processing
+                    # of the cell here
+                    if loc is not None:
+                        continue
+
+                    # Connect the global wire
+                    outputs[output_name] = wire
+
+                # No outputs connected, don't add.
+                if not len(outputs):
+                    continue
+
+                # If Element does not exist, create it
+                if currtype not in self.elements[currloc]:
+                    self.elements[currloc][currtype] = Element(
+                        currloc, self.get_element_type(currtype), currname, outputs
                     )
-                    self.get_wire(currloc, connections['OQI'], 'OQI')
-                # TODO parse IE/INEN, check iz
+                # Else update IOs
+                else:
+                    self.elements[currloc][currtype].ios.update(outputs)
 
         # process of BELs
         for currloc, connections in self.designconnections.items():
@@ -460,6 +546,9 @@ class VModule(object):
                     elif wire[1] == 'GND':
                         inputs[inputname] = "1'b0"
                         continue
+                    elif wire[1].startswith("CAND"):
+                        inputs[inputname] = self.cand_map[currloc][wire[1]]
+                        continue
                     srctype = self.vpr_tile_grid[wire[0]].type
                     srctype_cells = self.vpr_tile_types[srctype].cells
                     if len(set(srctype_cells).intersection(set(
@@ -475,7 +564,7 @@ class VModule(object):
                 if currtype not in self.elements[currloc]:
                     # If Element does not exist, create it
                     self.elements[currloc][currtype] = Element(
-                        currloc, currtype, currname, inputs
+                        currloc, self.get_element_type(currtype), currname, inputs
                     )
                 else:
                     # else update IOs
@@ -531,16 +620,21 @@ class VModule(object):
         '''
         for eloc, locelements in self.elements.items():
             for element in locelements.values():
-                if element.type == 'BIDIR' or element.type == 'SDIOMUX':
-                    direction = self.get_io_config(element.ios)
+                if element.type in ['CLOCK', 'BIDIR', 'SDIOMUX']:
+
+                    if element.type == "CLOCK":
+                        direction = "input"
+                    else:
+                        direction = self.get_io_config(element.ios)
 
                     name = self.get_io_name(eloc)
                     self.ios[eloc] = VerilogIO(
                         name=name, direction=direction, ioloc=eloc
                     )
+
                     # keep the original wire name for generating the wireid
-                    wireid = Wire(name, "inout_pin", False)
-                    self.wires[wireid] = name
+                    #wireid = Wire(name, "inout_pin", False)
+                    #self.wires[wireid] = name
 
     def generate_verilog(self):
         '''Creates Verilog module
