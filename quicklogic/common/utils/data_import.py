@@ -1096,12 +1096,14 @@ def parse_clock_network(xml_clock_network, device_name):
         # "QCLKIN0=GMUX_1" then "QCLKIN1=GMUX_2" etc ?!?!
 
         # For now let's assume that yes and add the missing pins
-        if xml_cell.attrib["type"] == "QMUX" and device_name is "ql-eos-s3":
-            gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
-            for i in [1, 2]:
-                key = "QCLKIN{}".format(i)
-                val = "GMUX_{}".format((gmux_base + i) % 5)
-                pin_map[key] = val
+
+        if device_name == "QLAL4S3B":
+            if xml_cell.attrib["type"] == "QMUX":
+                gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
+                for i in [1, 2]:
+                    key = "QCLKIN{}".format(i)
+                    val = "GMUX_{}".format((gmux_base + i) % 5)
+                    pin_map[key] = val
 
         # Return the cell
         return ClockCell(
@@ -1389,7 +1391,7 @@ def find_special_cells(tile_grid):
     cells = {k: v for k, v in cells.items() if len(v["locs"]) > 1}
 
 
-def parse_pinmap(xml_root, tile_grid):
+def parse_pinmap(xml_root, tile_grid, device_name):
     """
     Parses the "Package" section that holds IO pin to BIDIR/CLOCK cell map.
 
@@ -1461,7 +1463,9 @@ def parse_pinmap(xml_root, tile_grid):
                 # Check if there is a CLOCK cell at the same location
                 cells = [c for c in tile.cells if c.type == "CLOCK"]
                 if len(cells):
-                    #assert len(cells) == 1, cells
+
+                    if device_name != "QL745A":
+                        assert len(cells) == 1, cells
 
                     # Store the mapping for the CLOCK cell
                     pkg_pin_map[pin_name].add(
@@ -1581,7 +1585,7 @@ def import_data(xml_root):
     xml_packages = xml_root.find("Packages")
     if xml_packages is not None:
         # Import BIDIR cell names to package pin mapping
-        package_pinmaps = parse_pinmap(xml_packages, tile_grid)
+        package_pinmaps = parse_pinmap(xml_packages, tile_grid, device_name)
 
     return {
         "quadrants": quadrants,

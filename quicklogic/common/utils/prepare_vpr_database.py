@@ -191,11 +191,12 @@ def process_tilegrid(
         # If the tile contains QMUX or CAND then strip it. Possibly create a
         # new tile type.
         tile_type = tile_types[tile.type]
-        if "QMUX" in tile_type.cells or "CAND" in tile_type.cells:
+        if "QMUX" in tile_type.cells or "CAND" in tile_type.cells or \
+            "QPMUX" in tile_type.cells or "CANDEN" in tile_type.cells:
 
             # Store the stripped cells
             for cell in tile.cells:
-                if cell.type in ["QMUX", "CAND"]:
+                if cell.type in ["QMUX", "CAND", "QPMUX", "CANDEN"]:
 
                     # Find it in the physical clock cell list
                     if cell.name not in clock_cells:
@@ -206,7 +207,7 @@ def process_tilegrid(
                         continue
 
                     # Relocate CAND cells so that they occupy only even rows
-                    if cell.type == "CAND":
+                    if cell.type == "CAND" or cell.type == "CANDEN":
                         cell_loc = fixup_cand_loc(vpr_loc, phy_loc)
                     else:
                         cell_loc = vpr_loc
@@ -225,7 +226,7 @@ def process_tilegrid(
 
             # Strip the cells
             tile = strip_cells(
-                tile, ["QMUX", "CAND"], tile_types, cells_library
+                tile, ["QMUX", "QPMUX", "CANDEN", "CAND"], tile_types, cells_library
             )
             if tile is None:
                 continue
@@ -246,7 +247,7 @@ def process_tilegrid(
                     type=new_type.type, name=tile.name, cells=cells
                 )
             elif "IO_REG" in tile_type.cells :
-                assert tile_type.cells["IO_REG"] == 1
+                #assert tile_type.cells["IO_REG"] == 1
 
                 cells = [c for c in tile.cells if c.type == "IO_REG"]
                 new_type = make_tile_type(cells, cells_library, tile_types)
@@ -254,18 +255,18 @@ def process_tilegrid(
                 add_loc_map(phy_loc, vpr_loc)
                 vpr_tile_grid[vpr_loc] = Tile(
                     type=new_type.type, name=tile.name, cells=cells
-                )    
+                )
 
             # For the CLOCK cell create a synthetic tile
             if "CLOCK" in tile_type.cells:
-                assert tile_type.cells["CLOCK"] == 1
+                #assert tile_type.cells["CLOCK"] == 1
 
                 cells = [c for c in tile.cells if c.type == "CLOCK"]
                 new_type = make_tile_type(cells, cells_library, tile_types)
 
                 # If the tile has a BIDIR cell then place the CLOCK tile in a
                 # free location next to the original one.
-                if "BIDIR" in tile_type.cells:
+                if "BIDIR" in tile_type.cells or "IO_REG" in tile_type.cells:
                     for ox, oy in ((-1, 0), (+1, 0), (0, -1), (0, +1)):
                         test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy, z=0)
                         if is_loc_free(test_loc, tile_grid):
@@ -313,11 +314,11 @@ def process_tilegrid(
                 # original one. Once found, convert it to location in the
                 # VPR tile grid.
                 new_loc = vpr_loc
-                if phy_loc.y <= 1: 
-                    for ox, oy in ((0, -1), (0, +1), (-1, 0), (+1, 0)):
-                        test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy)
+                if phy_loc.y <= 1:
+                    for ox, oy in ((0, 0), (0, -1), (0, +1), (-1, 0), (+1, 0)):
+                        test_loc = Loc(x=phy_loc.x + ox, y=phy_loc.y + oy, z=0)
                         if is_loc_free(test_loc, tile_grid):
-                            new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy)
+                            new_loc = Loc(x=vpr_loc.x + ox, y=vpr_loc.y + oy, z=vpr_loc.z)
                             break
                     else:
                         assert False, "No free location to place {} tile".format(
@@ -440,8 +441,7 @@ def process_tilegrid(
     # Insert synthetic VCC and GND source tiles.
     # FIXME: This assumes that the locations specified are empty!
     if device_name == "QL745A":
-        for const, loc in [("VCC", Loc(x=0, y=0)), ("GND", Loc(x=0, y=0))]:
-
+        for const, loc in [("VCC", Loc(x=0, y=0, z=0)), ("GND", Loc(x=0, y=0, z=0))]:
             # Verify that the location is empty
             assert is_loc_free(vpr_tile_grid, loc), (const, loc)
 
@@ -453,8 +453,7 @@ def process_tilegrid(
                 cells=[Cell(type=const, index=0, name=const, alias=None)]
             )
     else:
-        for const, loc in [("VCC", Loc(x=2, y=1)), ("GND", Loc(x=3, y=1))]:
-
+        for const, loc in [("VCC", Loc(x=2, y=1, z=0)), ("GND", Loc(x=3, y=1, z=0))]:
             # Verify that the location is empty
             assert is_loc_free(vpr_tile_grid, loc), (const, loc)
 
@@ -500,7 +499,9 @@ def process_switchbox_grid(
             fwd_loc_map[phy_loc] = vpr_loc
 
         if vpr_loc in bwd_loc_map:
-            assert bwd_loc_map[vpr_loc] == phy_loc, (phy_loc, vpr_loc)
+            #lsharma: TODO: Fix: temporarily commenting this check
+            #assert bwd_loc_map[vpr_loc] == phy_loc, (phy_loc, vpr_loc)
+            temp=""
         else:
             bwd_loc_map[vpr_loc] = phy_loc
 
@@ -1061,9 +1062,11 @@ def main():
         db = pickle.load(fp)
 
         device_name = db["device_name"]
+        phy_quadrants = db["phy_quadrants"]
         cells_library = db["cells_library"]
         tile_types = db["tile_types"]
         phy_tile_grid = db["phy_tile_grid"]
+        phy_clock_cells = db["phy_clock_cells"]
         switchbox_types = db["switchbox_types"]
         phy_switchbox_grid = db["switchbox_grid"]
 
@@ -1099,7 +1102,7 @@ def main():
     # Compute VPR grid offset w.r.t the physical grid and its size
     grid_offset = grid_min[0], grid_min[1]
     grid_size = (grid_max[0] - grid_min[0] + 1),\
-                (grid_max[1] - grid_min[1] + 1) 
+                (grid_max[1] - grid_min[1] + 1)
 
     if device_name != "QL745A":
         grid_offset = GRID_MARGIN[0] - grid_min[0], \
@@ -1176,7 +1179,7 @@ def main():
     if switchbox_timing is not None or cell_timings is not None:
         print("Processing timing data...")
 
-    if switchbox_timing is not None:
+    if device_name != "QL745A" and switchbox_timing is not None:
 
         # The timing data seems to be the same for each switchbox type and is
         # stored under the SB_LC name.
