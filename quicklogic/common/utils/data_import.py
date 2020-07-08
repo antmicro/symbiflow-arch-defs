@@ -43,8 +43,8 @@ CLOCK_PINS = {
         "QCLKIN",
         "IZ",
     ),
-    "SQMUX": ( 
-        "QMUXIN", 
+    "SQMUX": (
+        "QMUXIN",
         "IZ",
     ),
     "SQEMUX": (
@@ -62,8 +62,8 @@ CLOCK_PINS = {
     ),
     "IO_REG": ("IQC", ),
     "RAM": (
-        "RCLK", 
-        "WCLK", 
+        "RCLK",
+        "WCLK",
         "CLK1_0",
         "CLK1_1",
         "CLK2_0",
@@ -218,14 +218,14 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
                 y = int(xml.get("ROW_NUM"))
                 for c in range(x0, nx+1, 1):
                     exceptions.add(Loc(x=c, y=y, z=0))
-            else:    
+            else:
                 for ch in tag:
                     if (ch.isnumeric()) == True:
                         rowY += ch
                     else :
-                        colX += ch    
+                        colX += ch
 
-                x = 0    
+                x = 0
                 count = len(colX)
                 for i in colX:
                     if(count is 1):
@@ -234,9 +234,9 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
                         x += (1 + ord(i) - ord("A"))*((count-1)*26)
                     count -= 1
 
-                y = int(rowY)    
+                y = int(rowY)
                 exceptions.add(Loc(x=x, y=y, z=0))
-            
+
             # FIXME: Is this connect decoding of those werid loc specs?
             #x = 1 + ord(tag[0]) - ord("A")
             #y = 1 + int(tag[1:])
@@ -381,7 +381,7 @@ def parse_placement(xml_placement, cells_library):
                 x1=x1,
                 y0=y0,
                 y1=y1,
-            ) 
+            )
 
     # Define the initial tile grid. Group cells with the same location
     # together.
@@ -825,7 +825,7 @@ def parse_wire_mapping_table(xml_root, switchbox_grid, switchbox_types):
 
 # =============================================================================
 
-def parse_itf_port_mapping_table(xml_root, switchbox_grid):        
+def parse_itf_port_mapping_table(xml_root, switchbox_grid):
     """
     Parses switchbox port mapping tables. Returns a dict indexed by locations
     containing a dict with switchbox port to tile port name correspondence.
@@ -962,14 +962,14 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
                     locs.append(loc)
                     count = 1
                 else:
-                    count += 1    
+                    count += 1
 
         tile_type = {}
-        for curr_loc, tile in tile_grid.items():    
+        for curr_loc, tile in tile_grid.items():
             if tile is None:
                 continue
 
-            for loc in locs:    
+            for loc in locs:
                 if curr_loc == loc:
                     tile_type[loc] = tile.type
 
@@ -994,7 +994,7 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
                 # Process the mapping of switchbox output ports
                 for index_xml in port_mapping_xml.findall("Index"):
                     pin_names = [e for e in index_xml if e.tag.startswith("Mapped_Interface_Name")]
-                    output_num = index_xml.attrib["SwitchOutputNum"]    
+                    output_num = index_xml.attrib["SwitchOutputNum"]
 
                     # Determine the mapped port direction
                     if output_num == "-1":
@@ -1029,13 +1029,13 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
     #port_maps = dict(port_maps)
 
     #return port_maps
-        
+
 
 
 # =============================================================================
 
 
-def parse_clock_network(xml_clock_network):
+def parse_clock_network(xml_clock_network, device_name):
     """
     Parses the "CLOCK_NETWORK" section of the techfile
     """
@@ -1061,12 +1061,13 @@ def parse_clock_network(xml_clock_network):
         # "QCLKIN0=GMUX_1" then "QCLKIN1=GMUX_2" etc ?!?!
 
         # For now let's assume that yes and add the missing pins
-        if xml_cell.attrib["type"] == "QMUX":
-            gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
-            for i in [1, 2]:
-                key = "QCLKIN{}".format(i)
-                val = "GMUX_{}".format((gmux_base + i) % 5)
-                pin_map[key] = val
+        if device_name == "QLAL4S3B":
+            if xml_cell.attrib["type"] == "QMUX":
+                gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
+                for i in [1, 2]:
+                    key = "QCLKIN{}".format(i)
+                    val = "GMUX_{}".format((gmux_base + i) % 5)
+                    pin_map[key] = val
 
         # Return the cell
         return ClockCell(
@@ -1354,7 +1355,7 @@ def find_special_cells(tile_grid):
     cells = {k: v for k, v in cells.items() if len(v["locs"]) > 1}
 
 
-def parse_pinmap(xml_root, tile_grid):
+def parse_pinmap(xml_root, tile_grid, device_name):
     """
     Parses the "Package" section that holds IO pin to BIDIR/CLOCK cell map.
 
@@ -1426,7 +1427,8 @@ def parse_pinmap(xml_root, tile_grid):
                 # Check if there is a CLOCK cell at the same location
                 cells = [c for c in tile.cells if c.type == "CLOCK"]
                 if len(cells):
-                    assert len(cells) == 1, cells
+                    if device_name != "QL745A":
+                        assert len(cells) == 1, cells
 
                     # Store the mapping for the CLOCK cell
                     pkg_pin_map[pin_name].add(
@@ -1472,7 +1474,7 @@ def import_data(xml_root):
     xml_clock_network = xml_placement.find("CLOCK_NETWORK")
     assert xml_clock_network is not None
 
-    clock_cells = parse_clock_network(xml_clock_network)
+    clock_cells = parse_clock_network(xml_clock_network, device_name)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
@@ -1519,7 +1521,7 @@ def import_data(xml_root):
     port_maps = parse_itf_port_mapping_table(xml_portmap, switchbox_grid)
 
     parse_ramdsp_port_mapping_table(xml_portmap, switchbox_grid, port_maps, tile_grid, cells_library)
-    
+
     # Supply port mapping table with global clock mux map
     populate_clk_mux_port_maps(
         port_maps, clock_cells, tile_grid, cells_library
@@ -1547,7 +1549,7 @@ def import_data(xml_root):
     xml_packages = xml_root.find("Packages")
     if xml_packages is not None:
         # Import BIDIR cell names to package pin mapping
-        package_pinmaps = parse_pinmap(xml_packages, tile_grid)
+        package_pinmaps = parse_pinmap(xml_packages, tile_grid, device_name)
 
     return {
         "quadrants": quadrants,
