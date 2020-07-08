@@ -78,128 +78,49 @@ module  out_reg(clk, sel, rst, dataIn, dataOut);
 
 endmodule
 
+module inpad_ff (P, FFCLR, FFCLK, Q);
+    input P, FFCLR, FFCLK;
+    output Q; 
+
+    IN_REG_CELL#() _TECHMAP_REPLACE_(
+        .IQC(FFCLK), 
+        .ISEL_$inp(1'b0), 
+        .FIXHOLD_$inp(1'b0), 
+        .QRT(FFCLR), 
+        .A2F_$inp(P), 
+        .IQZ_$out(Q));
+
+endmodule
+
+module outpad_ff (A, FFCLR, FFCLK, P);
+    input A, FFCLR, FFCLK;
+    output P; 
+
+    OUT_REG_CELL#() _TECHMAP_REPLACE_(
+        .IQC(FFCLK), 
+        .OSEL_$inp(1'b0), 
+        .QRT(FFCLR), 
+        .OQI_$inp(A), 
+        .F2A_$out(P));
+
+endmodule
+
+
+// ============================================================================
+// LOGIC
 
 module inv(A , Q);
     input A;
     output Q;
 
-    LOGIC#() _TECHMAP_REPLACE_(
-        .lFragBitInfo(128'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1000000000000000),
-        .L0I0(1'b0),
-        .L0I1(1'b0),
-        .L0I2(1'b0),
-        .L0I3(A),
-        .CD0S(1'b0),
-        .Q0EN(1'b0),
-        .QST(1'b0),
-        .UQST0(1'b0),
-        .QST0S(1'b0),
-        .QRT(1'b0),
-        .UQRT0(1'b0),
-        .QRT0S(1'b0),
-        .QCK(1'b0),
-        .Q0DI(1'b0),
-        .L1I0(1'b0),
-        .L1I1(1'b0),
-        .L1I2(1'b0),
-        .L1I3(1'b0),
-        .CD1S(1'b0),
-        .Q1EN(1'b0),
-        .UQST1(1'b0),
-        .QST1S(1'b0),
-        .UQRT1(1'b0),
-        .QRT1S(1'b0),
-        .Q1DI(1'b0),
-        .L2I0(1'b0),
-        .L2I1(1'b0),
-        .L2I2(1'b0),
-        .L2I3(1'b0),
-        .CD2S(1'b0),
-        .Q2EN(1'b0),
-        .UQST2(1'b0),
-        .QST2S(1'b0),
-        .UQRT2(1'b0),
-        .QRT2S(1'b0),
-        .Q2DI(1'b0),
-        .L3I0(1'b0),
-        .L3I1(1'b0),
-        .L3I2(1'b0),
-        .L3I3(1'b0),
-        .CD3S(1'b0),
-        .Q3EN(1'b0),
-        .UQST3(1'b0),
-        .QST3S(1'b0),
-        .UQRT3(1'b0),
-        .QRT3S(1'b0),
-        .Q3DI(1'b0),
-        .L4I0(1'b0),
-        .L4I1(1'b0),
-        .L4I2(1'b0),
-        .L4I3(1'b0),
-        .CD4S(1'b0),
-        .Q4EN(1'b0),
-        .UQST4(1'b0),
-        .QST4S(1'b0),
-        .UQRT4(1'b0),
-        .QRT4S(1'b0),
-        .Q4DI(1'b0),
-        .L5I0(1'b0),
-        .L5I1(1'b0),
-        .L5I2(1'b0),
-        .L5I3(1'b0),
-        .CD5S(1'b0),
-        .Q5EN(1'b0),
-        .UQST5(1'b0),
-        .QST5S(1'b0),
-        .UQRT5(1'b0),
-        .QRT5S(1'b0),
-        .Q5DI(1'b0),
-        .L6I0(1'b0),
-        .L6I1(1'b0),
-        .L6I2(1'b0),
-        .L6I3(1'b0),
-        .CD6S(1'b0),
-        .Q6EN(1'b0),
-        .UQST6(1'b0),
-        .QST6S(1'b0),
-        .UQRT6(1'b0),
-        .QRT6S(1'b0),
-        .Q6DI(1'b0),
-        .L7I0(1'b0),
-        .L7I1(1'b0),
-        .L7I2(1'b0),
-        .L7I3(1'b0),
-        .CD7S(1'b0),
-        .Q7EN(1'b0),
-        .UQST7(1'b0),
-        .QST7S(1'b0),
-        .UQRT7(1'b0),
-        .QRT7S(1'b0),
-        .Q7DI(1'b0),
-        .F0Z(Q),
-        .AQ0Z(),
-        .L0CO(),
-        .F1Z(),
-        .AQ1Z(),
-        .L1CO(),
-        .F2Z(),
-        .AQ2Z(),
-        .L2CO(),
-        .F3Z(),
-        .AQ3Z(),
-        .L3CO(),
-        .F4Z(),
-        .AQ4Z(),
-        .L4CO(),
-        .F5Z(),
-        .AQ5Z(),
-        .L5CO(),
-        .F6Z(),
-        .AQ6Z(),
-        .L6CO(),
-        .F7Z(),
-        .AQ7Z(),
-        .L7CO());
+    L_FRAG#() _TECHMAP_REPLACE_(
+        .lFragBitInfo(16'b1000000000000000),
+        .I0(1'b0),
+        .I1(1'b0),
+        .I2(1'b0),
+        .I3(A),
+        .LUTOutput(Q),
+        .CarryOut());
 
 endmodule
 
@@ -207,136 +128,235 @@ module buff(A , Q);
     input A;
     output Q;
 
-    LOGIC#() _TECHMAP_REPLACE_(
-        .lFragBitInfo(128'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx0000000010000000),
-        .L0I0(1'b0),
-        .L0I1(1'b0),
-        .L0I2(1'b0),
-        .L0I3(A),
-        .CD0S(1'b0),
-        .Q0EN(1'b0),
-        .QST(1'b0),
-        .UQST0(1'b0),
-        .QST0S(1'b0),
-        .QRT(1'b0),
-        .UQRT0(1'b0),
-        .QRT0S(1'b0),
-        .QCK(1'b0),
-        .Q0DI(1'b0),
-        .L1I0(1'b0),
-        .L1I1(1'b0),
-        .L1I2(1'b0),
-        .L1I3(1'b0),
-        .CD1S(1'b0),
-        .Q1EN(1'b0),
-        .UQST1(1'b0),
-        .QST1S(1'b0),
-        .UQRT1(1'b0),
-        .QRT1S(1'b0),
-        .Q1DI(1'b0),
-        .L2I0(1'b0),
-        .L2I1(1'b0),
-        .L2I2(1'b0),
-        .L2I3(1'b0),
-        .CD2S(1'b0),
-        .Q2EN(1'b0),
-        .UQST2(1'b0),
-        .QST2S(1'b0),
-        .UQRT2(1'b0),
-        .QRT2S(1'b0),
-        .Q2DI(1'b0),
-        .L3I0(1'b0),
-        .L3I1(1'b0),
-        .L3I2(1'b0),
-        .L3I3(1'b0),
-        .CD3S(1'b0),
-        .Q3EN(1'b0),
-        .UQST3(1'b0),
-        .QST3S(1'b0),
-        .UQRT3(1'b0),
-        .QRT3S(1'b0),
-        .Q3DI(1'b0),
-        .L4I0(1'b0),
-        .L4I1(1'b0),
-        .L4I2(1'b0),
-        .L4I3(1'b0),
-        .CD4S(1'b0),
-        .Q4EN(1'b0),
-        .UQST4(1'b0),
-        .QST4S(1'b0),
-        .UQRT4(1'b0),
-        .QRT4S(1'b0),
-        .Q4DI(1'b0),
-        .L5I0(1'b0),
-        .L5I1(1'b0),
-        .L5I2(1'b0),
-        .L5I3(1'b0),
-        .CD5S(1'b0),
-        .Q5EN(1'b0),
-        .UQST5(1'b0),
-        .QST5S(1'b0),
-        .UQRT5(1'b0),
-        .QRT5S(1'b0),
-        .Q5DI(1'b0),
-        .L6I0(1'b0),
-        .L6I1(1'b0),
-        .L6I2(1'b0),
-        .L6I3(1'b0),
-        .CD6S(1'b0),
-        .Q6EN(1'b0),
-        .UQST6(1'b0),
-        .QST6S(1'b0),
-        .UQRT6(1'b0),
-        .QRT6S(1'b0),
-        .Q6DI(1'b0),
-        .L7I0(1'b0),
-        .L7I1(1'b0),
-        .L7I2(1'b0),
-        .L7I3(1'b0),
-        .CD7S(1'b0),
-        .Q7EN(1'b0),
-        .UQST7(1'b0),
-        .QST7S(1'b0),
-        .UQRT7(1'b0),
-        .QRT7S(1'b0),
-        .Q7DI(1'b0),
-        .F0Z(Q),
-        .AQ0Z(),
-        .L0CO(),
-        .F1Z(),
-        .AQ1Z(),
-        .L1CO(),
-        .F2Z(),
-        .AQ2Z(),
-        .L2CO(),
-        .F3Z(),
-        .AQ3Z(),
-        .L3CO(),
-        .F4Z(),
-        .AQ4Z(),
-        .L4CO(),
-        .F5Z(),
-        .AQ5Z(),
-        .L5CO(),
-        .F6Z(),
-        .AQ6Z(),
-        .L6CO(),
-        .F7Z(),
-        .AQ7Z(),
-        .L7CO());
+    L_FRAG#() _TECHMAP_REPLACE_(
+        .lFragBitInfo(16'b0000000010000000),
+        .I0(1'b0),
+        .I1(1'b0),
+        .I2(1'b0),
+        .I3(A),
+        .LUTOutput(Q),
+        .CarryOut());
 
 endmodule
 
-// ============================================================================
-// LOGIC_CELL
+module carry_out(CI, CO);
+    input CI;
+    output CO;
 
-module LOGIC_Cell (L0I0, L0I1, L0I2, L0I3, 
-                   CD0S, QEN, QST, QRT, QCK, F0Z, AQ0Z);
+    L_FRAG#() _TECHMAP_REPLACE_(
+        .lFragBitInfo(16'b0000100000000000),
+        .I0(1'b0),
+        .I1(1'b0),
+        .I2(C1),
+        .I3(1'b0),
+        .LUTOutput(CO),
+        .CarryOut(CO));
 
-input L0I0, L0I1, L0I2, L0I3;
-input CD0S, QEN, QST, QRT, QCK;				  
-output F0Z, AQ0Z;
+endmodule
 
+module full_adder(A, B, CI, L1CI, S, CO);
+    input A, B, CI, L1CI;
+    output S, CO;
+
+    L_FRAG l_frag_0(
+        .lFragBitInfo(16'b0110100110001110),
+        .I0(A),
+        .I1(B),
+        .I2(C1),
+        .I3(1'b0),
+        .LUTOutput(S),
+        .CarryOut());
+    )
+
+    L_FRAG l_frag_1(
+        .lFragBitInfo(16'b0000100000000000),
+        .I0(1'b0),
+        .I1(1'b0),
+        .I2(L1CI),
+        .I3(1'b0),
+        .LUTOutput(CO),
+        .CarryOut());
+    )
+
+endmodule
+
+module LOGIC_Cell (
+            LI0,
+            LI1,
+            LI2, 
+            LI3,
+            CDS,
+            QEN,
+            QST,
+            QRT,
+            QCK,
+            FZ,
+            AQZ);
+    
+    input LI0, LI1, LI2, LI3, CDS, QEN, QST, QRT, QCK;
+
+    output  FZ, AQZ;
+
+    reg notifier;
+
+    wire [15:0] INIT = 0;
+    ONE_LOGIC_CELL #() _TECHMAP_REPLACE_(
+            .lFragBitInfo (INIT),
+            .LI0 (LI0),
+            .LI1 (LI1),
+            .LI2 (LI2), 
+            .LI3 (LI3),
+            .CDS (CDS),
+            .QEN (QEN),
+            .QST (QST),
+            .UQST (QST),
+            .QSTS (1'b0),
+            .QRT (QRT),
+            .UQRT (QRT),
+            .QRTS (1'b0),
+            .QCK (QCK),
+            .QDI (LI3),
+            .notifier (notifier),
+            .FZ (FZ),
+            .AQZ (AQZ),
+            .LCO () ); 
+
+endmodule
+
+module LUT4 (
+    output O,
+    input  I0,
+    input  I1,
+    input  I2,
+    input  I3
+    );
+
+    wire [15:0] INIT = 0;
+
+    L_FRAG #() _TECHMAP_REPLACE_(
+            .fragBitInfo(INIT), 
+            .I0(I0), 
+            .I1(I1), 
+            .I2(I2), 
+            .I3(I3), 
+            .LUTOutput(O),
+            .CarryOut());
+
+endmodule
+
+module lqfrag_macro_0 (
+            LI0,
+            LI1,
+            LI2, 
+            LI3,
+            QEN,
+            QST,
+            QRT,
+            QCK,
+            FZ,
+            AQZ
+);
+
+    input LI0, LI1, LI2, LI3, QEN, QST, QRT, QCK;
+
+    output  FZ, AQZ;
+
+    reg notifier;
+
+    wire [15:0] INIT = 0;
+    ONE_LOGIC_CELL #() _TECHMAP_REPLACE_(
+            .lFragBitInfo (INIT),
+            .LI0 (LI0),
+            .LI1 (LI1),
+            .LI2 (LI2), 
+            .LI3 (LI3),
+            .CDS (1'b0),
+            .QEN (QEN),
+            .QST (QST),
+            .UQST (QST),
+            .QSTS (1'b0),
+            .QRT (QRT),
+            .UQRT (QRT),
+            .QRTS (1'b0),
+            .QCK (QCK),
+            .QDI (LI3),
+            .notifier (notifier),
+            .FZ (FZ),
+            .AQZ (AQZ),
+            .LCO () ); 
+
+endmodule
+
+module lqfrag_macro_1 (
+            LI0,
+            LI1,
+            LI2, 
+            LI3,
+            QDI,
+            QEN,
+            QST,
+            QRT,
+            QCK,
+            FZ,
+            AQZ
+);
+
+    input LI0, LI1, LI2, LI3, QDI, QEN, QST, QRT, QCK;
+
+    output  FZ, AQZ;
+
+    reg notifier;
+
+    wire [15:0] INIT = 0;
+    ONE_LOGIC_CELL #() _TECHMAP_REPLACE_(
+            .lFragBitInfo (INIT),
+            .LI0 (LI0),
+            .LI1 (LI1),
+            .LI2 (LI2), 
+            .LI3 (LI3),
+            .QDI (QDI)
+            .CDS (1'b1),
+            .QEN (QEN),
+            .QST (QST),
+            .UQST (QST),
+            .QSTS (1'b0),
+            .QRT (QRT),
+            .UQRT (QRT),
+            .QRTS (1'b0),
+            .QCK (QCK),
+            .notifier (notifier),
+            .FZ (FZ),
+            .AQZ (AQZ),
+            .LCO () ); 
+
+endmodule
+
+module ff (
+        D,
+        QCK,
+        QEN,
+        QST,
+        QRT,
+        CQZ
+        );
+
+    input D, QCK, QEN, QST, QRT;
+    output CQZ;    
+
+    reg notifier;
+
+    Q_FRAG #() _TECHMAP_REPLACE_(
+        .QDI(D), 
+        .QEN(QEN), 
+        .QST(QST), 
+        .UQST(QST), 
+        .QSTS(1'b0), 
+        .QRT(QRT), 
+        .UQRT(QRT), 
+        .QRTS(1'b0), 
+        .CDS(1'b1), 
+        .notifier(notifier), 
+        .AQZ(CQZ));
 
 endmodule
 
