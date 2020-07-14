@@ -209,16 +209,21 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
 
     exceptions = set()
     xml_exceptions = xml_logic.find("EXCEPTIONS")
+    skip_row = set()
+    skip_lc = set()
     if xml_exceptions is not None:
+
         for xml in xml_exceptions:
             tag = xml.tag.upper()
-            colX = ""
-            rowY = ""
+
             if tag == "SKIP_ROW":
                 y = int(xml.get("ROW_NUM"))
-                for c in range(x0, nx+1, 1):
-                    exceptions.add(Loc(x=c, y=y, z=0))
+                skip_row.add(y)
+                #for c in range(x0, nx+1, 1):
+                #exceptions.add(Loc(x=c, y=y, z=0))
             else:
+                colX = ""
+                rowY = ""
                 for ch in tag:
                     if (ch.isnumeric()) == True:
                         rowY += ch
@@ -234,26 +239,33 @@ def load_logic_cells(xml_placement, cellgrid, cells_library):
                         x += (1 + ord(i) - ord("A"))*((count-1)*26)
                     count -= 1
 
-                y = int(rowY)
-                exceptions.add(Loc(x=x, y=y, z=0))
+                skip_lc.add("{},{}".format(x, rowY))
+                #exceptions.add(Loc(x=x, y=y, z=0))
 
             # FIXME: Is this connect decoding of those werid loc specs?
             #x = 1 + ord(tag[0]) - ord("A")
             #y = 1 + int(tag[1:])
 
-    for j in range(ny):
-        for i in range(nx):
-            loc = Loc(x0 + i, y0 + j, 0)
+    lc_row = y0
+    for j in range(y0,ny+1):
+        if j in skip_row:
+            continue
+        else:
+            for i in range(x0,nx+1):
+                key = "{},{}".format(i, lc_row)
+                if key in skip_lc:
+                    continue
 
-            if loc in exceptions:
-                continue
+                loc = Loc(i, j, 0)
 
-            cell_type = "LOGIC"
-            assert cell_type in cells_library, cell_type
+                cell_type = "LOGIC"
+                assert cell_type in cells_library, cell_type
 
-            cellgrid[loc].append(
-                Cell(type=cell_type, index=None, name=cell_type, alias=None)
-            )
+                cellgrid[loc].append(
+                    Cell(type=cell_type, index=None, name=cell_type, alias=None)
+                )
+
+            lc_row += 1
 
 
 def load_other_cells(xml_placement, cellgrid, cells_library):
@@ -298,42 +310,30 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
                 y = int(xml.get("row"))
 
                 loc = Loc(x, y, 0)
+                loc_z = loc.z
+                while len(cellgrid[loc]) != 0:
+                    loc_z = loc.z+1
+                    loc = Loc(loc.x, loc.y, loc_z)
+
                 alias = xml.get("Alias", None)
                 if cell_type == "IO_REG":
-                    for io_reg_idx in range (1, 33):
-                        counter = 0
-                        for portIdx in range (0, 30):
-                            if portIdx < 8:
-                                if portIdx is 0:
-                                    counter = 0
-                                else:
-                                    counter += 1
+                    for portIdx in range (0, 30):
+                        if portIdx < 8:
+                            name = cell_name + "_A2F_" + str(portIdx)
+                        elif portIdx < 26:
+                            name = cell_name + "_F2A_" + str(portIdx-8)
+                        else:
+                            name = cell_name + "_F2A_DEF_" + str(portIdx-26)
 
-                                name = cell_name + "_A2F_" + str(counter)
-                            elif portIdx < 26:
-                                if portIdx is 8:
-                                    counter = 0
-                                else:
-                                    counter += 1
-
-                                name = cell_name + "_F2A_" + str(counter)
-                            else:
-                                if portIdx is 26:
-                                    counter = 0
-                                else:
-                                    counter += 1
-
-                                name = cell_name + "_F2A_DEF_" + str(counter)
-                            
-                            loc = Loc(x,y,portIdx)    
-                            cellgrid[loc].append( 
-                                Cell(
-                                    type=cell_type,
-                                    index=None,
-                                    name=name,
-                                    alias=alias,
-                                )
+                        loc = Loc(x, y, loc_z+portIdx)
+                        cellgrid[loc].append(
+                            Cell(
+                                type=cell_type,
+                                index=None,
+                                name=name,
+                                alias=alias,
                             )
+                        )
                 else :
                     cellgrid[loc].append(
                         Cell(
@@ -941,7 +941,6 @@ def parse_itf_port_mapping_table(xml_root, switchbox_grid):
 
                     # Append mapping
                     key = (pin_name, pin_direction)
-
                     assert key not in port_maps[loc], (loc, key)
                     port_maps[loc][key] = mapped_name
 
@@ -1011,7 +1010,7 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
         # Look for a tile that has the cell with the same cell type as current parsed
         for curr_loc in locs:
 
-            if curr_mcell_type is not tile_type[curr_loc]:
+            if curr_mcell_type != tile_type[curr_loc]:
                 continue
 
             # Parse the port mapping table(s)
@@ -1028,7 +1027,14 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
 
                 # Process the mapping of switchbox output ports
                 for index_xml in port_mapping_xml.findall("Index"):
-                    pin_names = [e for e in index_xml if e.tag.startswith("Mapped_Interface_Name")]
+
+                    pin_names = set(
+                        [
+                            v for k, v in index_xml.attrib.items()
+                            if k.startswith("Mapped_Interface_Name")
+                        ]
+                    )
+
                     output_num = index_xml.attrib["SwitchOutputNum"]
 
                     # Determine the mapped port direction
@@ -1054,9 +1060,14 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
                             z=0
                         )
 
+                        # Add the mux location to the port map
+                        if loc not in port_maps:
+                            port_maps[loc] = {}
+
                         # Append mapping
                         for pin_name in pin_names:
-                            key = (pin_name, pin_direction)
+                            key = (loc, pin_name, pin_direction)
+                            #assert key not in port_maps[loc], (loc, key)
                             port_maps[loc][key] = mapped_name
 
 
@@ -1070,22 +1081,26 @@ def parse_ramdsp_port_mapping_table(xml_root, switchbox_grid, port_maps, tile_gr
 # =============================================================================
 
 
-def parse_clock_network(xml_clock_network, device_name):
+def parse_clock_network(xml_clock_network, tile_grid, device_name):
     """
     Parses the "CLOCK_NETWORK" section of the techfile
     """
 
-    def parse_cell(xml_cell, quadrant=None):
+    def parse_cell(xml_cell, clk_loc, quadrant=None):
         """
         Parses a "Cell" tag inside "CLOCK_NETWORK"
         """
         NON_PIN_TAGS = ("name", "type", "row", "column")
 
-        cell_loc = Loc(
-            x=int(xml_cell.attrib["column"]),
-            y=int(xml_cell.attrib["row"]),
-            z=0
-        )
+        clk_name = xml_cell.attrib["name"]
+        cell_loc = clk_loc[clk_name]
+        assert cell_loc is not None
+
+        #Loc(
+        #    x=int(xml_cell.attrib["column"]),
+        #    y=int(xml_cell.attrib["row"]),
+        #    z=0
+        #)
 
         # Get the cell's pinmap
         pin_map = {k: v for k, v in xml_cell.attrib.items() \
@@ -1108,11 +1123,22 @@ def parse_clock_network(xml_clock_network, device_name):
         # Return the cell
         return ClockCell(
             type=xml_cell.attrib["type"],
-            name=xml_cell.attrib["name"],
+            name=clk_name,
             loc=cell_loc,
             quadrant=quadrant,
             pin_map=pin_map
         )
+
+    # Assign each cell name its locations.
+    clk_loc = {}
+    for loc, tile in tile_grid.items():
+        # look for clock cells to get their location
+        if "MUX" in tile.type or "CAND" in tile.type:
+            for cell in tile.cells:
+                name = cell.name
+                clk_loc[name] = loc
+            #    for name in cells:
+            #            clk_loc[name] = loc
 
     clock_cells = {}
 
@@ -1121,7 +1147,7 @@ def parse_clock_network(xml_clock_network, device_name):
     assert xml_gmux is not None
 
     for xml_cell in xml_gmux.findall("Cell"):
-        clock_cell = parse_cell(xml_cell)
+        clock_cell = parse_cell(xml_cell, clk_loc)
         clock_cells[clock_cell.name] = clock_cell
 
     # Parse QMUX cells
@@ -1130,24 +1156,32 @@ def parse_clock_network(xml_clock_network, device_name):
 
     for xml_quad in xml_qmux:
         for xml_cell in xml_quad.findall("Cell"):
-            clock_cell = parse_cell(xml_cell, xml_quad.tag)
+            clock_cell = parse_cell(xml_cell, clk_loc, xml_quad.tag)
             clock_cells[clock_cell.name] = clock_cell
 
     xml_sqmux = xml_clock_network.find("SQMUX")
     if xml_sqmux is not None:
         for xml_quad in xml_sqmux:
-            for xml_cell in xml_quad.findall("Cell"):
-                clock_cell = parse_cell(xml_cell)
-                clock_cells[clock_cell.name] = clock_cell
+            for xml_subquad in xml_quad:
+                for xml_cell in xml_subquad.findall("Cell"):
+                    clock_cell = parse_cell(xml_cell, clk_loc)
+                    clock_cells[clock_cell.name] = clock_cell
 
     # Parse CAND cells
     xml_cand = xml_clock_network.find("COL_CLKEN")
     assert xml_cand is not None
 
     for xml_quad in xml_cand:
-        for xml_cell in xml_quad.findall("Cell"):
-            clock_cell = parse_cell(xml_cell, xml_quad.tag)
-            clock_cells[clock_cell.name] = clock_cell
+        if "Cell" in xml_quad:
+            for xml_cell in xml_quad.findall("Cell"):
+                clock_cell = parse_cell(xml_cell, clk_loc, xml_quad.tag)
+                clock_cells[clock_cell.name] = clock_cell
+        else:
+            for xml_subquad in xml_quad:
+                for xml_cell in xml_subquad.findall("Cell"):
+                    clock_cell = parse_cell(xml_cell, clk_loc, xml_quad.tag)
+                    clock_cells[clock_cell.name] = clock_cell
+
 
     # Since we are not going to use dynamic enables on CAND we remove the EN
     # pin connection from the pinmap. This way the connections between
@@ -1157,8 +1191,11 @@ def parse_clock_network(xml_clock_network, device_name):
         cell = clock_cells[cell_name]
         pin_map = cell.pin_map
 
-        if cell.type == "CAND" and "EN" in pin_map:
-            del pin_map["EN"]
+        if cell.type == "CAND" and "EN" in pin_map or "DYNEN" in pin_map:
+            if "EN" in pin_map:
+                del pin_map["EN"]
+            if "DYNEN" in pin_map:
+                del pin_map["DYNEN"]
 
         clock_cells[cell_name] = ClockCell(
             name = cell.name,
@@ -1190,7 +1227,6 @@ def populate_clk_mux_port_maps(
         # Find the cell in a tile
         tile = tile_grid[loc]
         cell = find_cell_in_tile(clock_cell.name, tile)
-
         # Add the mux location to the port map
         if loc not in port_maps:
             port_maps[loc] = {}
@@ -1231,7 +1267,7 @@ def specialize_switchboxes_with_port_maps(
         # No switchbox at that location
         if loc not in switchbox_grid:
             continue
-
+        
         # Get the switchbox type
         switchbox_type = switchbox_grid[loc]
         switchbox = switchbox_types[switchbox_type]
@@ -1242,6 +1278,7 @@ def specialize_switchboxes_with_port_maps(
             new_type = "{}_{}".format(switchbox.type, suffix)
         else:
             new_type = switchbox_type
+
         new_switchbox = Switchbox(new_type)
         new_switchbox.stages = deepcopy(switchbox.stages)
         new_switchbox.connections = deepcopy(switchbox.connections)
@@ -1254,8 +1291,8 @@ def specialize_switchboxes_with_port_maps(
             alt_name = "{}.{}.{}".format(stage.id, switch.id, mux.id)
 
             pin = mux.output
-            keys = ((pin.name, pin.direction), (alt_name, pin.direction))
-
+            keys = ((loc, pin.name, pin.direction), (loc, alt_name, pin.direction))
+            
             for key in keys:
                 if key in port_map:
                     did_remap = True
@@ -1510,7 +1547,7 @@ def import_data(xml_root):
     xml_clock_network = xml_placement.find("CLOCK_NETWORK")
     assert xml_clock_network is not None
 
-    clock_cells = parse_clock_network(xml_clock_network, device_name)
+    clock_cells = parse_clock_network(xml_clock_network, tile_grid, device_name)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
@@ -1552,6 +1589,8 @@ def import_data(xml_root):
     # Get the "DevicePortMappingTable" section
     xml_portmap = xml_routing.find("DevicePortMappingTable")
     assert xml_portmap is not None
+
+    port_maps = defaultdict(lambda: {})
 
     # Import switchbox port mapping
     port_maps = parse_itf_port_mapping_table(xml_portmap, switchbox_grid)
