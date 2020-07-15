@@ -13,7 +13,11 @@ add_fpga_target(
 add_jlink_output(
   PARENT sha256_fullfit-ql-chandalar
 )
+add_openocd_output(
+  PARENT sha256_fullfit-ql-chandalar
+)
 
 add_dependencies(all_ql_tests sha256_fullfit-ql-chandalar_bit)
 add_dependencies(all_ql_tests sha256_fullfit-ql-chandalar_jlink)
+add_dependencies(all_ql_tests sha256_fullfit-ql-chandalar_openocd)
 
