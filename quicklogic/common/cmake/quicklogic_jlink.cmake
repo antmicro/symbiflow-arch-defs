@@ -44,6 +44,7 @@ function(ADD_JLINK_OUTPUT)
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
         --eblif ${EBLIF_LOC}
         --pcf ${PCF_LOC}
+        --output-format jlink
         >${WORK_DIR}/${IOMUX_CONFIG}
     DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
   )
