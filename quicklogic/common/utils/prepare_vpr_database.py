@@ -230,9 +230,6 @@ def process_tilegrid_ap3(
                     vpr_tile_grid[vpr_loc] = Tile(
                         type=new_type.type, name=tile.name, cells=cells
                     )
-                    print ("== vpr_loc: ", vpr_loc, " ..phy_loc: ",
-                        phy_loc, " ... type: ", new_type.type, " ...name: ",
-                        tile.name, " .. cells: ", cells)
             else:
                 for const, loc in [("VCC", Loc(x=1, y=1, z=0)), ("GND", Loc(x=2, y=1, z=0))]:
                     # Verify that the location is empty
@@ -692,9 +689,6 @@ def process_connections_pp3(
             # CLOCK tile
             org_loc = loc_map.bwd[ep.loc]
             for vpr_loc, phy_loc in loc_map.bwd.items():
-                print ("---- connection: ", connection)
-                print("== phy_loc: ", phy_loc, " .. org_loc: ", org_loc, " .. vpr_loc: ", vpr_loc, \
-                    " ..ep.loc: ", ep.loc)
                 if phy_loc == org_loc and vpr_loc != ep.loc:
                     clock_loc = vpr_loc
                     break
@@ -931,7 +925,6 @@ def process_connections_ap3(
             # Update the endpoint
             eps[j] = ConnectionLoc(loc=vpr_loc, pin=vpr_pin, type=ep.type)
 
-        print("--src: ", eps[0], " .. dst: ", eps[1])
         # Add the connection
         vpr_connections.append(
             Connection(src=eps[0], dst=eps[1], is_direct=connection.is_direct)
