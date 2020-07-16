@@ -1,9 +1,15 @@
-
 `timescale 1ns/10ps
 (* whitebox *)
+(* FASM_PARAMS="" *)
 module OUT_REG_CELL(IQC, OSEL_$inp, QRT, OQI_$inp, F2A_$out);
-    input IQC, OSEL_$inp, QRT, OQI_$inp;
-    output F2A_$out;
+
+    (* iopad_external_pin *)
+    input wire OQI_$inp;
+
+    input wire IQC, OSEL_$inp, QRT;
+
+    (* iopad_external_pin *)
+    output wire F2A_$out;
 
     wire osel_mux_op;
 

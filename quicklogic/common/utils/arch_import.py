@@ -395,7 +395,7 @@ def main():
         vpr_equivalent_sites = db["vpr_equivalent_sites"]
         segments = db["segments"]
         switches = db["switches"]
-        connections = db["connections"]
+        #connections = db["connections"]
 
     # Flatten the VPR tilegrid
     flat_tile_grid = dict()
@@ -468,7 +468,7 @@ def main():
     write_tilegrid(xml_arch, arch_tile_grid, loc_map, args.device)
 
     # Write direct connections
-    write_direct_connections(xml_arch, vpr_tile_grid, connections)
+    #write_direct_connections(xml_arch, vpr_tile_grid, connections)
 
     # Save the arch
     ET.ElementTree(xml_arch).write(
