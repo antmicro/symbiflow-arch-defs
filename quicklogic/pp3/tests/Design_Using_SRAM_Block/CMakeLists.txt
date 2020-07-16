@@ -19,7 +19,11 @@ add_fpga_target(
 add_jlink_output(
   PARENT Design_Using_SRAM_Block-ql-chandalar
 )
+add_openocd_output(
+  PARENT Design_Using_SRAM_Block-ql-chandalar
+)
 
 add_dependencies(all_ql_tests Design_Using_SRAM_Block-ql-chandalar_bit)
 add_dependencies(all_ql_tests Design_Using_SRAM_Block-ql-chandalar_jlink)
+add_dependencies(all_ql_tests Design_Using_SRAM_Block-ql-chandalar_openocd)
 

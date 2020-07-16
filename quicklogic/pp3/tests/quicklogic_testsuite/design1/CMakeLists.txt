@@ -28,7 +28,11 @@ add_fpga_target(
 add_jlink_output(
   PARENT design1-ql-chandalar
 )
+add_openocd_output(
+  PARENT design1-ql-chandalar
+)
 
 add_dependencies(all_ql_tests design1-ql-chandalar_bit)
 add_dependencies(all_ql_tests design1-ql-chandalar_jlink)
+add_dependencies(all_ql_tests design1-ql-chandalar_openocd)
 

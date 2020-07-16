@@ -12,9 +12,13 @@ add_fpga_target(
 add_jlink_output(
   PARENT soc_clocks-ql-chandalar
 )
+add_openocd_output(
+  PARENT soc_clocks-ql-chandalar
+)
 
 add_dependencies(all_ql_tests soc_clocks-ql-chandalar_bit)
 add_dependencies(all_ql_tests soc_clocks-ql-chandalar_jlink)
+add_dependencies(all_ql_tests soc_clocks-ql-chandalar_openocd)
 
 add_file_target(FILE quickfeather.pcf)
 
@@ -29,6 +33,10 @@ add_fpga_target(
 add_jlink_output(
   PARENT soc_clocks-ql-quickfeather
 )
+add_openocd_output(
+  PARENT soc_clocks-ql-quickfeather
+)
 
 add_dependencies(all_ql_tests soc_clocks-ql-quickfeather_bit)
 add_dependencies(all_ql_tests soc_clocks-ql-quickfeather_jlink)
+add_dependencies(all_ql_tests soc_clocks-ql-quickfeather_openocd)

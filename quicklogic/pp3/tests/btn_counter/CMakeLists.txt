@@ -14,9 +14,13 @@ add_fpga_target(
 add_jlink_output(
   PARENT btn_counter-ql-chandalar
 )
+add_openocd_output(
+  PARENT btn_counter-ql-chandalar
+)
 
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests btn_counter-ql-chandalar_jlink)
+add_dependencies(all_ql_tests btn_counter-ql-chandalar_openocd)
 
 add_fpga_target(
   NAME btn_counter-ql-quickfeather
@@ -29,9 +33,13 @@ add_fpga_target(
 add_jlink_output(
   PARENT btn_counter-ql-quickfeather
 )
+add_openocd_output(
+  PARENT btn_counter-ql-quickfeather
+)
 
 add_dependencies(all_ql_tests btn_counter-ql-quickfeather_bit)
 add_dependencies(all_ql_tests btn_counter-ql-quickfeather_jlink)
+add_dependencies(all_ql_tests btn_counter-ql-quickfeather_openocd)
 
 add_fpga_target(
   NAME btn_counter-ql-jimbob4
@@ -44,6 +52,10 @@ add_fpga_target(
 add_jlink_output(
   PARENT btn_counter-ql-jimbob4
 )
+add_openocd_output(
+  PARENT btn_counter-ql-jimbob4
+)
 
 add_dependencies(all_ql_tests btn_counter-ql-jimbob4_bit)
 add_dependencies(all_ql_tests btn_counter-ql-jimbob4_jlink)
+add_dependencies(all_ql_tests btn_counter-ql-jimbob4_openocd)

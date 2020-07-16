@@ -25,7 +25,7 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
   get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
   get_target_property_required(FASM_TO_BIT_DEPS ${ARCH} FASM_TO_BIT_DEPS)
 
-  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm write_jlink write_bitheader write_fasm2bels generate_fasm2bels ql_symbiflow analysis)
+  set(WRAPPERS env generate_constraints pack place route synth write_bitstream write_fasm write_jlink write_openocd write_bitheader write_fasm2bels generate_fasm2bels ql_symbiflow analysis)
 
   get_file_target(FASM_TO_BIT_TARGET ${FASM_TO_BIT})
   # Add fasm2bit to all deps, so it is installed with make install
@@ -111,6 +111,10 @@ function(DEFINE_QL_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py
+          DESTINATION bin/python
+          PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_openocd.py
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 

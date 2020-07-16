@@ -1,6 +1,6 @@
-function(ADD_JLINK_OUTPUT)
+function(ADD_OPENOCD_OUTPUT)
   # ~~~
-  # ADD_JLINK_OUTPUT(
+  # ADD_OPENOCD_OUTPUT(
   #   PARENT <fpga target name>
   #   )
   # ~~~
@@ -8,14 +8,14 @@ function(ADD_JLINK_OUTPUT)
   set(oneValueArgs PARENT)
   set(multiValueArgs)
   cmake_parse_arguments(
-    ADD_JLINK_OUTPUT
+    ADD_OPENOCD_OUTPUT
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  set(PARENT ${ADD_JLINK_OUTPUT_PARENT})
+  set(PARENT ${ADD_OPENOCD_OUTPUT_PARENT})
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -34,9 +34,9 @@ function(ADD_JLINK_OUTPUT)
   get_file_location(EBLIF_LOC ${EBLIF})
   get_file_location(PCF_LOC ${PCF})
 
-  # Generate a JLINK script that sets IOMUX configuration.
+  # Generate a OpenOCD script that sets IOMUX configuration.
   set(IOMUX_CONFIG_GEN ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/eos_s3_iomux_config.py)
-  set(IOMUX_CONFIG "top_iomux.jlink")
+  set(IOMUX_CONFIG "top_iomux.openocd")
 
   add_custom_command(
     OUTPUT ${WORK_DIR}/${IOMUX_CONFIG}
@@ -44,33 +44,33 @@ function(ADD_JLINK_OUTPUT)
       ${PYTHON3} ${IOMUX_CONFIG_GEN}
         --eblif ${EBLIF_LOC}
         --pcf ${PCF_LOC}
-        --output-format jlink
+        --output-format openocd
         >${WORK_DIR}/${IOMUX_CONFIG}
     DEPENDS ${PYTHON3_TARGET} ${IOMUX_CONFIG_GEN} ${EBLIF} ${PCF}
   )
 
   add_file_target(FILE ${WORK_DIR_REL}/${IOMUX_CONFIG} GENERATED)
 
-  # Convert the binary bitstream to a JLINK script
-  set(BIT_TO_JLINK ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_jlink.py)
-  set(BIT_AS_JLINK "top.bit.jlink")
+  # Convert the binary bitstream to a OpenOCD script
+  set(BIT_TO_OPENOCD ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/bitstream_to_openocd.py)
+  set(BIT_AS_OPENOCD "top.bit.openocd")
 
   add_custom_command(
-    OUTPUT ${WORK_DIR}/${BIT_AS_JLINK}
-    COMMAND ${PYTHON3} ${BIT_TO_JLINK} ${BITSTREAM_LOC} ${WORK_DIR}/${BIT_AS_JLINK}
-    DEPENDS ${PYTHON3_TARGET} ${QLFASM_TARGET} ${BIT_TO_JLINK} ${BITSTREAM}
+    OUTPUT ${WORK_DIR}/${BIT_AS_OPENOCD}
+    COMMAND ${PYTHON3} ${BIT_TO_OPENOCD} ${BITSTREAM_LOC} ${WORK_DIR}/${BIT_AS_OPENOCD}
+    DEPENDS ${PYTHON3_TARGET} ${QLFASM_TARGET} ${BIT_TO_OPENOCD} ${BITSTREAM}
   )
 
-  add_file_target(FILE ${WORK_DIR_REL}/${BIT_AS_JLINK} GENERATED)
+  add_file_target(FILE ${WORK_DIR_REL}/${BIT_AS_OPENOCD} GENERATED)
 
-  # Concatenate th bitstream JLink script and the IOMUX config JLink script
-  set(OUT_JLINK "top.jlink")
+  # Concatenate the bitstream OpenOCD script and the IOMUX config OpenOCD script
+  set(OUT_OPENOCD "top.openocd")
   add_custom_command(
-    OUTPUT ${WORK_DIR}/${OUT_JLINK}
-    COMMAND cat ${WORK_DIR}/${BIT_AS_JLINK} ${WORK_DIR}/${IOMUX_CONFIG} >${WORK_DIR}/${OUT_JLINK}
-    DEPENDS ${WORK_DIR}/${BIT_AS_JLINK} ${WORK_DIR}/${IOMUX_CONFIG}
+    OUTPUT ${WORK_DIR}/${OUT_OPENOCD}
+    COMMAND head -n -1 ${WORK_DIR}/${BIT_AS_OPENOCD} > ${WORK_DIR}/${OUT_OPENOCD} && cat ${WORK_DIR}/${IOMUX_CONFIG} >> ${WORK_DIR}/${OUT_OPENOCD} && echo '}' >> ${WORK_DIR}/${OUT_OPENOCD}
+    DEPENDS ${WORK_DIR}/${BIT_AS_OPENOCD} ${WORK_DIR}/${IOMUX_CONFIG}
   )
 
-  add_custom_target(${PARENT}_jlink DEPENDS ${WORK_DIR}/${OUT_JLINK})
+  add_custom_target(${PARENT}_openocd DEPENDS ${WORK_DIR}/${OUT_OPENOCD})
 
 endfunction()

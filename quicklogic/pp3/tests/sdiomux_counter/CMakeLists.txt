@@ -12,7 +12,11 @@ add_fpga_target(
 add_jlink_output(
   PARENT sdiomux-counter-ql-chandalar
 )
+add_openocd_output(
+  PARENT sdiomux-counter-ql-chandalar
+)
 
 add_dependencies(all_ql_tests sdiomux-counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests sdiomux-counter-ql-chandalar_jlink)
+add_dependencies(all_ql_tests sdiomux-counter-ql-chandalar_openocd)
 
