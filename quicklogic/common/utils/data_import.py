@@ -477,7 +477,7 @@ def parse_placement(xml_placement, cells_library):
 
         tilegrid[loc] = Tile(
             type=type,
-            name="TILE_X{}Y{}".format(loc.x, loc.y),
+            name="TILE_X{}Y{}Z{}".format(loc.x, loc.y,loc.z),
             cells=tile_cells
         )
 
@@ -540,7 +540,6 @@ def update_switchbox_pins(switchbox):
 
                 # Add the mux output pin as top level output if necessary
                 if mux.output.name is not None:
-
                     loc = SwitchboxPinLoc(
                         stage_id=stage.id,
                         switch_id=switch.id,
@@ -568,7 +567,6 @@ def update_switchbox_pins(switchbox):
                 # Add the mux input pins as top level inputs if necessary
                 for pin in mux.inputs.values():
                     if pin.name is not None:
-
                         loc = SwitchboxPinLoc(
                             stage_id=stage.id,
                             switch_id=switch.id,
@@ -605,14 +603,22 @@ def update_switchbox_pins(switchbox):
             locs=locs,
             type=pin_type
         )
-
         assert pin.name not in switchbox.inputs, pin
         switchbox.inputs[pin.name] = pin
 
     return switchbox
 
+def parse_switchbox(xml_sbox, device_name, xml_common=None):
+    if device_name == "QL745A":
+        return parse_switchbox_ap3(
+            xml_sbox, xml_common
+        )
+    else:
+        return parse_switchbox_pp3(
+            xml_sbox, xml_common
+        )
 
-def parse_switchbox(xml_sbox, xml_common=None):
+def parse_switchbox_pp3(xml_sbox, xml_common=None):
     """
     Parses the switchbox definition from XML. Returns a Switchbox object
     """
@@ -682,6 +688,135 @@ def parse_switchbox(xml_sbox, xml_common=None):
                     inp_pin_name = None
 
                 # Append the actual wire length and hop diretion to names of
+                # pins that connect to HOP wires.
+                is_hop = (inp_hop_dir in ["Left", "Right", "Top", "Bottom"])
+                if is_hop:
+                    inp_pin_name = "{}_{}{}".format(
+                        inp_pin_name, inp_hop_dir[0], inp_hop_len
+                    )
+
+                # Add the input to the mux
+                pin = SwitchPin(
+                    id=inp_pin_id,
+                    name=inp_pin_name,
+                    direction=PinDirection.INPUT
+                )
+
+                assert pin.id not in mux.inputs, pin
+                mux.inputs[pin.id] = pin
+
+                # Add internal connection
+                if stage_type == "STREET" and stage_id > 0:
+                    conn_stage_id = int(xml_input.attrib["Stage"])
+                    conn_switch_id = int(xml_input.attrib["SwitchNum"])
+                    conn_pin_id = int(xml_input.attrib["SwitchOutputNum"])
+
+                    conn = SwitchConnection(
+                        src=SwitchboxPinLoc(
+                            stage_id=conn_stage_id,
+                            switch_id=conn_switch_id,
+                            mux_id=conn_pin_id,
+                            pin_id=0,
+                            pin_direction=PinDirection.OUTPUT
+                        ),
+                        dst=SwitchboxPinLoc(
+                            stage_id=stage.id,
+                            switch_id=switch.id,
+                            mux_id=mux.id,
+                            pin_id=inp_pin_id,
+                            pin_direction=PinDirection.INPUT
+                        ),
+                    )
+
+                    assert conn not in switchbox.connections, conn
+                    switchbox.connections.add(conn)
+
+        # Add switches to the stage
+        stage.switches = switches
+
+    # Update top-level pins
+    update_switchbox_pins(switchbox)
+
+    return switchbox
+
+
+# =============================================================================
+
+def parse_switchbox_ap3(xml_sbox, xml_common=None):
+    """
+    Parses the switchbox definition from XML. Returns a Switchbox object
+    """
+    switchbox = Switchbox(type=xml_sbox.tag)
+
+    # Identify stages. Append stages from the "COMMON_STAGES" section if
+    # given.
+    stages = [n for n in xml_sbox if n.tag.startswith("STAGE")]
+
+    if xml_common is not None:
+        common_stages = [n for n in xml_common if n.tag.startswith("STAGE")]
+        stages.extend(common_stages)
+
+    # Load stages
+    for xml_stage in stages:
+        # Get stage id
+        stage_id = int(xml_stage.attrib["StageNumber"])
+        assert stage_id not in switchbox.stages, (
+            stage_id, switchbox.stages.keys()
+        )
+
+        stage_type = xml_stage.attrib["StageType"]
+
+        # Add the new stage
+        stage = Switchbox.Stage(id=stage_id, type=stage_type)
+        switchbox.stages[stage_id] = stage
+
+        # Process outputs
+        switches = {}
+        for xml_output in xml_stage.findall("Output"):
+            out_id = int(xml_output.attrib["Number"])
+            out_switch_id = int(xml_output.attrib["SwitchNum"])
+            out_pin_id = int(xml_output.attrib["SwitchOutputNum"])
+            out_pin_name = xml_output.get("JointOutputName", None)
+
+            # These indicate unconnected top-level output.
+            if out_pin_name in ["-1"]:
+                out_pin_name = None
+
+            # Add a new switch if needed
+            if out_switch_id not in switches:
+                switches[out_switch_id] = Switchbox.Switch(
+                    out_switch_id, stage_id
+                )
+            switch = switches[out_switch_id]
+
+            # Add a mux for the output
+            mux = Switchbox.Mux(out_pin_id, switch.id)
+            assert mux.id not in switch.muxes, mux
+            switch.muxes[mux.id] = mux
+
+            # Add output pin to the mux
+            mux.output = SwitchPin(
+                id=0, name=out_pin_name, direction=PinDirection.OUTPUT
+            )
+
+            # Process inputs
+            for xml_input in xml_output:
+                inp_hop_dir = ""
+                if xml_input.get("WireName", None) is not None:
+                    inp_pin_id = int(xml_input.tag.replace("Input", ""))
+                    inp_pin_name = xml_input.get("WireName", None)
+                    inp_hop_dir = xml_input.get("Direction", None)
+                    inp_hop_len = int(xml_input.get("Length", "-1"))
+                elif xml_input.get("Stage", None) is not None:
+                    #internal connections, so create a switchPin with None pin_name
+                    inp_pin_id = int(xml_input.tag.replace("Input", ""))
+                    inp_pin_name = "-1"
+
+                # These indicate unconnected top-level input.
+                if inp_pin_name in ["-1"]:
+                    inp_pin_name = None
+
+                # Append the actual wire length and hop direction to names of
                 # pins that connect to HOP wires.
                 is_hop = (inp_hop_dir in ["Left", "Right", "Top", "Bottom"])
                 if is_hop:
@@ -1267,7 +1402,7 @@ def specialize_switchboxes_with_port_maps(
         # No switchbox at that location
         if loc not in switchbox_grid:
             continue
-        
+
         # Get the switchbox type
         switchbox_type = switchbox_grid[loc]
         switchbox = switchbox_types[switchbox_type]
@@ -1292,7 +1427,7 @@ def specialize_switchboxes_with_port_maps(
 
             pin = mux.output
             keys = ((loc, pin.name, pin.direction), (loc, alt_name, pin.direction))
-            
+
             for key in keys:
                 if key in port_map:
                     did_remap = True
@@ -1553,7 +1688,7 @@ def import_data(xml_root):
     xml_routing = xml_root.find("Routing")
     assert xml_routing is not None
 
-    # Import switchboxes
+    ## Import switchboxes
     switchbox_grid = {}
     switchbox_types = {}
     for xml_node in xml_routing:
@@ -1568,56 +1703,55 @@ def import_data(xml_root):
             if xml_sbox != xml_common:
 
                 # Parse the switchbox definition
-                switchbox = parse_switchbox(xml_sbox, xml_common)
-
+                switchbox = parse_switchbox(xml_sbox, device_name, xml_common)
                 assert switchbox.type not in switchbox_types, switchbox.type
                 switchbox_types[switchbox.type] = switchbox
 
                 # Populate switchboxes onto the tilegrid
                 populate_switchboxes(xml_sbox, switchbox_grid)
 
-    # Get the "DeviceWireMappingTable" section
-    xml_wiremap = xml_routing.find("DeviceWireMappingTable")
-    #assert xml_wiremap is not None
+    ## Get the "DeviceWireMappingTable" section
+    #xml_wiremap = xml_routing.find("DeviceWireMappingTable")
+    ##assert xml_wiremap is not None
 
-    if xml_wiremap is not None:
-        # Import wire mapping
-        wire_maps = parse_wire_mapping_table(
-            xml_wiremap, switchbox_grid, switchbox_types
-        )
+    #if xml_wiremap is not None:
+    #    # Import wire mapping
+    #    wire_maps = parse_wire_mapping_table(
+    #        xml_wiremap, switchbox_grid, switchbox_types
+    #    )
 
-    # Get the "DevicePortMappingTable" section
-    xml_portmap = xml_routing.find("DevicePortMappingTable")
-    assert xml_portmap is not None
+    ## Get the "DevicePortMappingTable" section
+    #xml_portmap = xml_routing.find("DevicePortMappingTable")
+    #assert xml_portmap is not None
 
-    port_maps = defaultdict(lambda: {})
+    #port_maps = defaultdict(lambda: {})
 
-    # Import switchbox port mapping
-    port_maps = parse_itf_port_mapping_table(xml_portmap, switchbox_grid)
+    ## Import switchbox port mapping
+    #port_maps = parse_itf_port_mapping_table(xml_portmap, switchbox_grid)
 
-    parse_ramdsp_port_mapping_table(xml_portmap, switchbox_grid, port_maps, tile_grid, cells_library)
+    #parse_ramdsp_port_mapping_table(xml_portmap, switchbox_grid, port_maps, tile_grid, cells_library)
 
-    # Supply port mapping table with global clock mux map
-    populate_clk_mux_port_maps(
-        port_maps, clock_cells, tile_grid, cells_library
-    )
+    ## Supply port mapping table with global clock mux map
+    #populate_clk_mux_port_maps(
+    #    port_maps, clock_cells, tile_grid, cells_library
+    #)
 
-    if xml_wiremap is not None:
-        # Specialize switchboxes with wire maps
-        specialize_switchboxes_with_wire_maps(
-            switchbox_types, switchbox_grid, port_maps, wire_maps
-        )
+    #if xml_wiremap is not None:
+    #    # Specialize switchboxes with wire maps
+    #    specialize_switchboxes_with_wire_maps(
+    #        switchbox_types, switchbox_grid, port_maps, wire_maps
+    #    )
 
-    # Specialize switchboxes with local port maps
-    specialize_switchboxes_with_port_maps(
-        switchbox_types, switchbox_grid, port_maps
-    )
+    ## Specialize switchboxes with local port maps
+    #specialize_switchboxes_with_port_maps(
+    #    switchbox_types, switchbox_grid, port_maps
+    #)
 
-    # Remove switchbox types not present in the grid anymore due to their
-    # specialization.
-    for type in list(switchbox_types.keys()):
-        if type not in switchbox_grid.values():
-            del switchbox_types[type]
+    ## Remove switchbox types not present in the grid anymore due to their
+    ## specialization.
+    #for type in list(switchbox_types.keys()):
+    #    if type not in switchbox_grid.values():
+    #        del switchbox_types[type]
 
     # Get the "Packages" section
     package_pinmaps = {}
@@ -1760,21 +1894,21 @@ def main():
     data = import_data(xml_techfile)
 
     # Build the connection map
-    connections = build_connections(
-        data["tile_types"],
-        data["tile_grid"],
-        data["switchbox_types"],
-        data["switchbox_grid"],
-        data["clock_cells"],
-    )
+    #connections = build_connections(
+    #    data["tile_types"],
+    #    data["tile_grid"],
+    #    data["switchbox_types"],
+    #    data["switchbox_grid"],
+    #    data["clock_cells"],
+    #)
 
-    check_connections(connections)
+    #check_connections(connections)
 
-    # Load timing data if given
-    if args.routing_timing is not None:
-        switchbox_timing = import_routing_timing(args.routing_timing)
-    else:
-        switchbox_timing = None
+    ## Load timing data if given
+    #if args.routing_timing is not None:
+    #    switchbox_timing = import_routing_timing(args.routing_timing)
+    #else:
+    #    switchbox_timing = None
 
     # Prepare the database
     db_root = {
@@ -1786,12 +1920,12 @@ def main():
         "phy_clock_cells": data["clock_cells"],
         "switchbox_types": data["switchbox_types"],
         "switchbox_grid": data["switchbox_grid"],
-        "connections": connections,
+        #"connections": connections,
         "package_pinmaps": data["package_pinmaps"],
     }
 
-    if switchbox_timing is not None:
-        db_root["switchbox_timing"] = switchbox_timing
+    #if switchbox_timing is not None:
+    #    db_root["switchbox_timing"] = switchbox_timing
 
     # FIXME: Use something more platform-independent than pickle.
     with open(args.db, "wb") as fp:

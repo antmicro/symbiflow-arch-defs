@@ -1,14 +1,15 @@
 
 `timescale 1ns/10ps
 (* whitebox *)
+(* FASM_PARAMS="" *)
 module IN_BUFF_CELL(A2F_$inp, IQZ_$out);
-    input A2F_$inp;
-    output IQZ_$out;
+    
+    (* iopad_external_pin *)
+    input wire A2F_$inp;
+    
+    (* iopad_external_pin *)
+    output wire IQZ_$out;
 
-    wire A2F_reg_int;
-
-    buf b1 (A2F_reg_int, A2F_$inp);
-
-    assign IQZ_$out = A2F_reg_int;
+    assign IQZ_$out = A2F_$inp;
 
 endmodule
