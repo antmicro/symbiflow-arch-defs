@@ -105,7 +105,11 @@ def make_tile_type(cells, cells_library, tile_types):
     parts = []
     for t, c in cell_counts.items():
         if c == 1:
-            parts.append(t)
+            curr_type = t
+            if t == "IO_REG":
+                curr_type = cells[0].alias
+
+            parts.append(curr_type)
         else:
             parts.append("{}x{}".format(c, t))
 
@@ -221,12 +225,20 @@ def process_tilegrid_ap3(
             z=phy_loc.z
         )
 
-        for tile_type in tile_types:
+        for tile_type, value in list(tile_types.items()):
             if tile_type != "VCC" and tile_type != "GND":
-                cells = [c for c in tile.cells if c.type == tile_type]
+                cells = []
+                for c in tile.cells:
+                    if c.type == "IO_REG" and c.alias == tile_type:
+                        cells.append(c)
+                    elif c.type == tile_type:
+                        cells.append(c)
+
+                #cells = [c for c in tile.cells if c.type == tile_type]
                 if len(cells) > 0:
                     new_type = make_tile_type(cells, cells_library, tile_types)
                     add_loc_map(phy_loc, vpr_loc)
+
                     vpr_tile_grid[vpr_loc] = Tile(
                         type=new_type.type, name=tile.name, cells=cells
                     )
@@ -621,7 +633,7 @@ def process_connections(device_name,
         return process_connections_pp3(
             phy_connections, loc_map, vpr_tile_grid, phy_tile_grid, grid_limit
         )
-        
+
 
 # =============================================================================
 
@@ -1335,19 +1347,22 @@ def main():
     print("Tile grid:")
     xmax = max([loc.x for loc in vpr_tile_grid])
     ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
-            if loc not in vpr_tile_grid:
-                l += " "
-            elif vpr_tile_grid[loc] is not None:
-                tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
-                label = sorted(list(tile_type.cells.keys()))[0][0].upper()
-                l += label
-            else:
-                l += "."
-        print(l)
+    zmax = max([loc.z for loc in vpr_tile_grid])
+    for z in range(zmax + 1):
+        l = " {:>2}: ".format(z)
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=z)
+                if loc not in vpr_tile_grid:
+                    l += " "
+                elif vpr_tile_grid[loc] is not None:
+                    tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
+                    label = sorted(list(tile_type.cells.keys()))[0][0].upper()
+                    l += label
+                else:
+                    l += "."
+            print(l)
 
     # DBEUG
     print("Tile capacity / sub-tile count")
