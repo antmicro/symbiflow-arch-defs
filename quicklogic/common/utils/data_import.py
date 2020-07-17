@@ -320,10 +320,13 @@ def load_other_cells(xml_placement, cellgrid, cells_library):
                     for portIdx in range (0, 30):
                         if portIdx < 8:
                             name = cell_name + "_A2F_" + str(portIdx)
+                            alias = "IN_REG"
                         elif portIdx < 26:
                             name = cell_name + "_F2A_" + str(portIdx-8)
+                            alias = "OUT_REG"
                         else:
                             name = cell_name + "_F2A_DEF_" + str(portIdx-26)
+                            alias = "DBUF"
 
                         loc = Loc(x, y, loc_z+portIdx)
                         cellgrid[loc].append(
@@ -362,7 +365,10 @@ def make_tile_type_name(cells):
     parts = []
     for t, c in cell_counts.items():
         if c == 1:
-            parts.append(t)
+            curr_type = t
+            if t == "IO_REG":
+                curr_type = cells[0].alias
+            parts.append(curr_type)
         else:
             parts.append("{}x{}".format(c, t))
 
@@ -436,7 +442,6 @@ def parse_placement(xml_placement, cells_library):
         # Generate type and assign
         type = make_tile_type_name(cells)
         tile_types_at_loc[loc] = type
-
         # A new type? complete its definition
         if type not in tile_types:
 
@@ -457,8 +462,11 @@ def parse_placement(xml_placement, cells_library):
         # Group cells by type
         tile_cells_by_type = defaultdict(lambda: [])
         for cell in cellgrid[loc]:
+            curr_cell_type = cell.type
+            if cell.type == "IO_REG":
+                curr_cell_type = cell.alias
 
-            tile_cells_by_type[cell.type].append(cell)
+            tile_cells_by_type[curr_cell_type].append(cell)
 
         # Create a list of cell instances within the tile
         tile_cells = []
@@ -477,7 +485,7 @@ def parse_placement(xml_placement, cells_library):
 
         tilegrid[loc] = Tile(
             type=type,
-            name="TILE_X{}Y{}Z{}".format(loc.x, loc.y,loc.z),
+            name="TILE_X{}Y{}Z{}".format(loc.x, loc.y, loc.z),
             cells=tile_cells
         )
 
