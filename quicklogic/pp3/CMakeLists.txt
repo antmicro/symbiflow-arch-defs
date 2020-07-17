@@ -83,7 +83,6 @@ define_arch(
     ${QLFASM_TARGET}
   BITSTREAM_EXTENSION bit
 
-  message(STATUS, "+++++++++++++ CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
   CELLS_SIM
     ${CELLS_SIM_FILE}
 
