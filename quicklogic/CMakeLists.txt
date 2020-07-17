@@ -1,4 +1,3 @@
-
 include(common/cmake/quicklogic_fasm.cmake)
 add_quicklogic_fasm_package()
 
