@@ -3,11 +3,15 @@
 
 #include(../common/cmake/quicklogic_timings.cmake)
 
-add_subdirectory(primitives)
-
 set(CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/techmap/cells_map.v)
 get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
+
+add_custom_target(QL_${FAMILY_NAME}_CELLS_SIM_DEPS)
+
+include(../common/cmake/cells_sim_gen.cmake)
+
+add_subdirectory(primitives)
 
 # Copy map files to binary dir.
 file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
@@ -71,11 +75,11 @@ define_arch(
   PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
-        --map ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
         --blif \${OUT_EBLIF} \
         --i /dev/stdin \
         --o /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
+    #--map ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/\${BOARD}_clkmap.csv \
 
   FASM_TO_BIT
     ${QLFASM}
@@ -123,5 +127,5 @@ unset(PYTHON3)
 
 add_subdirectory(devices)
 include(boards.cmake)
-#add_subdirectory(tests)
+add_subdirectory(tests)
 

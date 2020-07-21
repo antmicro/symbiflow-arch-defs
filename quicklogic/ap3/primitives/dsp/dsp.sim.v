@@ -1,3 +1,5 @@
+
+(* blackbox *)
 module DSP (MODE_SEL,COEF_DATA,OPER_DATA,OUT_SEL,ENABLE,CLR,RND,SAT,CLOCK,MAC_OUT,CSEL,OSEL,SBOG)/* synthesis black_box */;
 
 input [1:0] MODE_SEL,OUT_SEL;

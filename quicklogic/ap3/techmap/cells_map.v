@@ -429,7 +429,7 @@ module ckpad(output Q, input P);
 
 endmodule
 
-module GCLKBUFF ( A , Z );
+/*module GCLKBUFF ( A , Z );
     input A;
     output Z;
     
@@ -439,7 +439,7 @@ module GCLKBUFF ( A , Z );
         .QMUXIN(1'b0), 
         .IZ(Z));
 
-endmodule
+endmodule*/
 
 module ck_buff ( A , Z );
     input A;

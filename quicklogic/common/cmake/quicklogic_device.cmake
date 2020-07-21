@@ -140,71 +140,103 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
 
-  # Generate model and pb_type XML for RAM
-  # This will generate model XML and pb_type XMLs. Since there are 4 RAMs
-  # there will be one pb_type for each of them with appropriate timings. Since
-  # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
-  set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
-  set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
-  set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/RAM_ss_0p990v_m040c.sdf) # FIXME: Look for the file in the step above !
-
-  set(RAM_MODEL_XML  "ram.model.xml")
-  set(RAM_PBTYPE_XML "ram.pb_type.xml")
-
-  set(RAM_CELLS_SIM  "ram_sim.v")
-  set(RAM_CELLS_MAP  "ram_map.v")
-
-  get_file_target(RAM_SDF_FILE_TARGET ${RAM_SDF_FILE})
-
-  add_custom_command(
-      OUTPUT ${RAM_MODEL_XML} ${RAM_PBTYPE_XML} ${RAM_CELLS_SIM} ${RAM_CELLS_MAP}
-      COMMAND ${PYTHON3} ${RAM_GENERATOR}
-          --sdf ${RAM_SDF_FILE}
-          --mode-defs ${RAM_MODE_DEFS}
-          --xml-path ${CMAKE_CURRENT_BINARY_DIR}
-          --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
-      COMMAND ${CMAKE_COMMAND} -E copy "ram_a1.pb_type.xml" ${RAM_PBTYPE_XML}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
-  )
-
-  add_file_target(FILE ${RAM_MODEL_XML} GENERATED)
-  add_file_target(FILE ${RAM_PBTYPE_XML} GENERATED)
-
-  add_file_target(FILE ${RAM_CELLS_SIM} GENERATED)
-  add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
-
   # Generate the arch.xml
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/arch_import.py)
-  get_file_target(RAM_MODEL_XML_TARGET ${RAM_MODEL_XML})
-  get_file_target(RAM_PBTYPE_XML_TARGET ${RAM_PBTYPE_XML})
 
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
-    COMMAND ${PYTHON3} ${ARCH_IMPORT}
-      --vpr-db ${VPR_DB_FILE}
-      --arch-out ${ARCH_XML}
-      --device ${DEVICE}
-    DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
-  )
-  add_file_target(FILE ${ARCH_XML} GENERATED)
+  if("${FAMILY}" STREQUAL "pp3")
+      # Generate model and pb_type XML for RAM
+      # This will generate model XML and pb_type XMLs. Since there are 4 RAMs
+      # there will be one pb_type for each of them with appropriate timings. Since
+      # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
+      set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
+      set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
+      set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/RAM_ss_0p990v_m040c.sdf) # FIXME: Look for the file in the step above !
 
-  # Timing import stuff
-  set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
-  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
-  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+      set(RAM_MODEL_XML  "ram.model.xml")
+      set(RAM_PBTYPE_XML "ram.pb_type.xml")
 
-  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
+      set(RAM_CELLS_SIM  "ram_sim.v")
+      set(RAM_CELLS_MAP  "ram_map.v")
 
-  set(TIMING_IMPORT
-    "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
-    ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
-        --sdf_dir ${SDF_TIMING_DIR} \
-        --bels_map ${BELS_MAP} \
-        --out_arch /dev/stdout \
-        --input_arch /dev/stdin \
-    ")
+      get_file_target(RAM_SDF_FILE_TARGET ${RAM_SDF_FILE})
 
-  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+      add_custom_command(
+          OUTPUT ${RAM_MODEL_XML} ${RAM_PBTYPE_XML} ${RAM_CELLS_SIM} ${RAM_CELLS_MAP}
+          COMMAND ${PYTHON3} ${RAM_GENERATOR}
+              --sdf ${RAM_SDF_FILE}
+              --mode-defs ${RAM_MODE_DEFS}
+              --xml-path ${CMAKE_CURRENT_BINARY_DIR}
+              --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
+          COMMAND ${CMAKE_COMMAND} -E copy "ram_a1.pb_type.xml" ${RAM_PBTYPE_XML}
+          DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
+      )
+
+      add_file_target(FILE ${RAM_MODEL_XML} GENERATED)
+      add_file_target(FILE ${RAM_PBTYPE_XML} GENERATED)
+
+      add_file_target(FILE ${RAM_CELLS_SIM} GENERATED)
+      add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
+
+      get_file_target(RAM_MODEL_XML_TARGET ${RAM_MODEL_XML})
+      get_file_target(RAM_PBTYPE_XML_TARGET ${RAM_PBTYPE_XML})
+
+      add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
+        COMMAND ${PYTHON3} ${ARCH_IMPORT}
+          --vpr-db ${VPR_DB_FILE}
+          --arch-out ${ARCH_XML}
+          --device ${DEVICE}
+        DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET} ${RAM_MODEL_XML_TARGET} ${RAM_PBTYPE_XML_TARGET}
+      )
+      add_file_target(FILE ${ARCH_XML} GENERATED)
+
+      # Timing import stuff
+      set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+      set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+      get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+
+      set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
+
+      set(TIMING_IMPORT
+        "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
+        ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
+            --sdf_dir ${SDF_TIMING_DIR} \
+            --bels_map ${BELS_MAP} \
+            --out_arch /dev/stdout \
+            --input_arch /dev/stdin \
+        ")
+
+      set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+  else()
+      add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
+        COMMAND ${PYTHON3} ${ARCH_IMPORT}
+          --vpr-db ${VPR_DB_FILE}
+          --arch-out ${ARCH_XML}
+          --device ${DEVICE}
+        DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET} 
+      )
+      add_file_target(FILE ${ARCH_XML} GENERATED)
+
+      # Timing import stuff
+      set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+      set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+      get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+
+      set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
+
+      set(TIMING_IMPORT
+        "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
+        ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
+            --sdf_dir ${SDF_TIMING_DIR} \
+            --bels_map ${BELS_MAP} \
+            --out_arch /dev/stdout \
+            --input_arch /dev/stdin \
+        ")
+
+      set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+
+  endif()
 
   # Define the device type
   define_device_type(
@@ -223,13 +255,21 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     set_target_properties(${DEVICE_TYPE} PROPERTIES USE_ROI FALSE)
   endif()
 
-  set_target_properties(
-    ${DEVICE_TYPE}
-    PROPERTIES
-    VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
-    CELLS_SIM ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_SIM}
-    CELLS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_MAP}
-  )
+  if("${FAMILY}" STREQUAL "pp3")
+      set_target_properties(
+        ${DEVICE_TYPE}
+        PROPERTIES
+        VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
+        CELLS_SIM ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_SIM}
+        CELLS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_MAP}
+      )
+  else()
+      set_target_properties(
+        ${DEVICE_TYPE}
+        PROPERTIES
+        VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
+      )
+  endif()
 
 endfunction()
 

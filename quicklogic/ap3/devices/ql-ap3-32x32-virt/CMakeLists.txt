@@ -10,7 +10,7 @@ quicklogic_define_device_type(
   FAMILY ${FAMILY}
   DEVICE ${DEVICE}
   ARCH ql-ap3
-  PACKAGES ql745a
+  PACKAGES ${PACKAGES}
   ROUTING_TIMING_FILE_NAME QL745A_RoutingDelays_SSM40.csv
   TECHFILE_NAME QL745A.xml
   LIB_TIMING_FILES ""#${LIB_TIMING_FILES}
@@ -18,11 +18,20 @@ quicklogic_define_device_type(
   PB_TYPES
     GND VCC
     LOGIC
-    CLOCK IO_REG 
+    CLOCK 
+    IO_REG
     GMUX
+    CAND
+    CANDEN
+    QMUX
+    QPMUX
+    SQMUX
+    SQEMUX
+    RAM 
+    DSP
+)
     #RAM
     #DSP
-)
 
 foreach(PACKAGE ${PACKAGES})
   define_ql_device_cells_install_target(

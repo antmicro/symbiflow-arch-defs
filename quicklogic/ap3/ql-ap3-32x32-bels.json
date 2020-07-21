@@ -1,0 +1,57 @@
+{
+    "DSP": {
+        "DSP": {
+            "PB-DSP": [
+                "DSP.DSP"
+            ]
+        }
+    },
+    "IO_REG": {
+        "io_reg": {
+            "IN_REG": [
+            ],
+            "OUT_REG": [
+            ],
+            "IN_BUFF": [
+            ],
+            "OUT_BUFF": [
+            ],
+            "D_BUFF": [
+            ]
+        }
+    },
+    "CLOCK": {
+        "CLOCK": {
+            "CLOCK": [
+                "CLOCK.CLOCK"
+            ]
+        }
+    },
+    "LOGIC": {
+        "f_frag": {
+            "SINGLE":[
+                "LOGIC.LOGIC"
+            ]
+        },
+        "l_frag": {
+            "SPLIT":[
+                "LOGIC3.LOGIC3"
+            ]
+        },
+        "q_frag": {
+            "FRAGS":[
+                "LOGIC3_QCKS_EQ_1.LOGIC3"
+            ]
+        }
+    },
+    "GMUX": {
+        "gmux": {
+            "CLK": [
+                "GMUX_SSEL_EQ_0.GMUX"
+            ],
+            "HSCK": [
+                "GMUX_SSEL_EQ_0.GMUX"
+            ]
+        }
+    }
+}

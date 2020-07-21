@@ -1215,7 +1215,7 @@ def main():
         package_pinmaps = db["package_pinmaps"]
 
     # Load and parse SDF files
-    if args.sdf_dir is not None:
+    if args.sdf_dir is not None and device_name != "QL745A":
         cell_timings = load_sdf_timings(args.sdf_dir)
     else:
         cell_timings = None
