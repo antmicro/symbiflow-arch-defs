@@ -34,25 +34,25 @@ $SPACER
 
 make_target test_python "Run Python unit tests"
 
-$SPACER
+#$SPACER
 
-make_target all_merged_arch_xmls "Build all arch XMLs"
+#make_target all_merged_arch_xmls "Build all arch XMLs"
 
-$SPACER
+#$SPACER
 
-echo "Suppressing all_rrgraph_xmls generation, as the 8k parts cannot be built on travis."
-start_section "symbiflow.build_all_rrgraph_xmls" "Build all rrgraph XMLs."
+#echo "Suppressing all_rrgraph_xmls generation, as the 8k parts cannot be built on travis."
+#start_section "symbiflow.build_all_rrgraph_xmls" "Build all rrgraph XMLs."
 #make all_rrgraph_xmls
-end_section "symbiflow.build_all_rrgraph_xmls"
+#end_section "symbiflow.build_all_rrgraph_xmls"
 
-$SPACER
+#$SPACER
 
-make_target all_route_tests "Complete all routing tests"
+#make_target all_route_tests "Complete all routing tests"
 
-$SPACER
+#$SPACER
 
-echo "Suppressing some xml linting, as the 5k/8k parts cannot be built on travis."
-make_target all_xml_lint "Complete all xmllint"
+#echo "Suppressing some xml linting, as the 5k/8k parts cannot be built on travis."
+#make_target all_xml_lint "Complete all xmllint"
 
 $SPACER
 
@@ -61,9 +61,14 @@ $SPACER
 #make all_check_tests
 #end_section "symbiflow.run_check_tests"
 
+#$SPACER
+
+#echo "Suppressing some demo bitstreams, as the 8k parts cannot be built on travis."
+#make_target all "Building all demo bitstreams"
+
 $SPACER
 
-echo "Suppressing some demo bitstreams, as the 8k parts cannot be built on travis."
-make_target all "Building all demo bitstreams"
+echo "Running quicklogic testsuit"
 
-$SPACER
+cd quicklogic/pp3/tests
+make_target all_ql_tests
