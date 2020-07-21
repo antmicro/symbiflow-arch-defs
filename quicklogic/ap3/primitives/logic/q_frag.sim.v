@@ -1,12 +1,13 @@
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
 (* MODEL_NAME="Q_FRAG" *)
+(* CLASS="flipflop" *)
 (* whitebox *)
 module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, notifier, AQZ);
 
     (* CLOCK *)
 	(* clkbuf_sink *)
-    input wire QCK,
+    input wire QCK;
 
     (* NO_COMB *)
     input wire QST;

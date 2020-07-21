@@ -6,5 +6,5 @@ v2x(NAME gmux_ip SRCS gmux_ip.sim.v)
 v2x(NAME gmux_ic SRCS gmux_ic.sim.v)
 v2x(NAME gmux SRCS gmux.sim.v)
 
-add_to_cells_sim(gmux_ip.sim.v)
-add_to_cells_sim(gmux_ic.sim.v)
+add_to_cells_sim(gmux_ip.sim.v pp3)
+add_to_cells_sim(gmux_ic.sim.v pp3)

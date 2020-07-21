@@ -6,7 +6,7 @@ module IN_REG_CELL(IQC, ISEL_$inp, FIXHOLD_$inp, QRT, A2F_$inp, IQZ_$out);
     (* iopad_external_pin *)
     input wire A2F_$inp;
 
-    input wire IQC, ISEL_$inp, FIXHOLD_$inp, QRTx;
+    input wire IQC, ISEL_$inp, FIXHOLD_$inp, QRT;
 
     (* iopad_external_pin *)
     output wire IQZ_$out;

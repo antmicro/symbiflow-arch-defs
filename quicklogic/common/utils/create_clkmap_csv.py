@@ -90,15 +90,20 @@ def main():
     # Load data from the database
     db = pickle.load(args.db)
 
-    connections = db["connections"]
+    connections = []
+    if "connections" in db:
+        connections = db["connections"]
     vpr_tile_grid = db["vpr_tile_grid"]
 
-    # Generate the CSV data
-    csv_lines = generate_clkmap_csv(connections, vpr_tile_grid)
+    csv_lines = []
+    if len(connections) > 0 and vpr_tile_grid is not None:
+        # Generate the CSV data
+        csv_lines = generate_clkmap_csv(connections, vpr_tile_grid)
 
     # Write the CSV file
     args.o.write("name,src.x,src.y,src.z,dst.x,dst.y,dst.z\n")
-    args.o.write("\n".join(csv_lines) + "\n")
+    if len(csv_lines) > 0:
+        args.o.write("\n".join(csv_lines) + "\n")
 
 
 # =============================================================================

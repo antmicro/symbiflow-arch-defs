@@ -8,7 +8,7 @@ module D_BUFF_CELL(DSEL_$inp, F2A_DEF_$out);
     input wire DSEL_$inp;
 
     (* iopad_external_pin *)
-    output wire F2A_$out;
+    output wire F2A_DEF_$out;
 
     assign F2A_DEF_$out = DSEL_$inp ? 1'b1: 1'b0;
 

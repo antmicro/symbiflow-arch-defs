@@ -1,8 +1,13 @@
-add_subdirectory(primitives)
 
 set(CELLS_MAP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/techmap/cells_map.v)
 get_filename_component(FAMILY_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 set(CELLS_MAP_FILE_DEST_DIR ${symbiflow-arch-defs_BINARY_DIR}/quicklogic/${FAMILY_NAME}/techmap/)
+
+add_custom_target(QL_${FAMILY_NAME}_CELLS_SIM_DEPS)
+
+include(../common/cmake/cells_sim_gen.cmake)
+
+add_subdirectory(primitives)
 
 # Copy map files to binary dir.
 file(COPY ${CELLS_MAP_FILE} DESTINATION ${CELLS_MAP_FILE_DEST_DIR})
