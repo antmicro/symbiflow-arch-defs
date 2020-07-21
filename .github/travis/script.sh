@@ -26,9 +26,9 @@ $SPACER
 
 make_target check_python "Check code formatting"
 
-$SPACER
+#$SPACER
 
-make_target lint_python "Check code style"
+#make_target lint_python "Check code style"
 
 $SPACER
 
