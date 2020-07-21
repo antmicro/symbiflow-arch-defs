@@ -4,9 +4,25 @@
 (* whitebox *)
 module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, notifier, AQZ);
 
-    input CDS, QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, notifier;
+    (* CLOCK *)
+	(* clkbuf_sink *)
+    input wire QCK,
 
-    output  AQZ;
+    (* NO_COMB *)
+    input wire QST;
+
+    (* NO_COMB *)
+    input wire QRT;
+    
+    (* NO_COMB *)
+    input wire QEN;
+    
+    (* NO_COMB *)
+    input wire QDI;
+    
+    input wire CDS, UQST, QSTS, UQRT, QRTS, notifier;
+
+    output reg AQZ;
 
     wire mux_qst_op, mux_qrt_op ;
     reg QZ_reg;

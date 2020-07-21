@@ -180,6 +180,7 @@ module full_adder(A, B, CI, L1CI, S, CO);
 
 endmodule
 
+/**
 module LOGIC_Cell (
             LI0,
             LI1,
@@ -222,6 +223,7 @@ module LOGIC_Cell (
             .LCO () ); 
 
 endmodule
+***/
 
 module LUT4 (
     output O,
@@ -229,9 +231,9 @@ module LUT4 (
     input  I1,
     input  I2,
     input  I3
-    );
+);
 
-    wire [15:0] INIT = 0;
+    parameter [15:0] INIT = 0;
 
     L_FRAG #() _TECHMAP_REPLACE_(
             .fragBitInfo(INIT), 
@@ -244,6 +246,7 @@ module LUT4 (
 
 endmodule
 
+/**
 module lqfrag_macro_0 (
             LI0,
             LI1,
@@ -330,6 +333,7 @@ module lqfrag_macro_1 (
             .LCO () ); 
 
 endmodule
+**/
 
 module ff (
         D,
@@ -412,13 +416,13 @@ module ckpad(output Q, input P);
   end else begin
     // Otherwise make it an inpad cell that gets mapped to IO_REG
 
-      in_buff #(
+      IN_BUFF_CELL #(
       .IO_PAD(IO_PAD),
       .IO_LOC(IO_LOC),
       .IO_TYPE(IO_TYPE)
       ) _TECHMAP_REPLACE_ (
-      .Q(Q),
-      .P(P)
+      .A2F_$inp(Q),
+      .IQZ_$out(P)
       );
 
   end endgenerate

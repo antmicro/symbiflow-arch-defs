@@ -99,27 +99,43 @@ module LOGIC (
         Q7DI,
 		F0Z,
         AQ0Z,
+        BQ0Z,
+        CQ0Z,
 		L0CO,
 		F1Z,
         AQ1Z,
+        BQ1Z,
+        CQ1Z,
 		L1CO,
 		F2Z,
         AQ2Z,
-		L2CO,
+        BQ2Z,
+        CQ2Z,
+        L2CO,
 		F3Z,
         AQ3Z,
+        BQ3Z,
+        CQ3Z,
 		L3CO,
 		F4Z,
         AQ4Z,
+        BQ4Z,
+        CQ4Z,
 		L4CO,
 		F5Z,
         AQ5Z,
+        BQ5Z,
+        CQ5Z,
 		L5CO,
 		F6Z,
         AQ6Z,
+        BQ6Z,
+        CQ6Z,
 		L6CO,
 		F7Z,
         AQ7Z,
+        BQ7Z,
+        CQ7Z,
 		L7CO);
 
     input [127:0] lFragBitInfo;
@@ -216,27 +232,43 @@ module LOGIC (
     input Q7DI;
     output F0Z;
     output AQ0Z;
+    output BQ0Z;
+    output CQ0Z;
     output L0CO;
     output F1Z;
     output AQ1Z;
+    output BQ1Z;
+    output CQ1Z;
     output L1CO;
     output F2Z;
     output AQ2Z;
+    output BQ2Z;
+    output CQ2Z;
     output L2CO;
     output F3Z;
     output AQ3Z;
+    output BQ3Z;
+    output CQ3Z;
     output L3CO;
     output F4Z;
     output AQ4Z;
+    output BQ4Z;
+    output CQ4Z;
     output L4CO;
     output F5Z;
     output AQ5Z;
+    output BQ5Z;
+    output CQ5Z;
     output L5CO;
     output F6Z;
     output AQ6Z;
+    output BQ6Z;
+    output CQ6Z;
     output L6CO;
     output F7Z;
     output AQ7Z;
+    output BQ7Z;
+    output CQ7Z;
     output L7CO;
 
     reg notifier;
@@ -260,6 +292,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F0Z),
             .AQZ (AQ0Z),
+            .BQZ (BQ0Z),
+            .CQZ (CQ0Z),
             .LCO (L0CO) ); 
 
     ONE_LOGIC_CELL logic1(
@@ -281,6 +315,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F1Z),
             .AQZ (AQ1Z),
+            .BQZ (BQ1Z),
+            .CQZ (CQ1Z),
             .LCO (L1CO) ); 
 
     ONE_LOGIC_CELL logic2(
@@ -302,6 +338,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F2Z),
             .AQZ (AQ2Z),
+            .BQZ (BQ2Z),
+            .CQZ (CQ2Z),
             .LCO (L2CO) ); 
 
     ONE_LOGIC_CELL logic3(
@@ -323,6 +361,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F3Z),
             .AQZ (AQ3Z),
+            .BQZ (BQ3Z),
+            .CQZ (CQ3Z),
             .LCO (L3CO) );  
 
     ONE_LOGIC_CELL logic4(
@@ -344,6 +384,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F4Z),
             .AQZ (AQ4Z),
+            .BQZ (BQ4Z),
+            .CQZ (CQ4Z),
             .LCO (L4CO) );
 
     ONE_LOGIC_CELL logic5(
@@ -365,6 +407,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F5Z),
             .AQZ (AQ5Z),
+            .BQZ (BQ5Z),
+            .CQZ (CQ5Z),
             .LCO (L5CO) ); 
 
     ONE_LOGIC_CELL logic6(
@@ -386,6 +430,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F6Z),
             .AQZ (AQ6Z),
+            .BQZ (BQ6Z),
+            .CQZ (CQ6Z),
             .LCO (L6CO) ); 
 
     ONE_LOGIC_CELL logic7(
@@ -407,6 +453,8 @@ module LOGIC (
             .notifier (notifier),
             .FZ (F7Z),
             .AQZ (AQ7Z),
+            .BQZ (BQ7Z),
+            .CQZ (CQ7Z),
             .LCO (L7CO) ); 
 
     /***Logic Cell Specify Block Data***/
@@ -442,6 +490,8 @@ module LOGIC (
 
         if (Q0EN == 1'b1)
             (QCK => AQ0Z)  = (0,0);
+            (QCK => BQ0Z)  = (0,0);
+            (QCK => CQ0Z)  = (0,0);
 
         (L0I0 => F0Z) = (0,0);
         (L0I1 => F0Z) = (0,0);
@@ -454,6 +504,8 @@ module LOGIC (
 
         if (Q1EN == 1'b1)
             (QCK => AQ1Z)  = (0,0);
+            (QCK => BQ1Z)  = (0,0);
+            (QCK => CQ1Z)  = (0,0);
 
         (L1I0 => F1Z) = (0,0);
         (L1I1 => F1Z) = (0,0);
@@ -466,6 +518,8 @@ module LOGIC (
 
         if (Q2EN == 1'b1)
             (QCK => AQ2Z)  = (0,0);
+            (QCK => BQ2Z)  = (0,0);
+            (QCK => CQ2Z)  = (0,0);
 
         (L2I0 => F2Z) = (0,0);
         (L2I1 => F2Z) = (0,0);
@@ -478,6 +532,8 @@ module LOGIC (
 
         if (Q3EN == 1'b1)
             (QCK => AQ3Z)  = (0,0);
+            (QCK => BQ3Z)  = (0,0);
+            (QCK => CQ3Z)  = (0,0);
 
         (L3I0 => F3Z) = (0,0);
         (L3I1 => F3Z) = (0,0);
@@ -490,6 +546,8 @@ module LOGIC (
 
         if (Q4EN == 1'b1)
             (QCK => AQ4Z)  = (0,0);
+            (QCK => BQ4Z)  = (0,0);
+            (QCK => CQ4Z)  = (0,0);
 
         (L4I0 => F4Z) = (0,0);
         (L4I1 => F4Z) = (0,0);
@@ -502,6 +560,8 @@ module LOGIC (
 
         if (Q5EN == 1'b1)
             (QCK => AQ5Z)  = (0,0);
+            (QCK => BQ5Z)  = (0,0);
+            (QCK => CQ5Z)  = (0,0);
 
         (L5I0 => F5Z) = (0,0);
         (L5I1 => F5Z) = (0,0);
@@ -514,6 +574,8 @@ module LOGIC (
 
         if (Q6EN == 1'b1)
             (QCK => AQ6Z)  = (0,0);
+            (QCK => BQ6Z)  = (0,0);
+            (QCK => CQ6Z)  = (0,0);
 
         (L6I0 => F6Z) = (0,0);
         (L6I1 => F6Z) = (0,0);
@@ -526,6 +588,8 @@ module LOGIC (
 
         if (Q7EN == 1'b1)
             (QCK => AQ7Z)  = (0,0);
+            (QCK => BQ7Z)  = (0,0);
+            (QCK => CQ7Z)  = (0,0);
 
         (L7I0 => F7Z) = (0,0);
         (L7I1 => F7Z) = (0,0);

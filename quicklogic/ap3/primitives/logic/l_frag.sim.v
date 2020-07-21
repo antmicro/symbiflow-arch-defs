@@ -11,8 +11,8 @@ module L_FRAG (
         LUTOutput,
         CarryOut);
 
-input [15:0] fragBitInfo; 
-input I0, I1, I2, I3;
+input wire [15:0] fragBitInfo; 
+input wire I0, I1, I2, I3;
 output LUTOutput; 
 output CarryOut;
 
