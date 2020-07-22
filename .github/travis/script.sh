@@ -4,6 +4,21 @@ source .github/travis/common.sh
 set -e
 
 $SPACER
+# Generate yosys binary for the branch quicklogic-rebased
+mkdir $HOME/antmicro_install
+git clone https://github.com/QuickLogic-Corp/yosys.git -b quicklogic-rebased quicklogic-yosys
+cd quicklogic-yosys
+sed -i 's/CONFIG := clang/CONFIG := gcc/g' Makefile
+#make config-gcc
+make install -j10 PREFIX=$HOME/antmicro_install
+cd –
+export PATH=~/antmicro_install/bin:$PATH
+git clone https://github.com/QuickLogic-Corp/yosys-symbiflow-plugins -b ql-ios
+cd yosys-symbiflow-plugins
+make install
+cd -
+
+$SPACER
 
 start_section "symbiflow.configure_cmake" "Configuring CMake (make env)"
 make env
