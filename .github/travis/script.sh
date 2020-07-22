@@ -11,7 +11,7 @@ cd quicklogic-yosys
 sed -i 's/CONFIG := clang/CONFIG := gcc/g' Makefile
 #make config-gcc
 make install -j10 PREFIX=$HOME/antmicro_install
-cd –
+cd -
 export PATH=~/antmicro_install/bin:$PATH
 git clone https://github.com/QuickLogic-Corp/yosys-symbiflow-plugins -b ql-ios
 cd yosys-symbiflow-plugins
