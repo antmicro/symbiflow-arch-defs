@@ -207,6 +207,17 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         ")
 
       set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+  
+      # Define the device type
+      define_device_type(
+        DEVICE_TYPE ${DEVICE_TYPE}
+        ARCH ${ARCH}
+        ARCH_XML ${ARCH_XML}
+        SCRIPT_OUTPUT_NAME timing
+        SCRIPTS TIMING_IMPORT
+        SCRIPT_DEPS TIMING_DEPS
+      )
+
   else()
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
@@ -219,34 +230,31 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       add_file_target(FILE ${ARCH_XML} GENERATED)
 
       # Timing import stuff
-      set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
-      set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
-      get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+      #set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+      #set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+      #get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
-      set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
+      #set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/${DEVICE}-bels.json)
 
-      set(TIMING_IMPORT
-        "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
-        ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
-            --sdf_dir ${SDF_TIMING_DIR} \
-            --bels_map ${BELS_MAP} \
-            --out_arch /dev/stdout \
-            --input_arch /dev/stdin \
-        ")
+      #set(TIMING_IMPORT
+      #  "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
+      #  ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
+      #      --sdf_dir ${SDF_TIMING_DIR} \
+      #      --bels_map ${BELS_MAP} \
+      #      --out_arch /dev/stdout \
+      #      --input_arch /dev/stdin \
+      #  ")
 
-      set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+      #set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+
+      # Define the device type
+      define_device_type(
+        DEVICE_TYPE ${DEVICE_TYPE}
+        ARCH ${ARCH}
+        ARCH_XML ${ARCH_XML}
+      )
 
   endif()
-
-  # Define the device type
-  define_device_type(
-    DEVICE_TYPE ${DEVICE_TYPE}
-    ARCH ${ARCH}
-    ARCH_XML ${ARCH_XML}
-    SCRIPT_OUTPUT_NAME timing
-    SCRIPTS TIMING_IMPORT
-    SCRIPT_DEPS TIMING_DEPS
-  )
 
   # Set the device type properties
   if(NOT "${GRID_LIMIT}" STREQUAL "")

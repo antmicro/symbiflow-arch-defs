@@ -6,7 +6,8 @@ module IN_BUFF_CELL(A2F_$inp, IQZ_$out);
     
     (* iopad_external_pin *)
     input wire A2F_$inp;
-    
+   
+    (* DELAY_CONST_A2F_$inp="1e-10" *)
     (* iopad_external_pin *)
     output wire IQZ_$out;
 
