@@ -17,6 +17,7 @@ git clone https://github.com/QuickLogic-Corp/yosys-symbiflow-plugins -b ql-ios
 cd yosys-symbiflow-plugins
 make install
 cd -
+export YOSYS=$HOME/antmicro_install/bin/yosys
 
 $SPACER
 
