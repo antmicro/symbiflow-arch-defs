@@ -18,6 +18,7 @@ module GMUX(GCLKIN, GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
     // Mode for the CLK input connected
     generate if (MODE == "CLK") begin
 
+		(* FASM_PREFIX="GMUX.CLK" *)
 		GMUX_CLK gmux_clk_inst (
 			.GCLKIN(GCLKIN), 
 			.SSEL(SSEL),
@@ -37,12 +38,13 @@ module GMUX(GCLKIN, GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
 			.TR_DYNEN(TR_DYNEN), 
 			.TR_SEN(TR_SEN), 
 			.TR_VLP(TR_VLP),
-			.IZ(Q)
+			.IZ(IZ)
 		);
 
     // Mode for the IP input disconnected
     end else if (MODE == "HSCK") begin
 
+		(* FASM_PREFIX="GMUX.CLK" *)
 		GMUX_HSCK gmux_hsck_inst (
 			.GHSCK(GHSCK),
 			.SSEL(SSEL),
@@ -62,7 +64,7 @@ module GMUX(GCLKIN, GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
 			.TR_DYNEN(TR_DYNEN), 
 			.TR_SEN(TR_SEN), 
 			.TR_VLP(TR_VLP),
-			.IZ(Q)
+			.IZ(IZ)
 		);
 
     end endgenerate
