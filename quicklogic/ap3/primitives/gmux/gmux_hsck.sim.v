@@ -8,7 +8,6 @@ module GMUX_HSCK (GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
             BR_VLP, TL_DEN, TL_DYNEN, TL_SEN, TL_VLP, TR_DEN, TR_DYNEN, TR_SEN, TR_VLP; 
     
     (* DELAY_CONST_GHSCK="{iopath_GHSCK_IZ}" *)
-    (* DELAY_CONST_SSEL="1e-10" *)  // No timing for the select pin
     (* clkbuf_driver *)
     output wire IZ; 
     

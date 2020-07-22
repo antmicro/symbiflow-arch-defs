@@ -7,8 +7,6 @@ module GMUX_CLK (GCLKIN, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
     input wire GCLKIN, SSEL, BL_DYNEN, BL_VLP, BR_DEN, BR_DYNEN, BR_SEN, BL_DEN, BL_SEN, 
             BR_VLP, TL_DEN, TL_DYNEN, TL_SEN, TL_VLP, TR_DEN, TR_DYNEN, TR_SEN, TR_VLP; 
     
-    (* DELAY_CONST_GCLKIN="{iopath_GCLKIN_IZ}" *)
-    (* DELAY_CONST_SSEL="{iopath_SSEL_IZ}" *)
     (* clkbuf_driver *)
     output wire IZ; 
 
