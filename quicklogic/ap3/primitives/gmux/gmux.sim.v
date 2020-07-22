@@ -19,9 +19,8 @@ module GMUX(GCLKIN, GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
     generate if (MODE == "CLK") begin
 
 		(* FASM_PREFIX="GMUX.CLK" *)
-		GMUX_CLK gmux (
+		GMUX_CLK gmux_clk_inst (
 			.GCLKIN(GCLKIN), 
-			.GHSCK(GHSCK),
 			.SSEL(SSEL),
 			.BL_DEN(BL_DEN), 
 			.BL_DYNEN(BL_DYNEN), 
@@ -46,8 +45,7 @@ module GMUX(GCLKIN, GHSCK, SSEL, BL_DEN, BL_DYNEN, BL_SEN, BL_VLP, BR_DEN,
     end else if (MODE == "HSCK") begin
 
 		(* FASM_PREFIX="GMUX.CLK" *)
-		GMUX_HSCK gmux (
-			.GCLKIN(GCLKIN), 
+		GMUX_HSCK gmux_hsck_inst (
 			.GHSCK(GHSCK),
 			.SSEL(SSEL),
 			.BL_DEN(BL_DEN), 
