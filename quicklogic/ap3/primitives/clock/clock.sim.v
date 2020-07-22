@@ -1,19 +1,23 @@
-`timescale 1ns/10ps
+`include "../vpr_pad/vpr_ipad.sim.v"
+`include "./clock_cell.sim.v"
 
-(* whitebox *)
-(* FASM_FEATURES="" *)
-module CLOCK(IP, CEN, IC, OP);
-   input IP, CEN;
-   output IC, OP;
-   buf IP_buf (IP_int, IP) ;
-   buf CEN_buf (CEN_int, CEN) ;
+module CLOCK(
+    output wire IC,
+    output wire OP
+);
 
-   buf (IC, IP_int);
+    (* pack="IPAD_TO_CBUF" *)
+    wire i_pad;
 
-   specify
-      (IP => IC) = (0,0);
-   endspecify
+    // The VPR input pad
+    (* keep *)
+    VPR_IPAD inpad(i_pad);
 
+    // IO buffer (the actual CLOCK cell counterpart)
+    (* keep *)
+    CLOCK_CELL clock_buf(
+        .I_PAD(i_pad),
+        .O_CLK(IC),
+    );
 
 endmodule
-

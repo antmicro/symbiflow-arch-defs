@@ -7,6 +7,7 @@ module D_BUFF_CELL(DSEL_$inp, F2A_DEF_$out);
     (* iopad_external_pin *)
     input wire DSEL_$inp;
 
+    (* DELAY_CONST_DSEL_$inp="1e-10" *)
     (* iopad_external_pin *)
     output wire F2A_DEF_$out;
 

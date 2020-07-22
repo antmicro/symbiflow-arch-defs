@@ -1,7 +1,6 @@
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
 (* MODEL_NAME="L_FRAG" *)
-(* CLASS="lut" *)
 (* whitebox *)
 module L_FRAG (
         fragBitInfo, 
@@ -14,7 +13,18 @@ module L_FRAG (
 
     input wire [15:0] fragBitInfo; 
     input wire I0, I1, I2, I3;
+    
+    (* DELAY_CONST_fragBitInfo="1e-10" *) 
+    (* DELAY_CONST_I0="1e-10" *) 
+    (* DELAY_CONST_I1="1e-10" *) 
+    (* DELAY_CONST_I2="1e-10" *) 
+    (* DELAY_CONST_I3="1e-10" *) 
     output wire LUTOutput; 
+
+    (* DELAY_CONST_fragBitInfo="1e-10" *) 
+    (* DELAY_CONST_I0="1e-10" *) 
+    (* DELAY_CONST_I1="1e-10" *) 
+    (* DELAY_CONST_I2="1e-10" *) 
     output wire CarryOut;
 
     wire stage0_op0, stage0_op1, stage0_op2, stage0_op3, stage0_op4, stage0_op5, stage0_op6, stage0_op7; 

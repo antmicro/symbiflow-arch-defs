@@ -382,9 +382,8 @@ module ckpad(output Q, input P);
       wire C;
 
       CLOCK clock (
-      .IP(P),
-      .IC(C),
-      .CEN(1'b1)
+      .I_PAD(P),
+      .O_CLK(C)
       );
 
       GMUX_CLK gmux (
@@ -441,15 +440,13 @@ endmodule
 
 endmodule*/
 
-module ck_buff ( A , Z );
+module ck_buff ( A , Q );
     input A;
-    output Z;
+    output Q;
 
     CLOCK#() _TECHMAP_REPLACE_(
         .IP(A), 
-        .IC(Q), 
-        .CEN(1'b1), 
-        .OP());
+        .IC(Q));
 
 endmodule
 
