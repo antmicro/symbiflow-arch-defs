@@ -16,6 +16,7 @@ addons:
      - graphviz
      - inkscape
      - make
+     - ninja
 
 before_install:
  - source ./.github/travis/common.sh
