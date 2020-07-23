@@ -19,6 +19,10 @@ make install
 cd -
 export YOSYS=$HOME/antmicro_install/bin/yosys
 
+#setup ninja
+export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
+export BUILD_TOOL=ninja
+
 $SPACER
 
 start_section "symbiflow.configure_cmake" "Configuring CMake (make env)"
