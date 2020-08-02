@@ -1,0 +1,386 @@
+<!--
+ Architecture file for Quick-Logic AP3 architecture
+ -->
+<architecture>
+  <!-- ODIN II specific config -->
+  <models>
+    <!-- TODO: Add models describing BRAM and Multiplier -->
+  </models>
+  <tiles>
+    <tile name="io">
+      <sub_tile name="io" capacity="8">
+        <equivalent_sites>
+          <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="outpad" num_pins="1"/>
+        <output name="inpad" num_pins="1"/>
+        <clock name="clock" num_pins="1"/>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
+          <fc_override port_name="outpad" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="inpad" segment_name="l4g" fc_type="frac" fc_val="0.200000"/>
+          <fc_override port_name="clock" segment_name="l4g" fc_type="frac" fc_val="0"/>
+        </fc>
+        <pinlocations pattern="custom">
+          <loc side="left">io.outpad io.inpad io.clock</loc>
+          <loc side="top">io.outpad io.inpad io.clock</loc>
+          <loc side="right">io.outpad io.inpad io.clock</loc>
+          <loc side="bottom">io.outpad io.inpad io.clock</loc>
+        </pinlocations>
+      </sub_tile>
+    </tile>
+    <tile name="SLC" area="3900">
+      <sub_tile name="SLC">
+        <equivalent_sites>
+          <site pb_type="SLC" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="I0" num_pins="4" equivalent="full"/>
+        <input name="I1" num_pins="4" equivalent="full"/>
+        <input name="I2" num_pins="4" equivalent="full"/>
+        <input name="I3" num_pins="4" equivalent="full"/>
+        <input name="I4" num_pins="4" equivalent="full"/>
+        <input name="I5" num_pins="4" equivalent="full"/>
+        <input name="I6" num_pins="4" equivalent="full"/>
+        <input name="I7" num_pins="4" equivalent="full"/>
+        <output name="O" num_pins="8" equivalent="none"/>
+        <clock name="clk" num_pins="1"/>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
+          <fc_override port_name="I0" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I1" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I2" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I3" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I4" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I5" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I6" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="I7" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="clk" segment_name="l4g" fc_type="frac" fc_val="0"/>
+          <fc_override port_name="O" segment_name="l4g" fc_type="frac" fc_val="0.200000"/>
+        </fc>
+        <pinlocations pattern="spread"/>
+      </sub_tile>
+    </tile>
+  </tiles>
+  <!-- ODIN II specific config ends -->
+  <!-- Physical descriptions begin -->
+  <layout>
+    <!-- Auto layout is for architecture exploration
+         TODO: Add BRAM and Multipliers for ap3 device -->
+    <auto_layout aspect_ratio="1.0">
+      <!--Perimeter of 'io' blocks with 'EMPTY' blocks at corners-->
+      <perimeter type="io" priority="100"/>
+      <corners type="EMPTY" priority="101"/>
+      <!--Fill with 'SLC'-->
+      <fill type="SLC" priority="10"/>
+      <!--Column of 'mult_36' with 'EMPTY' blocks wherever a 'mult_36' does not fit. Vertical offset by 1 for perimeter.-->
+    </auto_layout>
+    <!-- TODO: Define a fixed-layout for ap3 device -->
+  </layout>
+  <device>
+    <sizing R_minW_nmos="13090.000000" R_minW_pmos="19086.831111"/>
+    <area grid_logic_tile_area="0"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+    <switch_block type="custom"/>
+    <connection_block input_switch_name="ipin_cblock"/>
+  </device>
+  <switchlist>
+    <!-- TODO: the switch definition should follow the external RRGraph definition -->
+    <!-- l2s_mux drives length-2 wires on the semi-global metal layer -->
+    <switch type="mux" name="l2s_mux" R="878" Cin="2e-15" Cout="0.000000e+00" mux_trans_size="1.5" buf_size="14.2000000">
+      <Tdel num_inputs="6" delay="5.65e-11"/>
+      <Tdel num_inputs="15" delay="6.84e-11"/>
+    </switch>
+    <!-- l4g_mux drives length-4 wires on the global metal layer -->
+    <switch type="mux" name="l4g_mux" R="448" Cin="1.8e-15" Cout="0.000000e+00" mux_trans_size="1.5" buf_size="20.0000000">
+      <Tdel num_inputs="12" delay="5.93e-11"/>
+      <Tdel num_inputs="25" delay="7.35e-11"/>
+    </switch>
+    <!--switch ipin_cblock resistance set to yeild for 4x minimum drive strength buffer-->
+    <switch type="mux" name="ipin_cblock" R="3272.5" Cout="0." Cin="2e-15" Tdel="7.562e-11" mux_trans_size="1.2" buf_size="auto"/>
+  </switchlist>
+  <segmentlist>
+    <!-- TODO: the segment definition should follow the external RRGraph definition -->
+    <!-- 85% length-2 wires on the semi-global metal layer -->
+    <segment freq="0.85" name="l2s" length="2" type="unidir" Rmetal="174" Cmetal="0.0">
+      <mux name="l2s_mux"/>
+      <sb type="pattern">1 1 1</sb>
+      <cb type="pattern">1 1</cb>
+    </segment>
+    <!-- 15% length-4 wires on the global metal layer -->
+    <segment freq="0.15" name="l4g" length="4" type="unidir" Rmetal="23" Cmetal="0.0">
+      <mux name="l4g_mux"/>
+      <sb type="pattern">1 1 1 1 1</sb>
+      <cb type="pattern">1 0 0 0</cb>
+    </segment>
+  </segmentlist>
+  <!-- Define custom switch blocks:
+       TODO: May check if we can reuse this for ap3 device -->
+  <switchblocklist>
+    <switchblock name="wilton_turn_core" type="unidir">
+      <switchblock_location type="CORE"/>
+      <switchfuncs>
+        <func type="lt" formula="W-t"/>
+        <func type="lb" formula="t-1"/>
+        <func type="rt" formula="t-1"/>
+        <func type="br" formula="W-t-2"/>
+        <func type="tl" formula="W-t"/>
+        <func type="bl" formula="t+1"/>
+        <func type="tr" formula="t+1"/>
+        <func type="rb" formula="W-t-2"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="1" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+    <switchblock name="wilton_turn_perimeter" type="unidir">
+      <switchblock_location type="PERIMETER"/>
+      <switchfuncs>
+        <func type="lt" formula="W-t"/>
+        <func type="lb" formula="t-1"/>
+        <func type="rt" formula="t-1"/>
+        <func type="br" formula="W-t-2"/>
+        <func type="tl" formula="W-t"/>
+        <func type="bl" formula="t+1"/>
+        <func type="tr" formula="t+1"/>
+        <func type="rb" formula="W-t-2"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0,1" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+    <switchblock name="wilton_straight" type="unidir">
+      <switchblock_location type="EVERYWHERE"/>
+      <switchfuncs>
+        <func type="lr" formula="t"/>
+        <func type="bt" formula="t"/>
+        <func type="rl" formula="t"/>
+        <func type="tb" formula="t"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+  </switchblocklist>
+  <complexblocklist>
+    <!-- TODO: Define the bidirectional I/O as the tech lib. -->
+    <pb_type name="io">
+      <input name="outpad" num_pins="1"/>
+      <output name="inpad" num_pins="1"/>
+      <clock name="clock" num_pins="1"/>
+      <!-- IOs can operate as either inputs or outputs -->
+      <mode name="inpad">
+        <pb_type name="inpad" blif_model=".input" num_pb="1">
+          <output name="inpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="inpad" input="inpad.inpad" output="io.inpad">
+            <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="io.inpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <mode name="outpad">
+        <pb_type name="outpad" blif_model=".output" num_pb="1">
+          <input name="outpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="outpad" input="io.outpad" output="outpad.outpad">
+            <delay_constant max="1.394e-11" in_port="io.outpad" out_port="outpad.outpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <!-- IOs go on the periphery of the FPGA, for consistency, 
+          make it physically equivalent on all sides so that only one definition of I/Os is needed.
+          If I do not make a physically equivalent definition, then I need to define 4 different I/Os, one for each side of the FPGA
+        -->
+    </pb_type>
+    <!-- Define super logic cluster (SLC) begins -->
+    <!-- k4 N8 I32 with no input crossbar (but LUT inputs are equivalent
+         and each LUT has it's own dedicated inputs) -->
+    <pb_type name="SLC">
+      <input name="LI0" num_pins="4" equivalent="full"/>
+      <input name="LI1" num_pins="4" equivalent="full"/>
+      <input name="LI2" num_pins="4" equivalent="full"/>
+      <input name="LI3" num_pins="4" equivalent="full"/>
+      <input name="LI4" num_pins="4" equivalent="full"/>
+      <input name="LI5" num_pins="4" equivalent="full"/>
+      <input name="LI6" num_pins="4" equivalent="full"/>
+      <input name="LI7" num_pins="4" equivalent="full"/>
+      <input name="CIN" num_pins="1"/>
+      <output name="COUT" num_pins="1"/>
+      <output name="FZ" num_pins="8" equivalent="none"/>
+      <output name="AQZ" num_pins="8" equivalent="none"/>
+      <output name="BQZ" num_pins="8" equivalent="none"/>
+      <output name="CQZ" num_pins="8" equivalent="none"/>
+      <clock name="QCK" num_pins="1"/>
+      <!-- BEGIN Describe Logic Cell -->
+      <pb_type name="LOGIC_CELL" num_pb="8">
+        <input name="LI" num_pins="4"/>
+        <input name="CIN" num_pins="1"/>
+        <output name="COUT" num_pins="1"/>
+        <output name="FZ" num_pins="1"/>
+        <output name="BQZ" num_pins="1"/>
+        <output name="CQZ" num_pins="1"/>
+        <output name="AQZ" num_pins="1"/>
+        <clock name="QCK" num_pins="1"/>
+        <!-- BEGIN Define 4-input LUT mode -->
+        <mode name="LUT">
+          <pb_type name="BLE4" num_pb="1">
+            <input name="LI" num_pins="4"/>
+            <output name="FZ" num_pins="1"/>
+            <output name="BQZ" num_pins="1"/>
+            <output name="CQZ" num_pins="1"/>
+            <output name="AQZ" num_pins="1"/>
+            <clock name="QCK" num_pins="1"/>
+            <!-- Define LUT -->
+            <pb_type name="LUT4" blif_model=".names" num_pb="1" class="lut">
+              <input name="in" num_pins="4" port_class="lut_in"/>
+              <output name="out" num_pins="1" port_class="lut_out"/>
+              <!-- LUT timing using delay matrix -->
+              <delay_matrix type="max" in_port="lut4.in" out_port="lut4.out">
+                    1.145e-10
+                    1.145e-10
+                    1.145e-10
+                    1.145e-10
+                  </delay_matrix>
+            </pb_type>
+            <!-- Define flip-flop -->
+            <pb_type name="FF" blif_model=".latch" num_pb="1" class="flipflop">
+              <input name="D" num_pins="1" port_class="D"/>
+              <output name="Q" num_pins="1" port_class="Q"/>
+              <clock name="clk" num_pins="1" port_class="clock"/>
+              <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.Q" clock="clk"/>
+            </pb_type>
+            <interconnect>
+              <direct name="direct1" input="BLE4.LI" output="LUT4[0:0].in"/>
+              <direct name="direct2" input="LUT4.out" output="FF.D">
+                <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
+                <pack_pattern name="ble4" in_port="LUT4.out" out_port="FF.D"/>
+              </direct>
+              <direct name="direct3" input="BLE4.QCK" output="FF.clk"/>
+              <direct name="direct4" input="LUT4.out" output="BLE4.FZ"/>
+              <direct name="direct5" input="FF.Q" output="BLE4.AQZ"/>
+              <mux name="mux1" input="FF.Q LUT4.out" output="BLE4.BQZ">
+                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.BQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BLE4.BQZ[0:0]"/>
+              </mux>
+              <mux name="mux2" input="FF.Q LUT4.out" output="BLE4.CQZ">
+                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.CQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BLE4.CQZ[0:0]"/>
+              </mux>
+            </interconnect>
+          </pb_type>
+          <interconnect>
+            <direct name="direct1" input="LOGIC_CELL.LI" output="BLE4[0:0].LI"/>
+            <direct name="direct2" input="LOGIC_CELL.QCK" output="BLE4[0:0].QCK"/>
+            <direct name="direct3" input="BLE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
+            <direct name="direct3" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
+            <direct name="direct3" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
+            <direct name="direct3" input="BLE4[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
+          </interconnect>
+        </mode>
+        <!-- END Define 4-input LUT mode -->
+        <!-- BEGIN Define adder mode -->
+        <mode name="ADDER">
+          <pb_type name="BADDER" num_pb="1">
+            <input name="A" num_pins="1"/>
+            <input name="B" num_pins="1"/>
+            <input name="CIN" num_pins="1"/>
+            <output name="COUT" num_pins="1"/>
+            <output name="FZ" num_pins="1"/>
+            <output name="BQZ" num_pins="1"/>
+            <output name="CQZ" num_pins="1"/>
+            <output name="AQZ" num_pins="1"/>
+            <clock name="QCK" num_pins="1"/>
+            <!-- Define Adder -->
+            <pb_type name="ADDER" blif_model=".subckt adder" num_pb="1">
+              <input name="A" num_pins="1"/>
+              <input name="B" num_pins="1"/>
+              <input name="CIN" num_pins="1"/>
+              <output name="COUT" num_pins="1"/>
+              <output name="SUMOUT" num_pins="1"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.SUMOUT"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.SUMOUT"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.CIN" out_port="ADDER.SUMOUT"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.COUT"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.COUT"/>
+              <delay_constant max="0.01e-9" in_port="ADDER.CIN" out_port="ADDER.COUT"/>
+            </pb_type>
+            <!-- Define flip-flop -->
+            <pb_type name="FF" blif_model=".latch" num_pb="1" class="flipflop">
+              <input name="D" num_pins="1" port_class="D"/>
+              <output name="Q" num_pins="1" port_class="Q"/>
+              <clock name="clk" num_pins="1" port_class="clock"/>
+              <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.Q" clock="clk"/>
+            </pb_type>
+            <interconnect>
+              <direct name="direct1" input="BADDER.A" output="ADDER[0:0].A"/>
+              <direct name="direct2" input="ADDER.SUMOUT" output="FF.D">
+                <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
+                <pack_pattern name="adder_ff" in_port="ADDER.SUMOUT" out_port="FF.D"/>
+              </direct>
+              <direct name="direct3" input="BADDER.QCK" output="FF.clk"/>
+              <direct name="direct4" input="ADDER.SUMOUT" output="BADDER.FZ"/>
+              <direct name="direct5" input="FF.Q" output="BADDER.AQZ"/>
+              <mux name="mux1" input="FF.Q ADDER.SUMOUT" output="BADDER.BQZ">
+                <delay_constant max="16.6e-12" in_port="ADDER.SUMOUT[0:0]" out_port="BADDER.BQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.BQZ[0:0]"/>
+              </mux>
+              <mux name="mux2" input="FF.Q ADDER.SUMOUT" output="BADDER.CQZ">
+                <delay_constant max="16.6e-12" in_port="ADDER.SUMOUT[0:0]" out_port="BADDER.CQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.CQZ[0:0]"/>
+              </mux>
+            </interconnect>
+          </pb_type>
+          <interconnect>
+            <direct name="direct1" input="LOGIC_CELL.LI[0:0]" output="BADDER[0:0].A"/>
+            <direct name="direct2" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
+            <direct name="direct3" input="LOGIC_CELL.CIN" output="BADDER[0:0].CIN"/>
+            <direct name="direct4" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
+            <direct name="direct5" input="BADDER[0:0].COUT" output="LOGIC_CELL.COUT"/>
+            <direct name="direct6" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
+            <direct name="direct7" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
+            <direct name="direct8" input="BADDER[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
+            <direct name="direct9" input="BADDER[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
+          </interconnect>
+        </mode>
+        <!-- END Define adder mode -->
+      </pb_type>
+      <interconnect>
+        <!-- each input connects to its respective LUT with input equivalency -->
+        <complete name="completeI0" input="SLC.LI0" output="LOGIC_CELL[0].LI"/>
+        <complete name="completeI1" input="SLC.LI1" output="LOGIC_CELL[1].LI"/>
+        <complete name="completeI2" input="SLC.LI2" output="LOGIC_CELL[2].LI"/>
+        <complete name="completeI3" input="SLC.LI3" output="LOGIC_CELL[3].LI"/>
+        <complete name="completeI4" input="SLC.LI4" output="LOGIC_CELL[4].LI"/>
+        <complete name="completeI5" input="SLC.LI5" output="LOGIC_CELL[5].LI"/>
+        <complete name="completeI6" input="SLC.LI6" output="LOGIC_CELL[6].LI"/>
+        <complete name="completeI7" input="SLC.LI7" output="LOGIC_CELL[7].LI"/>
+        <!-- clock -->
+        <complete name="clks" input="SLC.QCK" output="LOGIC_CELL[7:0].QCK"/>
+        <!-- outputs -->
+        <direct name="direct_FZ" input="LOGIC_CELL[7:0].FZ" output="SLC.FZ"/>
+        <direct name="direct_AQZ" input="LOGIC_CELL[7:0].AQZ" output="SLC.AQZ"/>
+        <direct name="direct_BQZ" input="LOGIC_CELL[7:0].BQZ" output="SLC.BQZ"/>
+        <direct name="direct_CQZ" input="LOGIC_CELL[7:0].CQZ" output="SLC.CQZ"/>
+        <!-- Carry chain -->
+        <direct name="carry_in" input="SLC.CIN" output="LOGIC_CELL[0:0].CIN">
+          <!-- Put all inter-block carry chain delay on this one edge -->
+          <delay_constant max="0.16e-9" in_port="SLC.CIN" out_port="LOGIC_CELL[0:0].CIN"/>
+          <pack_pattern name="chain" in_port="SLC.CIN" out_port="LOGIC_CELl[0:0].CIN"/>
+        </direct>
+        <direct name="carry_out" input="LOGIC_CELL[7:7].COUT" output="SLC.COUT">
+          <pack_pattern name="chain" in_port="LOGIC_CELL[7:7].COUT" out_port="SLC.COUT"/>
+        </direct>
+        <direct name="carry_link" input="LOGIC_CELL[6:0].COUT" output="LOGIC_CELL[7:1].CIN">
+          <pack_pattern name="chain" in_port="LOGIC_CELL[6:0].COUT" out_port="LOGIC_CELL[7:1].CIN"/>
+        </direct>
+      </interconnect>
+      <!-- Place this general purpose logic block in any unspecified column -->
+    </pb_type>
+    <!-- Define super logic cluster (SLC) ends -->
+  </complexblocklist>
+</architecture>
