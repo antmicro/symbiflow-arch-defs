@@ -5,15 +5,29 @@
   <!-- ODIN II specific config -->
   <models>
     <!-- TODO: Add models describing BRAM and Multiplier -->
-   <model name="adder">
+   <model name="full_adder">
       <input_ports>
-        <port name="a" combinational_sink_ports="sumout cout"/>
-        <port name="b" combinational_sink_ports="sumout cout"/>
-        <port name="cin" combinational_sink_ports="sumout cout"/>
+        <port name="A" combinational_sink_ports="S CO"/>
+        <port name="B" combinational_sink_ports="S CO"/>
+        <port name="CI" combinational_sink_ports="S CO"/>
+        <port name="L1CI" combinational_sink_ports="S CO"/>
       </input_ports>
       <output_ports>
-        <port name="cout"/>
-        <port name="sumout"/>
+        <port name="CO"/>
+        <port name="S"/>
+      </output_ports>
+    </model>
+    <!-- TODO: A placeholder FF model, which may be used in place of the default 'latch' model -->
+    <model name="ff">
+      <input_ports>
+        <port name="QCK" is_clock="1"/>
+        <port name="D" clock="QCK"/>
+        <port name="QEN" clock="QCK"/>
+        <port name="QST" clock="QCK"/>
+        <port name="QRT" clock="QCK"/>
+      </input_ports>
+      <output_ports>
+        <port name="CQZ" clock="QCK"/>
       </output_ports>
     </model>
   </models>
@@ -174,6 +188,7 @@
       <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
     </switchblock>
   </switchblocklist>
+  <!-- TODO: Direct connections across pb_type, may be applied to CI and CO of SLC -->
   <complexblocklist>
     <!-- TODO: Define the bidirectional I/O as the tech lib. -->
     <pb_type name="io">
@@ -218,8 +233,8 @@
       <input name="LI5" num_pins="4" equivalent="full"/>
       <input name="LI6" num_pins="4" equivalent="full"/>
       <input name="LI7" num_pins="4" equivalent="full"/>
-      <input name="CIN" num_pins="1"/>
-      <output name="COUT" num_pins="1"/>
+      <input name="CI" num_pins="1"/>
+      <output name="CO" num_pins="1"/>
       <output name="FZ" num_pins="8" equivalent="none"/>
       <output name="AQZ" num_pins="8" equivalent="none"/>
       <output name="BQZ" num_pins="8" equivalent="none"/>
@@ -228,8 +243,8 @@
       <!-- BEGIN Describe Logic Cell -->
       <pb_type name="LOGIC_CELL" num_pb="8">
         <input name="LI" num_pins="4"/>
-        <input name="CIN" num_pins="1"/>
-        <output name="COUT" num_pins="1"/>
+        <input name="CI" num_pins="1"/>
+        <output name="CO" num_pins="1"/>
         <output name="FZ" num_pins="1"/>
         <output name="BQZ" num_pins="1"/>
         <output name="CQZ" num_pins="1"/>
@@ -298,26 +313,30 @@
           <pb_type name="BADDER" num_pb="1">
             <input name="A" num_pins="1"/>
             <input name="B" num_pins="1"/>
-            <input name="CIN" num_pins="1"/>
-            <output name="COUT" num_pins="1"/>
+            <input name="L1CI" num_pins="1"/>
+            <input name="CI" num_pins="1"/>
+            <output name="CO" num_pins="1"/>
             <output name="FZ" num_pins="1"/>
             <output name="BQZ" num_pins="1"/>
             <output name="CQZ" num_pins="1"/>
             <output name="AQZ" num_pins="1"/>
             <clock name="QCK" num_pins="1"/>
             <!-- Define Adder -->
-            <pb_type name="ADDER" blif_model=".subckt adder" num_pb="1">
+            <pb_type name="ADDER" blif_model=".subckt full_adder" num_pb="1">
               <input name="A" num_pins="1"/>
               <input name="B" num_pins="1"/>
-              <input name="CIN" num_pins="1"/>
-              <output name="COUT" num_pins="1"/>
-              <output name="SUMOUT" num_pins="1"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.SUMOUT"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.SUMOUT"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.CIN" out_port="ADDER.SUMOUT"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.COUT"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.COUT"/>
-              <delay_constant max="0.01e-9" in_port="ADDER.CIN" out_port="ADDER.COUT"/>
+              <input name="L1CI" num_pins="1"/>
+              <input name="CI" num_pins="1"/>
+              <output name="CO" num_pins="1"/>
+              <output name="S" num_pins="1"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.S"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.S"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.L1CI" out_port="ADDER.S"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.CI" out_port="ADDER.S"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.CO"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.CO"/>
+              <delay_constant max="0.3e-9" in_port="ADDER.L1CI" out_port="ADDER.CO"/>
+              <delay_constant max="0.01e-9" in_port="ADDER.CI" out_port="ADDER.CO"/>
             </pb_type>
             <!-- Define flip-flop -->
             <pb_type name="FF" blif_model=".latch" num_pb="1" class="flipflop">
@@ -329,19 +348,22 @@
             </pb_type>
             <interconnect>
               <direct name="direct1" input="BADDER.A" output="ADDER[0:0].A"/>
-              <direct name="direct2" input="ADDER.SUMOUT" output="FF.D">
+              <direct name="direct1" input="BADDER.B" output="ADDER[0:0].B"/>
+              <direct name="direct1" input="BADDER.CI" output="ADDER[0:0].CI"/>
+              <direct name="direct1" input="BADDER.L1CI" output="ADDER[0:0].L1CI"/>
+              <direct name="direct2" input="ADDER.S" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
-                <pack_pattern name="adder_ff" in_port="ADDER.SUMOUT" out_port="FF.D"/>
+                <pack_pattern name="adder_ff" in_port="ADDER.S" out_port="FF.D"/>
               </direct>
               <direct name="direct3" input="BADDER.QCK" output="FF.clk"/>
-              <direct name="direct4" input="ADDER.SUMOUT" output="BADDER.FZ"/>
+              <direct name="direct4" input="ADDER.S" output="BADDER.FZ"/>
               <direct name="direct5" input="FF.Q" output="BADDER.AQZ"/>
-              <mux name="mux1" input="FF.Q ADDER.SUMOUT" output="BADDER.BQZ">
-                <delay_constant max="16.6e-12" in_port="ADDER.SUMOUT[0:0]" out_port="BADDER.BQZ[0:0]"/>
+              <mux name="mux1" input="FF.Q ADDER.S" output="BADDER.BQZ">
+                <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.BQZ[0:0]"/>
               </mux>
-              <mux name="mux2" input="FF.Q ADDER.SUMOUT" output="BADDER.CQZ">
-                <delay_constant max="16.6e-12" in_port="ADDER.SUMOUT[0:0]" out_port="BADDER.CQZ[0:0]"/>
+              <mux name="mux2" input="FF.Q ADDER.S" output="BADDER.CQZ">
+                <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.CQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.CQZ[0:0]"/>
               </mux>
             </interconnect>
@@ -349,9 +371,10 @@
           <interconnect>
             <direct name="direct1" input="LOGIC_CELL.LI[0:0]" output="BADDER[0:0].A"/>
             <direct name="direct2" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
-            <direct name="direct3" input="LOGIC_CELL.CIN" output="BADDER[0:0].CIN"/>
+            <direct name="direct2" input="LOGIC_CELL.LI[2:2]" output="BADDER[0:0].L1CI"/>
+            <direct name="direct3" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
             <direct name="direct4" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
-            <direct name="direct5" input="BADDER[0:0].COUT" output="LOGIC_CELL.COUT"/>
+            <direct name="direct5" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
             <direct name="direct6" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
             <direct name="direct7" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
             <direct name="direct8" input="BADDER[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
@@ -378,16 +401,16 @@
         <direct name="direct_BQZ" input="LOGIC_CELL[7:0].BQZ" output="SLC.BQZ"/>
         <direct name="direct_CQZ" input="LOGIC_CELL[7:0].CQZ" output="SLC.CQZ"/>
         <!-- Carry chain -->
-        <direct name="carry_in" input="SLC.CIN" output="LOGIC_CELL[0:0].CIN">
+        <direct name="carry_in" input="SLC.CI" output="LOGIC_CELL[0:0].CI">
           <!-- Put all inter-block carry chain delay on this one edge -->
-          <delay_constant max="0.16e-9" in_port="SLC.CIN" out_port="LOGIC_CELL[0:0].CIN"/>
-          <pack_pattern name="chain" in_port="SLC.CIN" out_port="LOGIC_CELl[0:0].CIN"/>
+          <delay_constant max="0.16e-9" in_port="SLC.CI" out_port="LOGIC_CELL[0:0].CI"/>
+          <pack_pattern name="chain" in_port="SLC.CI" out_port="LOGIC_CELl[0:0].CI"/>
         </direct>
-        <direct name="carry_out" input="LOGIC_CELL[7:7].COUT" output="SLC.COUT">
-          <pack_pattern name="chain" in_port="LOGIC_CELL[7:7].COUT" out_port="SLC.COUT"/>
+        <direct name="carry_out" input="LOGIC_CELL[7:7].CO" output="SLC.CO">
+          <pack_pattern name="chain" in_port="LOGIC_CELL[7:7].CO" out_port="SLC.CO"/>
         </direct>
-        <direct name="carry_link" input="LOGIC_CELL[6:0].COUT" output="LOGIC_CELL[7:1].CIN">
-          <pack_pattern name="chain" in_port="LOGIC_CELL[6:0].COUT" out_port="LOGIC_CELL[7:1].CIN"/>
+        <direct name="carry_link" input="LOGIC_CELL[6:0].CO" output="LOGIC_CELL[7:1].CI">
+          <pack_pattern name="chain" in_port="LOGIC_CELL[6:0].CO" out_port="LOGIC_CELL[7:1].CI"/>
         </direct>
       </interconnect>
       <!-- Place this general purpose logic block in any unspecified column -->
