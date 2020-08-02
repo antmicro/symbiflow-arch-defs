@@ -5,6 +5,17 @@
   <!-- ODIN II specific config -->
   <models>
     <!-- TODO: Add models describing BRAM and Multiplier -->
+   <model name="adder">
+      <input_ports>
+        <port name="a" combinational_sink_ports="sumout cout"/>
+        <port name="b" combinational_sink_ports="sumout cout"/>
+        <port name="cin" combinational_sink_ports="sumout cout"/>
+      </input_ports>
+      <output_ports>
+        <port name="cout"/>
+        <port name="sumout"/>
+      </output_ports>
+    </model>
   </models>
   <tiles>
     <tile name="io">
