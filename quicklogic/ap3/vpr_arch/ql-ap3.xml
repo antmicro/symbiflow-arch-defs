@@ -231,6 +231,19 @@
       <!--Column of 'mult_36' with 'EMPTY' blocks wherever a 'mult_36' does not fit. Vertical offset by 1 for perimeter.-->
     </auto_layout>
     <!-- TODO: Define a fixed-layout for ap3 device -->
+    <fixed_layout name="32x32" width="34" height="34">
+      <!-- 'io_top' blocks at the top side -->
+      <row type="io_top" priority="100" startx="1" starty="33"/>
+      <!-- 'io_right' blocks at the right side -->
+      <col type="io_right" priority="100" startx="33" starty="1"/>
+      <!-- 'io_bottom' blocks at the bottom side -->
+      <row type="io_bottom" priority="100" startx="1" starty="0"/>
+      <!-- 'io_left' blocks at the left side -->
+      <col type="io_left" priority="100" startx="0" starty="1"/>
+      <corners type="EMPTY" priority="101"/>
+      <!--Fill with 'SLC'-->
+      <fill type="SLC" priority="10"/>
+    </fixed_layout>
   </layout>
   <device>
     <sizing R_minW_nmos="13090.000000" R_minW_pmos="19086.831111"/>
