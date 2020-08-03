@@ -29,56 +29,184 @@
         <port name="CQZ" clock="QCK"/>
       </output_ports>
     </model>
+    <!-- Input buffer as a I/O cell -->
+    <model name="in_buff">
+      <input_ports>
+        <port name="A" combinational_sink_ports="Q"/>
+      </input_ports>
+      <output_ports>
+        <port name="Q"/>
+      </output_ports>
+    </model>
+    <!-- Output buffer as a I/O cell -->
+    <model name="out_buff">
+      <input_ports>
+        <port name="A" combinational_sink_ports="Q"/>
+      </input_ports>
+      <output_ports>
+        <port name="Q"/>
+      </output_ports>
+    </model>
+    <!-- D output buffer (constant generator) as a I/O cell -->
+    <model name="d_buff">
+      <input_ports>
+        <port name="EN" combinational_sink_ports="Q"/>
+      </input_ports>
+      <output_ports>
+        <port name="Q"/>
+      </output_ports>
+    </model>
+    <!-- Input buffer (registered) as a I/O cell -->
+    <model name="in_reg">
+      <input_ports>
+        <port name="clk" is_clock="1"/>
+        <port name="dataIn" clock="clk"/>
+        <port name="rst" clock="clk"/>
+        <port name="sel" clock="clk"/>
+        <port name="hold" clock="clk"/>
+      </input_ports>
+      <output_ports>
+        <port name="dataOut" clock="clk"/>
+      </output_ports>
+    </model>
+    <!-- Output buffer (registered) as a I/O cell -->
+    <model name="out_reg">
+      <input_ports>
+        <port name="clk" is_clock="1"/>
+        <port name="dataIn" clock="clk"/>
+        <port name="rst" clock="clk"/>
+        <port name="sel" clock="clk"/>
+        <port name="hold" clock="clk"/>
+      </input_ports>
+      <output_ports>
+        <port name="dataOut" clock="clk"/>
+      </output_ports>
+    </model>
   </models>
   <tiles>
-    <tile name="io">
-      <sub_tile name="io" capacity="8">
+    <!-- Top side I/O: 
+         external pins, i.e, A2F, F2A, F2A_DEF, are on the top side
+         core pins, i.e, OQI, QRT, IQZ, IQC, are on the bottom side
+      -->
+    <tile name="io_top">
+      <sub_tile name="io_top" capacity="1">
         <equivalent_sites>
           <site pb_type="io" pin_mapping="direct"/>
         </equivalent_sites>
-        <input name="outpad" num_pins="1"/>
-        <output name="inpad" num_pins="1"/>
-        <clock name="clock" num_pins="1"/>
-        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
-          <fc_override port_name="outpad" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="inpad" segment_name="l4g" fc_type="frac" fc_val="0.200000"/>
-          <fc_override port_name="clock" segment_name="l4g" fc_type="frac" fc_val="0"/>
-        </fc>
+        <input name="A2F" num_pins="8" equivalent="none"/>
+        <input name="OQI" num_pins="18" equivalent="none"/>
+        <input name="QRT" num_pins="1" equivalent="none"/>
+        <output name="IQZ" num_pins="8" equivalent="none"/>
+        <output name="F2A" num_pins="18" equivalent="none"/>
+        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+        <clock name="IQC" num_pins="1"/>
         <pinlocations pattern="custom">
-          <loc side="left">io.outpad io.inpad io.clock</loc>
-          <loc side="top">io.outpad io.inpad io.clock</loc>
-          <loc side="right">io.outpad io.inpad io.clock</loc>
-          <loc side="bottom">io.outpad io.inpad io.clock</loc>
+          <loc side="top">io_top.A2F io_top.F2A io_top.F2A_DEF</loc>
+          <loc side="bottom">io_top.OQI io_top.QRT io_top.IQZ io_top.IQC</loc>
         </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
       </sub_tile>
     </tile>
+    <!-- Right side I/O: 
+         external pins, i.e, A2F, F2A, F2A_DEF, are on the right side
+         core pins, i.e, OQI, QRT, IQZ, IQC, are on the left side
+      -->
+    <tile name="io_right">
+      <sub_tile name="io_right" capacity="1">
+        <equivalent_sites>
+          <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="8" equivalent="none"/>
+        <input name="OQI" num_pins="18" equivalent="none"/>
+        <input name="QRT" num_pins="1" equivalent="none"/>
+        <output name="IQZ" num_pins="8" equivalent="none"/>
+        <output name="F2A" num_pins="18" equivalent="none"/>
+        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+        <clock name="IQC" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="right">io_right.A2F io_right.F2A io_right.F2A_DEF</loc>
+          <loc side="left">io_right.OQI io_right.QRT io_right.IQZ io_right.IQC</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <!-- Bottom side I/O: 
+         external pins, i.e, A2F, F2A, F2A_DEF, are on the bottom side
+         core pins, i.e, OQI, QRT, IQZ, IQC, are on the top side
+      -->
+    <tile name="io_bottom">
+      <sub_tile name="io_bottom" capacity="1">
+        <equivalent_sites>
+          <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="8" equivalent="none"/>
+        <input name="OQI" num_pins="18" equivalent="none"/>
+        <input name="QRT" num_pins="1" equivalent="none"/>
+        <output name="IQZ" num_pins="8" equivalent="none"/>
+        <output name="F2A" num_pins="18" equivalent="none"/>
+        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+        <clock name="IQC" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="bottom">io_bottom.A2F io_bottom.F2A io_bottom.F2A_DEF</loc>
+          <loc side="top">io_bottom.OQI io_bottom.QRT io_bottom.IQZ io_bottom.IQC</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <!-- Left side I/O: 
+         external pins, i.e, A2F, F2A, F2A_DEF, are on the left side
+         core pins, i.e, OQI, QRT, IQZ, IQC, are on the right side
+      -->
+    <tile name="io_left">
+      <sub_tile name="io_left" capacity="1">
+        <equivalent_sites>
+          <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="8" equivalent="none"/>
+        <input name="OQI" num_pins="18" equivalent="none"/>
+        <input name="QRT" num_pins="1" equivalent="none"/>
+        <output name="IQZ" num_pins="8" equivalent="none"/>
+        <output name="F2A" num_pins="18" equivalent="none"/>
+        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+        <clock name="IQC" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="left">io_left.A2F io_left.F2A io_left.F2A_DEF</loc>
+          <loc side="right">io_left.OQI io_left.QRT io_left.IQZ io_left.IQC</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <!-- Super Logic Cluster tile -->
     <tile name="SLC" area="3900">
       <sub_tile name="SLC">
         <equivalent_sites>
           <site pb_type="SLC" pin_mapping="direct"/>
         </equivalent_sites>
-        <input name="I0" num_pins="4" equivalent="full"/>
-        <input name="I1" num_pins="4" equivalent="full"/>
-        <input name="I2" num_pins="4" equivalent="full"/>
-        <input name="I3" num_pins="4" equivalent="full"/>
-        <input name="I4" num_pins="4" equivalent="full"/>
-        <input name="I5" num_pins="4" equivalent="full"/>
-        <input name="I6" num_pins="4" equivalent="full"/>
-        <input name="I7" num_pins="4" equivalent="full"/>
-        <output name="O" num_pins="8" equivalent="none"/>
-        <clock name="clk" num_pins="1"/>
+        <!-- Data inputs to each logic cell -->
+        <input name="LI0" num_pins="4" equivalent="full"/>
+        <input name="LI1" num_pins="4" equivalent="full"/>
+        <input name="LI2" num_pins="4" equivalent="full"/>
+        <input name="LI3" num_pins="4" equivalent="full"/>
+        <input name="LI4" num_pins="4" equivalent="full"/>
+        <input name="LI5" num_pins="4" equivalent="full"/>
+        <input name="LI6" num_pins="4" equivalent="full"/>
+        <input name="LI7" num_pins="4" equivalent="full"/>
+        <!-- Carry input to the 1st logic cell -->
+        <input name="CI" num_pins="1"/>
+        <!-- Flip-flop control signals -->
+        <input name="QEN" num_pins="1"/>
+        <input name="QST" num_pins="1"/>
+        <input name="QRT" num_pins="1"/>
+        <!-- Carry output from the last logic cell -->
+        <output name="CO" num_pins="1"/>
+        <output name="FZ" num_pins="8" equivalent="none"/>
+        <output name="AQZ" num_pins="8" equivalent="none"/>
+        <output name="BQZ" num_pins="8" equivalent="none"/>
+        <output name="CQZ" num_pins="8" equivalent="none"/>
+        <clock name="QCK" num_pins="1"/>
         <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
-          <fc_override port_name="I0" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I1" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I2" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I3" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I4" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I5" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I6" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="I7" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="clk" segment_name="l4g" fc_type="frac" fc_val="0"/>
-          <fc_override port_name="O" segment_name="l4g" fc_type="frac" fc_val="0.200000"/>
         </fc>
+        <!-- TODO: Pin location should be customized, according to physical design! -->
         <pinlocations pattern="spread"/>
       </sub_tile>
     </tile>
@@ -89,8 +217,14 @@
     <!-- Auto layout is for architecture exploration
          TODO: Add BRAM and Multipliers for ap3 device -->
     <auto_layout aspect_ratio="1.0">
-      <!--Perimeter of 'io' blocks with 'EMPTY' blocks at corners-->
-      <perimeter type="io" priority="100"/>
+      <!-- 'io_top' blocks at the top side -->
+      <row type="io_top" priority="100" startx="1" starty="H-1"/>
+      <!-- 'io_right' blocks at the right side -->
+      <col type="io_right" priority="100" startx="W-1" starty="1"/>
+      <!-- 'io_bottom' blocks at the bottom side -->
+      <row type="io_bottom" priority="100" startx="1" starty="0"/>
+      <!-- 'io_left' blocks at the left side -->
+      <col type="io_left" priority="100" startx="0" starty="1"/>
       <corners type="EMPTY" priority="101"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
@@ -189,36 +323,164 @@
   </switchblocklist>
   <!-- TODO: Direct connections across pb_type, may be applied to CI and CO of SLC -->
   <complexblocklist>
-    <!-- TODO: Define the bidirectional I/O as the tech lib. -->
+    <!-- Define multi-mode I/O block -->
     <pb_type name="io">
-      <input name="outpad" num_pins="1"/>
-      <output name="inpad" num_pins="1"/>
-      <clock name="clock" num_pins="1"/>
-      <!-- IOs can operate as either inputs or outputs -->
-      <mode name="inpad">
-        <pb_type name="inpad" blif_model=".input" num_pb="1">
-          <output name="inpad" num_pins="1"/>
+      <input name="A2F" num_pins="8" equivalent="none"/>
+      <input name="OQI" num_pins="18" equivalent="none"/>
+      <input name="QRT" num_pins="1" equivalent="none"/>
+      <output name="IQZ" num_pins="8" equivalent="none"/>
+      <output name="F2A" num_pins="18" equivalent="none"/>
+      <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+      <clock name="IQC" num_pins="1"/>
+      <!-- Define output pads begins -->
+      <pb_type name="outpad" num_pb="18">
+        <input name="OQI" num_pins="1"/>
+        <input name="QRT" num_pins="1"/>
+        <output name="F2A" num_pins="1"/>
+        <clock name="IQC" num_pins="1"/>
+        <!-- Combinational mode: output buffer -->
+        <mode name="out_buff">
+          <pb_type name="out_buff" blif_model=".subckt out_buff" num_pb="1">
+            <input name="A" num_pins="1"/>
+            <output name="Q" num_pins="1"/>
+            <!-- TODO: Delay to be filled by physical design results -->
+            <delay_constant max="0e-12" in_port="out_buff.A" out_port="out_buff.Q"/>
+          </pb_type>
+          <interconnect>
+            <direct name="direct_oqi" input="outpad.OQI" output="out_buff.A">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="outpad.OQI" out_port="out_buff.A"/>
+            </direct>
+            <direct name="direct_f2a" input="out_buff.Q" output="outpad.F2A">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="out_buff.Q" out_port="outpad.F2A"/>
+            </direct>
+          </interconnect>
+        </mode>
+        <!-- Sequential mode: registered output -->
+        <mode name="out_reg">
+          <pb_type name="out_reg" blif_model=".subckt out_reg" num_pb="1">
+            <input name="dataIn" num_pins="1"/>
+            <!-- TODO: remove sel signal, this is just a mode selector. To be safe, just make it unconnected here -->
+            <input name="sel" num_pins="1"/>
+            <input name="rst" num_pins="1"/>
+            <output name="dataOut" num_pins="1"/>
+            <clock name="clk" num_pins="1"/>
+            <!-- TODO: Delay to be filled by physical design results -->
+            <T_setup value="1.891e-11" port="out_reg.dataIn" clock="clk"/>
+            <T_clock_to_Q max="6.032e-11" port="out_reg.dataOut" clock="clk"/>
+          </pb_type>
+          <interconnect>
+            <direct name="direct_clk" input="outpad.ICQ" output="out_reg.clk">
+            <direct name="direct_rst" input="outpad.QRT" output="out_reg.rst">
+            <direct name="direct_dataIn" input="outpad.OQI" output="out_reg.dataIn">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="outpad.OQI" out_port="out_reg.dataIn"/>
+            </direct>
+            <direct name="direct_dataOut" input="out_reg.dataOut" output="outpad.F2A">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="out_reg.dataOut" out_port="outpad.F2A"/>
+            </direct>
+          </interconnect>
+        </mode>
+      </pb_type>
+      <!-- Define output pads ends -->
+      <!-- Define input pads begins -->
+      <pb_type name="inpad" num_pb="8">
+        <input name="A2F" num_pins="1"/>
+        <input name="QRT" num_pins="1"/>
+        <output name="IQZ" num_pins="1"/>
+        <clock name="IQC" num_pins="1"/>
+        <!-- Combinational mode: input buffer -->
+        <mode name="in_buff">
+          <pb_type name="in_buff" blif_model=".subckt in_buff" num_pb="1">
+            <input name="A" num_pins="1"/>
+            <output name="Q" num_pins="1"/>
+            <!-- TODO: Delay to be filled by physical design results -->
+            <delay_constant max="0e-12" in_port="in_buff.A" out_port="in_buff.Q"/>
+          </pb_type>
+          <interconnect>
+            <direct name="direct_a2f" input="inpad.A2F" output="in_buff.A">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="inpad.A2F" out_port="in_buff.A"/>
+            </direct>
+            <direct name="direct_iqz" input="out_buff.Q" output="inpad.IQZ">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="out_buff.Q" out_port="inpad.IQZ"/>
+            </direct>
+          </interconnect>
+        </mode>
+        <!-- Sequential mode: registered input -->
+        <mode name="in_reg">
+          <pb_type name="in_reg" blif_model=".subckt in_reg" num_pb="1">
+            <input name="dataIn" num_pins="1"/>
+            <!-- TODO: remove sel signal, this is just a mode selector. To be safe, just make it unconnected here -->
+            <input name="sel" num_pins="1"/>
+            <input name="rst" num_pins="1"/>
+            <output name="dataOut" num_pins="1"/>
+            <clock name="clk" num_pins="1"/>
+            <!-- TODO: Delay to be filled by physical design results -->
+            <T_setup value="1.891e-11" port="in_reg.dataIn" clock="clk"/>
+            <T_clock_to_Q max="6.032e-11" port="in_reg.dataOut" clock="clk"/>
+          </pb_type>
+          <interconnect>
+            <direct name="direct_clk" input="inpad.ICQ" output="in_reg.clk">
+            <direct name="direct_rst" input="inpad.QRT" output="in_reg.rst">
+            <direct name="direct_dataIn" input="inpad.A2F" output="in_reg.dataIn">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="inpad.A2F" out_port="in_reg.dataIn"/>
+            </direct>
+            <direct name="direct_dataOut" input="in_reg.dataOut" output="inpad.IQZ">
+              <!-- TODO: Delay to be filled by physical design results -->
+              <delay_constant max="0e-12" min="0e-12" in_port="in_reg.dataOut" out_port="inpad.IQZ"/>
+            </direct>
+          </interconnect>
+        </mode>
+      </pb_type>
+      <!-- Define input pads ends -->
+      <!-- Define static configuration pads begins -->
+      <pb_type name="const_pad" num_pb="4">
+        <output name="F2A_DEF" num_pins="1"/>
+        <pb_type name="d_buff" blif_model=".subckt d_buff" num_pb="1">
+            <!-- TODO: remove EN signal, this is just a mode selector. To be safe, just make it unconnected here -->
+          <input name="EN" num_pins="1"/>
+          <output name="Q" num_pins="1"/>
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" in_port="d_buff.EN" out_port="d_buff.Q"/>
         </pb_type>
         <interconnect>
-          <direct name="inpad" input="inpad.inpad" output="io.inpad">
-            <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="io.inpad"/>
+          <direct name="direct_q" input="d_buff.Q" output="const_pad.F2A_DEF">
+            <!-- TODO: Delay to be filled by physical design results -->
+            <delay_constant max="0e-12" min="0e-12" in_port="d_buff.Q" out_port="const_pad.F2A_DEF"/>
           </direct>
         </interconnect>
-      </mode>
-      <mode name="outpad">
-        <pb_type name="outpad" blif_model=".output" num_pb="1">
-          <input name="outpad" num_pins="1"/>
-        </pb_type>
-        <interconnect>
-          <direct name="outpad" input="io.outpad" output="outpad.outpad">
-            <delay_constant max="1.394e-11" in_port="io.outpad" out_port="outpad.outpad"/>
-          </direct>
-        </interconnect>
-      </mode>
-      <!-- IOs go on the periphery of the FPGA, for consistency, 
-          make it physically equivalent on all sides so that only one definition of I/Os is needed.
-          If I do not make a physically equivalent definition, then I need to define 4 different I/Os, one for each side of the FPGA
-        -->
+      </pb_type>
+      <interconnect>
+        <complete name="outpad_clk" input="io.ICQ" output="outpad.ICQ">
+        <complete name="outpad_rst" input="io.QRT" output="outpad.QRT">
+        <direct name="outpad_oqi" input="io.OQI[17:0]" output="outpad[17:0].OQI">
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" min="0e-12" in_port="io.OQI[17:0]" out_port="outpad[17:0].OQI"/>
+        </direct>
+        <direct name="outpad_f2a" input="outpad[17:0].F2A" output="io.F2A">
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" min="0e-12" in_port="outpad[17:0].F2A" out_port="io.F2A"/>
+        </direct>
+        <complete name="inpad_clk" input="io.ICQ" output="inpad.ICQ">
+        <complete name="inpad_rst" input="io.QRT" output="inpad.QRT">
+        <direct name="inpad_a2f" input="io.A2F[7:0]" output="inpad[7:0].A2F">
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" min="0e-12" in_port="io.A2F[7:0]" out_port="inpad[7:0].A2F"/>
+        </direct>
+        <direct name="inpad_iqz" input="inpad[7:0].IQZ" output="io.IQZ[7:0]">
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" min="0e-12" in_port="inpad[7:0].IQZ" out_port="io.IQZ[7:0]"/>
+        </direct>
+        <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="io.F2A_DEF[3:0]">
+          <!-- TODO: Delay to be filled by physical design results -->
+          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="io.F2A_DEF[7:0]"/>
+        </direct>
+      </interconnect>
     </pb_type>
     <!-- Define super logic cluster (SLC) begins -->
     <!-- k4 N8 I32 with no input crossbar (but LUT inputs are equivalent
