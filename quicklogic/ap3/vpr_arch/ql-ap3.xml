@@ -16,7 +16,7 @@
         <port name="S"/>
       </output_ports>
     </model>
-    <!-- TODO: A placeholder FF model, which may be used in place of the default 'latch' model -->
+    <!-- Flip-flop model used in SLC -->
     <model name="ff">
       <input_ports>
         <port name="QCK" is_clock="1"/>
@@ -224,6 +224,7 @@
     <!-- k4 N8 I32 with no input crossbar (but LUT inputs are equivalent
          and each LUT has it's own dedicated inputs) -->
     <pb_type name="SLC">
+      <!-- Data inputs to each logic cell -->
       <input name="LI0" num_pins="4" equivalent="full"/>
       <input name="LI1" num_pins="4" equivalent="full"/>
       <input name="LI2" num_pins="4" equivalent="full"/>
@@ -232,7 +233,13 @@
       <input name="LI5" num_pins="4" equivalent="full"/>
       <input name="LI6" num_pins="4" equivalent="full"/>
       <input name="LI7" num_pins="4" equivalent="full"/>
+      <!-- Carry input to the 1st logic cell -->
       <input name="CI" num_pins="1"/>
+      <!-- Flip-flop control signals -->
+      <input name="QEN" num_pins="1"/>
+      <input name="QST" num_pins="1"/>
+      <input name="QRT" num_pins="1"/>
+      <!-- Carry output from the last logic cell -->
       <output name="CO" num_pins="1"/>
       <output name="FZ" num_pins="8" equivalent="none"/>
       <output name="AQZ" num_pins="8" equivalent="none"/>
@@ -243,6 +250,9 @@
       <pb_type name="LOGIC_CELL" num_pb="8">
         <input name="LI" num_pins="4"/>
         <input name="CI" num_pins="1"/>
+        <input name="QEN" num_pins="1"/>
+        <input name="QST" num_pins="1"/>
+        <input name="QRT" num_pins="1"/>
         <output name="CO" num_pins="1"/>
         <output name="FZ" num_pins="1"/>
         <output name="BQZ" num_pins="1"/>
@@ -268,42 +278,51 @@
                     1.145e-10
                     1.145e-10
                     1.145e-10
-                  </delay_matrix>
+              </delay_matrix>
             </pb_type>
             <!-- Define flip-flop -->
-            <pb_type name="FF" blif_model=".latch" num_pb="1" class="flipflop">
+            <pb_type name="FF" blif_model=".ff" num_pb="1" class="flipflop">
               <input name="D" num_pins="1" port_class="D"/>
-              <output name="Q" num_pins="1" port_class="Q"/>
-              <clock name="clk" num_pins="1" port_class="clock"/>
+              <input name="QEN" num_pins="1"/>
+              <input name="QST" num_pins="1"/>
+              <input name="QRT" num_pins="1"/>
+              <output name="CQZ" num_pins="1" port_class="Q"/>
+              <clock name="QCK" num_pins="1" port_class="clock"/>
               <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.Q" clock="clk"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="clk"/>
             </pb_type>
             <interconnect>
-              <direct name="direct1" input="BLE4.LI" output="LUT4[0:0].in"/>
-              <direct name="direct2" input="LUT4.out" output="FF.D">
+              <direct name="direct_lutin" input="BLE4.LI" output="LUT4[0:0].in"/>
+              <direct name="direct_lut2ff" input="LUT4.out" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
                 <pack_pattern name="ble4" in_port="LUT4.out" out_port="FF.D"/>
               </direct>
-              <direct name="direct3" input="BLE4.QCK" output="FF.clk"/>
-              <direct name="direct4" input="LUT4.out" output="BLE4.FZ"/>
-              <direct name="direct5" input="FF.Q" output="BLE4.AQZ"/>
-              <mux name="mux1" input="FF.Q LUT4.out" output="BLE4.BQZ">
+              <direct name="direct_qck" input="BLE4.QCK" output="FF.QCK"/>
+              <direct name="direct_qst" input="BLE4.QST" output="FF.QST"/>
+              <direct name="direct_qrt" input="BLE4.QRT" output="FF.QRT"/>
+              <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/>
+              <direct name="direct_fz" input="LUT4.out" output="BLE4.FZ"/>
+              <direct name="direct_aqz" input="FF.Q" output="BLE4.AQZ"/>
+              <mux name="mux_bqz" input="FF.Q LUT4.out" output="BLE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.BQZ[0:0]"/>
-                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BLE4.BQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.BQZ[0:0]"/>
               </mux>
-              <mux name="mux2" input="FF.Q LUT4.out" output="BLE4.CQZ">
+              <mux name="mux_cqz" input="FF.Q LUT4.out" output="BLE4.CQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.CQZ[0:0]"/>
-                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BLE4.CQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.CQZ[0:0]"/>
               </mux>
             </interconnect>
           </pb_type>
           <interconnect>
-            <direct name="direct1" input="LOGIC_CELL.LI" output="BLE4[0:0].LI"/>
-            <direct name="direct2" input="LOGIC_CELL.QCK" output="BLE4[0:0].QCK"/>
-            <direct name="direct3" input="BLE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
-            <direct name="direct3" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
-            <direct name="direct3" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
-            <direct name="direct3" input="BLE4[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
+            <direct name="direct_lutin" input="LOGIC_CELL.LI" output="BLE4[0:0].LI"/>
+            <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BLE4[0:0].QCK"/>
+            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BLE4[0:0].QEN"/>
+            <direct name="direct_qst" input="LOGIC_CELL.QST" output="BLE4[0:0].QST"/>
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BLE4[0:0].QRT"/>
+            <direct name="direct_fz" input="BLE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
+            <direct name="direct_aqz" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
+            <direct name="direct_bqz" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
+            <direct name="direct_cqz" input="BLE4[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
           </interconnect>
         </mode>
         <!-- END Define 4-input LUT mode -->
@@ -334,44 +353,54 @@
               <delay_constant max="0.01e-9" in_port="ADDER.CI" out_port="ADDER.CO"/>
             </pb_type>
             <!-- Define flip-flop -->
-            <pb_type name="FF" blif_model=".latch" num_pb="1" class="flipflop">
+            <pb_type name="FF" blif_model=".ff" num_pb="1" class="flipflop">
               <input name="D" num_pins="1" port_class="D"/>
-              <output name="Q" num_pins="1" port_class="Q"/>
-              <clock name="clk" num_pins="1" port_class="clock"/>
+              <input name="QEN" num_pins="1"/>
+              <input name="QST" num_pins="1"/>
+              <input name="QRT" num_pins="1"/>
+              <output name="CQZ" num_pins="1" port_class="Q"/>
+              <clock name="QCK" num_pins="1" port_class="clock"/>
               <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.Q" clock="clk"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="clk"/>
             </pb_type>
             <interconnect>
-              <direct name="direct1" input="BADDER.A" output="ADDER[0:0].A"/>
-              <direct name="direct1" input="BADDER.B" output="ADDER[0:0].B"/>
-              <direct name="direct1" input="BADDER.CI" output="ADDER[0:0].CI"/>
-              <direct name="direct2" input="ADDER.S" output="FF.D">
+              <direct name="direct_a" input="BADDER.A" output="ADDER[0:0].A"/>
+              <direct name="direct_b" input="BADDER.B" output="ADDER[0:0].B"/>
+              <direct name="direct_ci" input="BADDER.CI" output="ADDER[0:0].CI"/>
+              <direct name="direct_adder2ff" input="ADDER.S" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
                 <pack_pattern name="adder_ff" in_port="ADDER.S" out_port="FF.D"/>
               </direct>
-              <direct name="direct3" input="BADDER.QCK" output="FF.clk"/>
-              <direct name="direct4" input="ADDER.S" output="BADDER.FZ"/>
-              <direct name="direct5" input="FF.Q" output="BADDER.AQZ"/>
-              <mux name="mux1" input="FF.Q ADDER.S" output="BADDER.BQZ">
+              <direct name="direct_qck" input="BADDER.QCK" output="FF.QCK"/>
+              <direct name="direct_qen" input="BADDER.QEN" output="FF.QEN"/>
+              <direct name="direct_qst" input="BADDER.QST" output="FF.QST"/>
+              <direct name="direct_qrt" input="BADDER.QRT" output="FF.QRT"/>
+              <direct name="direct_co" input="ADDER.CO" output="BADDER.CO"/>
+              <direct name="direct_fz" input="ADDER.S" output="BADDER.FZ"/>
+              <direct name="direct_aqz" input="FF.Q" output="BADDER.AQZ"/>
+              <mux name="mux_bqz" input="FF.Q ADDER.S" output="BADDER.BQZ">
                 <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.BQZ[0:0]"/>
               </mux>
-              <mux name="mux2" input="FF.Q ADDER.S" output="BADDER.CQZ">
+              <mux name="mux_cqz" input="FF.Q ADDER.S" output="BADDER.CQZ">
                 <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.CQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.CQZ[0:0]"/>
               </mux>
             </interconnect>
           </pb_type>
           <interconnect>
-            <direct name="direct1" input="LOGIC_CELL.LI[0:0]" output="BADDER[0:0].A"/>
-            <direct name="direct2" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
-            <direct name="direct3" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
-            <direct name="direct4" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
-            <direct name="direct5" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
-            <direct name="direct6" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
-            <direct name="direct7" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
-            <direct name="direct8" input="BADDER[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
-            <direct name="direct9" input="BADDER[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
+            <direct name="direct_a" input="LOGIC_CELL.LI[0:0]" output="BADDER[0:0].A"/>
+            <direct name="direct_b" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
+            <direct name="direct_ci" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
+            <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
+            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BADDER[0:0].QEN"/>
+            <direct name="direct_qst" input="LOGIC_CELL.QST" output="BADDER[0:0].QST"/>
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BADDER[0:0].QRT"/>
+            <direct name="direct_co" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
+            <direct name="direct_fz" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
+            <direct name="direct_aqz" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
+            <direct name="direct_bqz" input="BADDER[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
+            <direct name="direct_cqz" input="BADDER[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
           </interconnect>
         </mode>
         <!-- END Define adder mode -->
@@ -388,11 +417,15 @@
         <complete name="completeI7" input="SLC.LI7" output="LOGIC_CELL[7].LI"/>
         <!-- clock -->
         <complete name="clks" input="SLC.QCK" output="LOGIC_CELL[7:0].QCK"/>
+        <!-- QEN of logic cell can be driven by QEN, QST, QRT of the SLC -->
+        <complete name="qen" input="SLC.QEN SLC.QST SLC.QRT" output="LOGIC_CELL[7:0].QEN"/>
+        <complete name="qst" input="SLC.QST" output="LOGIC_CELL[7:0].QST"/>
+        <complete name="qrt" input="SLC.QRT" output="LOGIC_CELL[7:0].QRT"/>
         <!-- outputs -->
-        <direct name="direct_FZ" input="LOGIC_CELL[7:0].FZ" output="SLC.FZ"/>
-        <direct name="direct_AQZ" input="LOGIC_CELL[7:0].AQZ" output="SLC.AQZ"/>
-        <direct name="direct_BQZ" input="LOGIC_CELL[7:0].BQZ" output="SLC.BQZ"/>
-        <direct name="direct_CQZ" input="LOGIC_CELL[7:0].CQZ" output="SLC.CQZ"/>
+        <direct name="direct_fz" input="LOGIC_CELL[7:0].FZ" output="SLC.FZ"/>
+        <direct name="direct_aqz" input="LOGIC_CELL[7:0].AQZ" output="SLC.AQZ"/>
+        <direct name="direct_bqz" input="LOGIC_CELL[7:0].BQZ" output="SLC.BQZ"/>
+        <direct name="direct_cqz" input="LOGIC_CELL[7:0].CQZ" output="SLC.CQZ"/>
         <!-- Carry chain -->
         <direct name="carry_in" input="SLC.CI" output="LOGIC_CELL[0:0].CI">
           <!-- Put all inter-block carry chain delay on this one edge -->
