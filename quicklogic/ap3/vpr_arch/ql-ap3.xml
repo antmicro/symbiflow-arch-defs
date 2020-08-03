@@ -10,7 +10,6 @@
         <port name="A" combinational_sink_ports="S CO"/>
         <port name="B" combinational_sink_ports="S CO"/>
         <port name="CI" combinational_sink_ports="S CO"/>
-        <port name="L1CI" combinational_sink_ports="S CO"/>
       </input_ports>
       <output_ports>
         <port name="CO"/>
@@ -313,7 +312,6 @@
           <pb_type name="BADDER" num_pb="1">
             <input name="A" num_pins="1"/>
             <input name="B" num_pins="1"/>
-            <input name="L1CI" num_pins="1"/>
             <input name="CI" num_pins="1"/>
             <output name="CO" num_pins="1"/>
             <output name="FZ" num_pins="1"/>
@@ -325,17 +323,14 @@
             <pb_type name="ADDER" blif_model=".subckt full_adder" num_pb="1">
               <input name="A" num_pins="1"/>
               <input name="B" num_pins="1"/>
-              <input name="L1CI" num_pins="1"/>
               <input name="CI" num_pins="1"/>
               <output name="CO" num_pins="1"/>
               <output name="S" num_pins="1"/>
               <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.S"/>
               <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.S"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.L1CI" out_port="ADDER.S"/>
               <delay_constant max="0.3e-9" in_port="ADDER.CI" out_port="ADDER.S"/>
               <delay_constant max="0.3e-9" in_port="ADDER.A" out_port="ADDER.CO"/>
               <delay_constant max="0.3e-9" in_port="ADDER.B" out_port="ADDER.CO"/>
-              <delay_constant max="0.3e-9" in_port="ADDER.L1CI" out_port="ADDER.CO"/>
               <delay_constant max="0.01e-9" in_port="ADDER.CI" out_port="ADDER.CO"/>
             </pb_type>
             <!-- Define flip-flop -->
@@ -350,7 +345,6 @@
               <direct name="direct1" input="BADDER.A" output="ADDER[0:0].A"/>
               <direct name="direct1" input="BADDER.B" output="ADDER[0:0].B"/>
               <direct name="direct1" input="BADDER.CI" output="ADDER[0:0].CI"/>
-              <direct name="direct1" input="BADDER.L1CI" output="ADDER[0:0].L1CI"/>
               <direct name="direct2" input="ADDER.S" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
                 <pack_pattern name="adder_ff" in_port="ADDER.S" out_port="FF.D"/>
@@ -371,7 +365,6 @@
           <interconnect>
             <direct name="direct1" input="LOGIC_CELL.LI[0:0]" output="BADDER[0:0].A"/>
             <direct name="direct2" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
-            <direct name="direct2" input="LOGIC_CELL.LI[2:2]" output="BADDER[0:0].L1CI"/>
             <direct name="direct3" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
             <direct name="direct4" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
             <direct name="direct5" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
