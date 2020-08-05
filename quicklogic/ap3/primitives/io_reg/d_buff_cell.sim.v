@@ -1,16 +1,16 @@
+`include "mux.sim.v"
 
 `timescale 1ns/10ps
 (* whitebox *)
 (* FASM_PARAMS="" *)
-module D_BUFF_CELL(DSEL_$inp, F2A_DEF_$out);
-    
-    (* iopad_external_pin *)
-    input wire DSEL_$inp;
+module D_BUFF_CELL(F2A_DEF);
 
-    (* DELAY_CONST_DSEL_$inp="1e-10" *)
-    (* iopad_external_pin *)
-    output wire F2A_DEF_$out;
+    output wire F2A_DEF;
 
-    assign F2A_DEF_$out = DSEL_$inp ? 1'b1: 1'b0;
+    MUX dsel_mux (
+        .I0(1'b0),
+        .I1(1'b1),
+        .O(F2A_DEF)
+    );
 
 endmodule

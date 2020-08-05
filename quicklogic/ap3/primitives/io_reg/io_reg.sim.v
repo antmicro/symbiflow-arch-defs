@@ -29,7 +29,7 @@ module IO_REG (
 	generate for (i = 0; i < 18; i = i + 1)
 	begin
 		(* keep *)
-		OUT_CELL out_cell_inst(IQC, QRT, QDI[i]);
+		OUT_CELL out_cell_inst(IQC, QRT, OQI[i]);
 
 	end
 	endgenerate
@@ -38,7 +38,9 @@ module IO_REG (
 	wire [0:3] out_pad;
 	generate for (i = 0; i < 4; i = i + 1)
 	begin
-		D_BUFF_CELL d_buff_inst (out_pad[i]);
+		D_BUFF_CELL d_buff_inst (
+			.F2A_DEF(out_pad[i])
+		);
 		(* keep *)
 		VPR_OPAD opad_inst(out_pad[i]);
 	end
