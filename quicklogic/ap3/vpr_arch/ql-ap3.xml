@@ -82,6 +82,37 @@
         <port name="dataOut" clock="clk"/>
       </output_ports>
     </model>
+    <!-- Duel-port Block RAM -->
+    <model name="RAM">
+      <input_ports>
+        <port name="RADDR" clock="RCLK"/>
+        <port name="WADDR" clock="WCLK"/>
+        <port name="RRLSEL" clock="RCLK"/>
+        <port name="RMODE" clock="RCLK"/>
+        <port name="WMODE" clock="WCLK"/>
+        <port name="REN" clock="RCLK"/>
+        <port name="WEN" clock="WCLK"/>
+        <!-- TODO: need to confirm this port is synchronized by which clock!!! -->
+        <port name="FFLUSH" clock="WCLK"/>
+        <port name="RCLK" is_clock="1"/>
+        <port name="WCLK" is_clock="1"/>
+        <port name="WDATA" clock="WCLK"/>
+        <!-- TODO: need to confirm this port is synchronized by which clock!!! -->
+        <port name="SBOG" clock="RCLK"/>
+        <port name="ENDIAN" clock="RCLK"/>
+        <port name="UPAF" clock="RCLK"/>
+        <port name="UPAE" clock="RCLK"/>
+        <port name="FIFO_DEPTH" clock="RCLK"/>
+        <port name="FMODE" clock="RCLK"/>
+        <port name="POWERDN" clock="RCLK"/>
+        <port name="PROTECT" clock="RCLK"/>
+      </input_ports>
+      <output_ports>
+        <port name="RDATA" clock="RCLK"/>
+        <!-- TODO: need to confirm this port is synchronized by which clock!!! -->
+        <port name="FFLAGS" clock="WCLK"/>
+      </output_ports>
+    </model>
   </models>
   <tiles>
     <!-- Top side I/O: 
@@ -210,6 +241,42 @@
         <pinlocations pattern="spread"/>
       </sub_tile>
     </tile>
+    <!-- RAM tile spanning 4 SLC tiles -->
+    <tile name="DPRAM" area="3900" width="4">
+      <sub_tile name="DPRAM">
+        <equivalent_sites>
+          <site pb_type="DPRAM" pin_mapping="direct"/>
+        </equivalent_sites>
+        <!-- Data read protocol -->
+        <clock name="RCLK" num_pins="1"/>
+        <input name="RADDR" num_pins="11"/>
+        <input name="RRLSEL" num_pins="2"/>
+        <input name="RMODE" num_pins="2"/>
+        <input name="REN" num_pins="1"/>
+        <output name="RDATA" num_pins="32"/>
+        <!-- Data write protocol -->
+        <clock name="WCLK" num_pins="1"/>
+        <input name="WADDR" num_pins="11"/>
+        <input name="WMODE" num_pins="2"/>
+        <input name="WEN" num_pins="1"/>
+        <input name="FFLUSH" num_pins="1"/>
+        <input name="WDATA" num_pins="32"/>
+        <output name="FFLAGS" num_pins="4"/>
+        <!-- Unknown signal classes -->
+        <input name="SBOG" num_pins="2"/>
+        <input name="ENDIAN" num_pins="2"/>
+        <input name="UPAF" num_pins="2"/>
+        <input name="UPAE" num_pins="2"/>
+        <input name="FIFO_DEPTH" num_pins="3"/>
+        <input name="FMODE" num_pins="1"/>
+        <input name="POWERDN" num_pins="1"/>
+        <input name="PROTECT" num_pins="1"/>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
+        </fc>
+        <!-- TODO: Pin location should be customized, according to physical design! -->
+        <pinlocations pattern="spread"/>
+      </sub_tile>
+    </tile>
   </tiles>
   <!-- ODIN II specific config ends -->
   <!-- Physical descriptions begin -->
@@ -228,10 +295,11 @@
       <corners type="EMPTY" priority="101"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
-      <!--Column of 'mult_36' with 'EMPTY' blocks wherever a 'mult_36' does not fit. Vertical offset by 1 for perimeter.-->
+      <!-- Row of RAM repeated every 4 rows -->
+      <row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/>
     </auto_layout>
-    <!-- TODO: Define a fixed-layout for ap3 device -->
-    <fixed_layout name="32x32" width="34" height="34">
+    <!-- Define a fixed-layout for ap3 device -->
+    <fixed_layout name="32x36" width="34" height="32">
       <!-- 'io_top' blocks at the top side -->
       <row type="io_top" priority="100" startx="1" starty="33"/>
       <!-- 'io_right' blocks at the right side -->
@@ -241,6 +309,8 @@
       <!-- 'io_left' blocks at the left side -->
       <col type="io_left" priority="100" startx="0" starty="1"/>
       <corners type="EMPTY" priority="101"/>
+      <!-- Row of RAM repeated every 4 rows -->
+      <row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
     </fixed_layout>
@@ -717,5 +787,89 @@
       <!-- Place this general purpose logic block in any unspecified column -->
     </pb_type>
     <!-- Define super logic cluster (SLC) ends -->
+    <!-- Define Dual-port Block RAM begins -->
+    <pb_type name="DPRAM">
+      <!-- Data read protocol -->
+      <clock name="RCLK" num_pins="1"/>
+      <input name="RADDR" num_pins="11"/>
+      <input name="RRLSEL" num_pins="2"/>
+      <input name="RMODE" num_pins="2"/>
+      <input name="REN" num_pins="1"/>
+      <output name="RDATA" num_pins="32"/>
+      <!-- Data write protocol -->
+      <clock name="WCLK" num_pins="1"/>
+      <input name="WADDR" num_pins="11"/>
+      <input name="WMODE" num_pins="2"/>
+      <input name="WEN" num_pins="1"/>
+      <input name="FFLUSH" num_pins="1"/>
+      <input name="WDATA" num_pins="32"/>
+      <output name="FFLAGS" num_pins="4"/>
+      <!-- Unknown signal classes -->
+      <input name="SBOG" num_pins="2"/>
+      <input name="ENDIAN" num_pins="2"/>
+      <input name="UPAF" num_pins="2"/>
+      <input name="UPAE" num_pins="2"/>
+      <input name="FIFO_DEPTH" num_pins="3"/>
+      <input name="FMODE" num_pins="1"/>
+      <input name="POWERDN" num_pins="1"/>
+      <input name="PROTECT" num_pins="1"/>
+      <!-- Define RAM primitive -->
+      <pb_type name="RAM" blif_model=".subckt RAM" num_pb="1">
+        <!-- Data read protocol -->
+        <clock name="RCLK" num_pins="1"/>
+        <input name="RADDR" num_pins="11"/>
+        <input name="RRLSEL" num_pins="2"/>
+        <input name="RMODE" num_pins="2"/>
+        <input name="REN" num_pins="1"/>
+        <output name="RDATA" num_pins="32"/>
+        <!-- Data write protocol -->
+        <clock name="WCLK" num_pins="1"/>
+        <input name="WADDR" num_pins="11"/>
+        <input name="WMODE" num_pins="2"/>
+        <input name="WEN" num_pins="1"/>
+        <input name="FFLUSH" num_pins="1"/>
+        <input name="WDATA" num_pins="32"/>
+        <output name="FFLAGS" num_pins="4"/>
+        <!-- Unknown signal classes -->
+        <input name="SBOG" num_pins="2"/>
+        <input name="ENDIAN" num_pins="2"/>
+        <input name="UPAF" num_pins="2"/>
+        <input name="UPAE" num_pins="2"/>
+        <input name="FIFO_DEPTH" num_pins="3"/>
+        <input name="FMODE" num_pins="1"/>
+        <input name="POWERDN" num_pins="1"/>
+        <input name="PROTECT" num_pins="1"/>
+        <!-- TODO: Annotate correct timing for the RAM based on physical design -->
+        <T_setup value="1.891e-11" port="RAM.RADDR" clock="RCLK"/>
+        <T_clock_to_Q max="6.032e-11" port="RAM.RDATA" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.WADDR" clock="WCLK"/>
+        <T_setup value="1.891e-11" port="RAM.WDATA" clock="WCLK"/>
+      </pb_type>
+      <interconnect>
+        <!-- Only direct connection here, give zero delays as this is just a wrapper -->
+        <direct name="RCLK" input="DPRAM.RCLK" output="RAM.RCLK"/>
+        <direct name="RADDR" input="DPRAM.RADDR" output="RAM.RADDR"/>
+        <direct name="RRLSEL" input="DPRAM.RRLSEL" output="RAM.RRLSEL"/>
+        <direct name="RMODE" input="DPRAM.RMODE" output="RAM.RMODE"/>
+        <direct name="REN" input="DPRAM.REN" output="RAM.REN"/>
+        <direct name="RDATA" input="RAM.RDATA" output="DPRAM.RDATA"/>
+        <direct name="WCLK" input="DPRAM.WCLK" output="RAM.WCLK"/>
+        <direct name="WADDR" input="DPRAM.WADDR" output="RAM.WADDR"/>
+        <direct name="WMODE" input="DPRAM.WMODE" output="RAM.WMODE"/>
+        <direct name="WEN" input="DPRAM.WEN" output="RAM.WEN"/>
+        <direct name="FFLUSH" input="DPRAM.FFLUSH" output="RAM.FFLUSH"/>
+        <direct name="WDATA" input="DPRAM.WDATA" output="RAM.WDATA"/>
+        <direct name="FFLAGS" input="RAM.FFLAGS" output="DPRAM.FFLAGS"/>
+        <direct name="SBOG" input="DPRAM.SBOG" output="RAM.SBOG"/>
+        <direct name="ENDIAN" input="DPRAM.ENDIAN" output="RAM.ENDIAN"/>
+        <direct name="UPAF" input="DPRAM.UPAF" output="RAM.UPAF"/>
+        <direct name="UPAE" input="DPRAM.UPAE" output="RAM.UPAE"/>
+        <direct name="FIFO_DEPTH" input="DPRAM.FIFO_DEPTH" output="RAM.FIFO_DEPTH"/>
+        <direct name="FMODE" input="DPRAM.FMODE" output="RAM.FMODE"/>
+        <direct name="POWERDN" input="DPRAM.POWERDN" output="RAM.POWERDN"/>
+        <direct name="PROTECT" input="DPRAM.PROTECT" output="RAM.PROTECT"/>
+      </interconnect>
+    </pb_type>
+    <!-- Define Dual-port Block RAM ends -->
   </complexblocklist>
 </architecture>
