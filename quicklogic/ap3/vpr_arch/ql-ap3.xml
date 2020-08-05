@@ -113,6 +113,26 @@
         <port name="FFLAGS" clock="WCLK"/>
       </output_ports>
     </model>
+    <!-- DSP -->
+    <model name="DSP32">
+      <input_ports>
+        <port name="MODE_SEL" clock="CLOCK"/>
+        <port name="OUT_SEL" clock="CLOCK"/>
+        <port name="CSEL" clock="CLOCK"/>
+        <port name="OSEL" clock="CLOCK"/>
+        <port name="COEF_DATA" clock="CLOCK"/>
+        <port name="OPER_DATA" clock="CLOCK"/>
+        <port name="ENABLE" clock="CLOCK"/>
+        <port name="CLR" clock="CLOCK"/>
+        <port name="RND" clock="CLOCK"/>
+        <port name="SAT" clock="CLOCK"/>
+        <port name="CLOCK" is_clock="1"/>
+        <port name="SBOG" clock="CLOCK"/>
+      </input_ports>
+      <output_ports>
+        <port name="MAC_OUT" clock="CLOCK"/>
+      </output_ports>
+    </model>
   </models>
   <tiles>
     <!-- Top side I/O: 
@@ -277,6 +297,31 @@
         <pinlocations pattern="spread"/>
       </sub_tile>
     </tile>
+    <!-- 32-bit DSP tile spanning 4 SLC tiles -->
+    <tile name="DSP32" area="3900" width="4">
+      <sub_tile name="DSP32">
+        <equivalent_sites>
+          <site pb_type="DSP32" pin_mapping="direct"/>
+        </equivalent_sites>
+        <clock name="CLOCK" num_pins="1"/>
+        <input name="MODE_SEL" num_pins="2"/>
+        <input name="OUT_SEL" num_pins="2"/>
+        <input name="CSEL" num_pins="2"/>
+        <input name="OSEL" num_pins="2"/>
+        <input name="COEF_DATA" num_pins="32"/>
+        <input name="OPER_DATA" num_pins="32"/>
+        <input name="ENABLE" num_pins="1"/>
+        <input name="CLR" num_pins="1"/>
+        <input name="RND" num_pins="1"/>
+        <input name="SAT" num_pins="1"/>
+        <input name="SBOG" num_pins="2"/>
+        <output name="MAC_OUT" num_pins="64"/>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
+        </fc>
+        <!-- TODO: Pin location should be customized, according to physical design! -->
+        <pinlocations pattern="spread"/>
+      </sub_tile>
+    </tile>
   </tiles>
   <!-- ODIN II specific config ends -->
   <!-- Physical descriptions begin -->
@@ -297,6 +342,11 @@
       <fill type="SLC" priority="10"/>
       <!-- Row of RAM repeated every 4 rows -->
       <row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/>
+      <!-- DSPs starts from the 9th column and 5th row 
+           and are repeated every 8 columns and 4 rows
+           priority is higher than the DPRAM when instanciated at the same location
+        -->
+      <region type="DSP" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
     </auto_layout>
     <!-- Define a fixed-layout for ap3 device -->
     <fixed_layout name="32x36" width="34" height="32">
@@ -310,7 +360,12 @@
       <col type="io_left" priority="100" startx="0" starty="1"/>
       <corners type="EMPTY" priority="101"/>
       <!-- Row of RAM repeated every 4 rows -->
-      <row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/>
+      <row type="DPRAM" priority="20" startx="1" starty="5" repeaty="4"/>
+      <!-- DSPs starts from the 9th column and 5th row 
+           and are repeated every 8 columns and 4 rows
+           priority is higher than the DPRAM when instanciated at the same location
+        -->
+      <region type="DSP" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
     </fixed_layout>
@@ -871,5 +926,58 @@
       </interconnect>
     </pb_type>
     <!-- Define Dual-port Block RAM ends -->
+    <!-- Define 32-bit DSP begins -->
+    <pb_type name="DSP32">
+      <clock name="CLOCK" num_pins="1"/>
+      <input name="MODE_SEL" num_pins="2"/>
+      <input name="OUT_SEL" num_pins="2"/>
+      <input name="CSEL" num_pins="2"/>
+      <input name="OSEL" num_pins="2"/>
+      <input name="COEF_DATA" num_pins="32"/>
+      <input name="OPER_DATA" num_pins="32"/>
+      <input name="ENABLE" num_pins="1"/>
+      <input name="CLR" num_pins="1"/>
+      <input name="RND" num_pins="1"/>
+      <input name="SAT" num_pins="1"/>
+      <input name="SBOG" num_pins="2"/>
+      <output name="MAC_OUT" num_pins="64"/>
+      <!-- Define DSP primitive -->
+      <pb_type name="DSP" blif_model=".subckt DSP" num_pb="1">
+        <clock name="CLOCK" num_pins="1"/>
+        <input name="MODE_SEL" num_pins="2"/>
+        <input name="OUT_SEL" num_pins="2"/>
+        <input name="CSEL" num_pins="2"/>
+        <input name="OSEL" num_pins="2"/>
+        <input name="COEF_DATA" num_pins="32"/>
+        <input name="OPER_DATA" num_pins="32"/>
+        <input name="ENABLE" num_pins="1"/>
+        <input name="CLR" num_pins="1"/>
+        <input name="RND" num_pins="1"/>
+        <input name="SAT" num_pins="1"/>
+        <input name="SBOG" num_pins="2"/>
+        <output name="MAC_OUT" num_pins="64"/>
+        <!-- TODO: Annotate correct timing for the DSP based on physical design -->
+        <T_setup value="1.891e-11" port="DSP.COEF_DATA" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.OPER_DATA" clock="CLOCK"/>
+        <T_clock_to_Q max="6.032e-11" port="DSP.MAC_OUT" clock="CLOCK"/>
+      </pb_type>
+      <interconnect>
+        <!-- Only direct connection here, give zero delays as this is just a wrapper -->
+        <direct name="MODE_SEL" input="DSP32.MODE_SEL" output="DSP.MODE_SEL"/>
+        <direct name="OUT_SEL" input="DSP32.OUT_SEL" output="DSP.OUT_SEL"/>
+        <direct name="CSEL" input="DSP32.CSEL" output="DSP.CSEL"/>
+        <direct name="OSEL" input="DSP32.OSEL" output="DSP.OSEL"/>
+        <direct name="COEF_DATA" input="DSP32.COEF_DATA" output="DSP.COEF_DATA"/>
+        <direct name="OPER_DATA" input="DSP32.OPER_DATA" output="DSP.OPER_DATA"/>
+        <direct name="ENABLE" input="DSP32.ENABLE" output="DSP.ENABLE"/>
+        <direct name="CLR" input="DSP32.CLR" output="DSP.CLR"/>
+        <direct name="RND" input="DSP32.RND" output="DSP.RND"/>
+        <direct name="SAT" input="DSP32.SAT" output="DSP.SAT"/>
+        <direct name="CLOCK" input="DSP32.CLOCK" output="DSP.CLOCK"/>
+        <direct name="SBOG" input="DSP32.SBOG" output="DSP.SBOG"/>
+        <direct name="MAC_OUT" input="DSP.MAC_OUT" output="DSP32.MAC_OUT"/>
+      </interconnect>
+    </pb_type>
+    <!-- Define 32-bit DSP ends -->
   </complexblocklist>
 </architecture>
