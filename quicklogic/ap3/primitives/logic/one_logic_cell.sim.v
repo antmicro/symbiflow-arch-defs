@@ -24,7 +24,6 @@ module ONE_LOGIC_CELL (
         QRTS,
         QCK,
         QDI,
-        notifier,
         FZ,
         AQZ,
         BQZ,
@@ -33,7 +32,7 @@ module ONE_LOGIC_CELL (
 );
 
     input wire [15:0] lFragBitInfo;
-    input wire LI0, LI1, LI2, LI3, CDS, QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, notifier;
+    input wire LI0, LI1, LI2, LI3, CDS, QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI;
 
     output wire FZ, AQZ, BQZ, CQZ, LCO;
 
@@ -69,7 +68,6 @@ module ONE_LOGIC_CELL (
                 .QCK(QCK),
                 .QDI(mux_cds_op),
                 .CDS(CDS),
-                .notifier(notifier),
                 .AQZ(AQZ));
     end endgenerate
 
