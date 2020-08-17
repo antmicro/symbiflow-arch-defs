@@ -1153,6 +1153,7 @@ function(ADD_FPGA_TARGET)
   #   [DEFINES <definitions>]
   #   [SDC_FILE <sdc file>]
   #   [BIT_TO_V_EXTRA_ARGS]
+  #   [SV2V_FLAGS]
   #   )
   # ~~~
   #
@@ -1193,9 +1194,9 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY SV2V_CONVERT)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE INPUT_XDC_FILE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
+  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS SV2V_FLAGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -1306,12 +1307,35 @@ function(ADD_FPGA_TARGET)
   set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
   set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
 
+
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
     append_file_location(SOURCE_FILES ${SRC})
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
+
+  # Convert SystemVerilog files
+
+  if(${ADD_FPGA_TARGET_SV2V_CONVERT})
+    set(OUT_SV2V ${OUT_LOCAL}/${TOP}_sv2v.v)
+    add_custom_command(
+      OUTPUT ${OUT_SV2V}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+      COMMAND
+        ${CMAKE_COMMAND} -E env
+        zachjs-sv2v ${ADD_FPGA_TARGET_SV2V_FLAGS} ${SOURCE_FILES} > ${OUT_SV2V} 2> ${OUT_SV2V}.log;
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    add_custom_target(${NAME}_sv2v DEPENDS ${OUT_SV2V})
+
+    set(SOURCE_FILES ${OUT_SV2V})
+    set(SOURCE_FILES_DEPS ${OUT_SV2V})
+  endif()
 
   set(CELLS_SIM_DEPS "")
   get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
