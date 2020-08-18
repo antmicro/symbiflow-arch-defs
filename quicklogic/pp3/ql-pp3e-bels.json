@@ -95,7 +95,13 @@
             ]
         },
         "q_frag": {
-            "FRAGS":[
+            "INT":[
+                "LOGIC3_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
+                "LOGIC3_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3"
+            ],
+            "EXT":[
                 "LOGIC3_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
                 "LOGIC3_QDS_EQ_1_QEN_EQ_1_QRT_EQ_0_QST_EQ_0_QCKS_EQ_1.LOGIC3",
@@ -113,12 +119,19 @@
     "GMUX": {
         "gmux": {
             "IP": [
-                "GMUX_IS0_EQ_0.GMUX",
-                "GMUX_IS0_EQ_1.GMUX"
+                "GMUX.GMUX",
+                "GMUX.GMUX"
             ],
             "IC": [
-                "GMUX_IS0_EQ_0.GMUX",
-                "GMUX_IS0_EQ_1.GMUX"
+                "GMUX.GMUX",
+                "GMUX.GMUX"
+            ]
+        }
+    },
+    "CLOCK": {
+        "clock_buf": {
+            "CLOCK": [
+                "CLOCK.CLOCK"
             ]
         }
     }

@@ -8,6 +8,42 @@ import lxml.etree as ET
 import sdf_timing.sdfparse
 from sdf_timing.utils import get_scale_seconds
 
+from termcolor import colored
+
+
+def log(ltype, message, outdesc=None):
+    """Prints log messages.
+
+    Parameters
+    ----------
+    ltype: str
+        Log type, can be INFO, WARNING, ERROR
+    message: str
+        Log message
+    """
+
+    LOGLEVELS = ["INFO", "WARNING", "ERROR", "ALL"]
+    SUPPRESSBELOW = "ERROR"
+
+    if ltype not in LOGLEVELS[:-1]:
+        return
+
+    dat = {
+        "INFO": (0, "green"),
+        "WARNING": (1, "yellow"),
+        "ERROR": (2, "red"),
+        "ALL": (3, "black")
+    }
+
+    if dat[ltype][0] >= dat[SUPPRESSBELOW][0]:
+        print(colored("{}: {}".format(ltype, message), dat[ltype][1]))
+        if outdesc:
+            print(
+                colored("{}: {}".format(ltype, message), dat[ltype][1]),
+                file=outdesc
+            )
+
+
 # =============================================================================
 
 # RAM 2x1 ports, their widths and associated clocks.
@@ -709,9 +745,11 @@ def make_pb_type(
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No setup timing for '{}'->'{}' for pb_type '{}'".
-                    format(alias + suffix, assoc_clock, pb_name)
+                log(
+                    "WARNING",
+                    "No setup timing for '{}'->'{}' for pb_type '{}'".format(
+                        alias + suffix, assoc_clock, pb_name
+                    )
                 )
 
             stats["total_timings"] += 1
@@ -742,9 +780,11 @@ def make_pb_type(
             else:
                 delay = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No hold timing for '{}'->'{}' for pb_type '{}'".
-                    format(alias + suffix, assoc_clock, pb_name)
+                log(
+                    "WARNING",
+                    "No hold timing for '{}'->'{}' for pb_type '{}'".format(
+                        alias + suffix, assoc_clock, pb_name
+                    )
                 )
 
             stats["total_timings"] += 1
@@ -791,9 +831,10 @@ def make_pb_type(
                 delay_min = 1e-10
                 delay_max = 1e-10
                 stats["missing_timings"] += 1
-                print(
-                    "WARNING: No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'"
-                    .format(assoc_clock, alias + suffix, pb_name)
+                log(
+                    "WARNING",
+                    "No \"clock to Q\" timing for '{}'->'{}' for pb_type '{}'".
+                    format(assoc_clock, alias + suffix, pb_name)
                 )
 
             stats["total_timings"] += 1
@@ -984,12 +1025,18 @@ def make_ram2x1_instance(ports, separator=",\n"):
         for name, width, assoc_clock in ports[key]:
             if name not in RAM_2X1_COMMON_PORTS:
                 if name[:-3] not in RAM_2X1_COMMON_PORTS:
-                	if name.find("_0") >= 0 or name.find("_1") >= 0:
-                    		verilog += "      .{}({}){}".format(name, name, separator)
-                	elif name.find("_b") >=0:
-                    		verilog += "      .{}({}){}".format(name.replace("_b", "_0_b"), name, separator)
-                	else:
-                    		verilog += "      .{}_0({}){}".format(name, name, separator)
+                    if name.find("_0") >= 0 or name.find("_1") >= 0:
+                        verilog += "      .{}({}){}".format(
+                            name, name, separator
+                        )
+                    elif name.find("_b") >= 0:
+                        verilog += "      .{}({}){}".format(
+                            name.replace("_b", "_0_b"), name, separator
+                        )
+                    else:
+                        verilog += "      .{}_0({}){}".format(
+                            name, name, separator
+                        )
 
     verilog = verilog[:-2] + ");\n\n"
 

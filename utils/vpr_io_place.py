@@ -102,8 +102,11 @@ class IoPlace(object):
 
         # A regular net
         else:
-            block_name = self.net_to_block[net_name]
-            return self.block_to_inst[block_name]
+            if net_name in self.net_to_block:
+                block_name = self.net_to_block[net_name]
+                return self.block_to_inst[block_name]
+            else:
+                return None
 
     def constrain_net(self, net_name, loc, comment=""):
         assert len(loc) == 3

@@ -149,12 +149,59 @@ module LOGIC_MACRO (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, 
 	(* SETUP="QCK {setup_QCK_QDI}" *)
 	(* HOLD="QCK {hold_QCK_QDI}" *)
     output reg  QZ;
+	
+	input  wire F1;
+    input  wire F2;
+    input  wire FS;
+
+    (* DELAY_CONST_F1="{iopath_F1_FZ}" *)
+    (* DELAY_CONST_F2="{iopath_F2_FZ}" *)
+    (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
+    output wire FZ;
 
     // Parameters
     parameter [0:0] Z_QCKS = 1'b1;
 
     // The QZI-mux
     wire QZI = (QDS) ? QDI : CZI;
+		
+    specify
+        (TBS => CZ) = (0,0);
+        (TAB => CZ) = (0,0);
+        (TSL => CZ) = (0,0);
+        (TA1 => CZ) = (0,0);
+        (TA2 => CZ) = (0,0);
+        (TB1 => CZ) = (0,0);
+        (TB2 => CZ) = (0,0);
+        (BAB => CZ) = (0,0);
+        (BSL => CZ) = (0,0);
+        (BA1 => CZ) = (0,0);
+        (BA2 => CZ) = (0,0);
+        (BB1 => CZ) = (0,0);
+        (BB2 => CZ) = (0,0);
+        (TAB => TZ) = (0,0);
+        (TSL => TZ) = (0,0);
+        (TA1 => TZ) = (0,0);
+        (TA2 => TZ) = (0,0);
+        (TB1 => TZ) = (0,0);
+        (TB2 => TZ) = (0,0);
+        (F1 => FZ) = (0,0);
+        (F2 => FZ) = (0,0);
+        (FS => FZ) = (0,0);
+        (QCK => QZ) = (0,0);
+		$setup(CZI, posedge QCK, "");
+        $hold(posedge QCK, CZI, "");
+        $setup(QDI, posedge QCK, "");
+        $hold(posedge QCK, QDI, "");
+        $setup(QST, posedge QCK, "");
+        $hold(posedge QCK, QST, "");
+        $setup(QRT, posedge QCK, "");
+        $hold(posedge QCK, QRT, "");
+        $setup(QEN, posedge QCK, "");
+        $hold(posedge QCK, QEN, "");
+        $setup(QDS, posedge QCK, "");
+        $hold(posedge QCK, QDS, "");
+    endspecify
 
     // The flip-flop
     initial QZ <= 1'b0;
@@ -167,18 +214,7 @@ module LOGIC_MACRO (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, 
 			QZ <= QZI;
 	end
 
-    // =============== F_FRAG ===============
-
-    input  wire F1;
-    input  wire F2;
-    input  wire FS;
-
-    (* DELAY_CONST_F1="{iopath_F1_FZ}" *)
-    (* DELAY_CONST_F2="{iopath_F2_FZ}" *)
-    (* DELAY_CONST_FS="{iopath_FS_FZ}" *)
-    output wire FZ;
-
-    // The F-mux
+   // The F-mux
     assign FZ = FS ? F2 : F1;
 
 endmodule

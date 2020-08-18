@@ -24,6 +24,7 @@ class VModule(object):
             belinversions,
             interfaces,
             designconnections,
+            org_loc_map,
             cand_map,
             inversionpins,
             io_to_fbio,
@@ -41,6 +42,7 @@ class VModule(object):
         self.belinversions = belinversions
         self.interfaces = interfaces
         self.designconnections = designconnections
+        self.org_loc_map = org_loc_map
         self.cand_map = cand_map
         self.inversionpins = inversionpins
         self.useinversionpins = useinversionpins
@@ -363,7 +365,7 @@ class VModule(object):
                 if key in cellpins:
                     cell_connections[cell_name][key] = connections[key]
 
-                # Some switchbox inputs are named like 
+                # Some switchbox inputs are named like
                 # "<cell><cell_index>_<pin>". Break down the name and check.
                 fields = key.split("_", maxsplit=1)
                 if len(fields) == 2:
@@ -453,7 +455,8 @@ class VModule(object):
             if srctype not in self.elements[wire[0]]:
                 # if the source element does not exist, create it
                 self.elements[wire[0]][srctype] = Element(
-                    wire[0], self.get_element_type(srctype), self.get_element_name(srctype, wire[0]),
+                    wire[0], self.get_element_type(srctype),
+                    self.get_element_name(srctype, wire[0]),
                     {srconame: wirename}
                 )
             else:
@@ -501,7 +504,10 @@ class VModule(object):
                 outputs = {}
 
                 # Check each output
-                for output_name, (loc, wire,) in connections.items():
+                for output_name, (
+                        loc,
+                        wire,
+                ) in connections.items():
 
                     # That wire is connected to something. Skip processing
                     # of the cell here
@@ -518,7 +524,8 @@ class VModule(object):
                 # If Element does not exist, create it
                 if currtype not in self.elements[currloc]:
                     self.elements[currloc][currtype] = Element(
-                        currloc, self.get_element_type(currtype), currname, outputs
+                        currloc, self.get_element_type(currtype), currname,
+                        outputs
                     )
                 # Else update IOs
                 else:
@@ -547,7 +554,9 @@ class VModule(object):
                         inputs[inputname] = "1'b0"
                         continue
                     elif wire[1].startswith("CAND"):
-                        inputs[inputname] = self.cand_map[currloc][wire[1]]
+                        dst = (currloc, inputname)
+                        dst = self.org_loc_map.get(dst, dst)
+                        inputs[inputname] = self.cand_map[dst[0]][wire[1]]
                         continue
                     srctype = self.vpr_tile_grid[wire[0]].type
                     srctype_cells = self.vpr_tile_types[srctype].cells
@@ -564,7 +573,8 @@ class VModule(object):
                 if currtype not in self.elements[currloc]:
                     # If Element does not exist, create it
                     self.elements[currloc][currtype] = Element(
-                        currloc, self.get_element_type(currtype), currname, inputs
+                        currloc, self.get_element_type(currtype), currname,
+                        inputs
                     )
                 else:
                     # else update IOs

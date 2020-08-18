@@ -30,6 +30,8 @@ IGNORED_IO_CELL_TYPES = (
 
 # =============================================================================
 
+DEBUG = False
+
 
 def is_loc_within_limit(loc, limit):
     """
@@ -65,6 +67,43 @@ def is_loc_free(loc, tile_grid):
 # =============================================================================
 
 
+def process_cells_library(cells_library):
+    """
+    Processes the cells library, modifies some of them according to
+    requirements of their VPR representation
+    """
+    vpr_cells_library = {}
+
+    for cell_type, cell in cells_library.items():
+
+        # If the cell is a QMUX add the missing QCLKIN1 and QCLKIN2
+        # input pins.
+        if cell_type == "QMUX":
+            cell_pins = cell.pins
+
+            for i in [1, 2]:
+                cell_pins.append(
+                    Pin(
+                        name="QCLKIN{}".format(i),
+                        direction=PinDirection.INPUT,
+                        attrib={"hardWired": "true"}
+                    )
+                )
+
+            # Substitute the cell
+            vpr_cells_library[cell_type] = CellType(
+                type=cell_type, pins=cell_pins
+            )
+
+        # Copy the cell
+        vpr_cells_library[cell_type] = cell
+
+    return vpr_cells_library
+
+
+# =============================================================================
+
+
 def fixup_cand_loc(vpr_loc, phy_loc):
     """
     Fixes up location of a CAND cell so that all of them occupy the same row.
@@ -89,7 +128,7 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_types[tile_type.type] = tile_type
 
 
-def make_tile_type(cells, cells_library, tile_types):
+def make_tile_type(cells, cells_library, tile_types, fake_const_pin=False):
     """
     Creates a tile type given a list of cells that constitute to it.
     """
@@ -120,7 +159,8 @@ def make_tile_type(cells, cells_library, tile_types):
         return tile_types[type_name]
 
     # Create the new tile type
-    tile_type = TileType(type=type_name, cells=cell_counts)
+    tile_type = TileType(type=type_name, cells=cell_counts,
+                         fake_const_pin=fake_const_pin)
 
     # Create pins
     tile_type.make_pins(cells_library)
@@ -147,7 +187,8 @@ def strip_cells(tile, cell_types, tile_types, cells_library):
         return None
 
     # Create the new tile type and tile
-    new_tile_type = make_tile_type(new_cells, cells_library, tile_types)
+    new_tile_type = make_tile_type(new_cells, cells_library, tile_types,
+                                   tile_type.fake_const_pin)
     new_tile = Tile(type=new_tile_type.type, name=tile.name, cells=new_cells)
 
     return new_tile
@@ -295,6 +336,11 @@ def process_tilegrid_pp3(
         fwd_loc_map[phy_loc] = vpr_loc
         bwd_loc_map[vpr_loc] = phy_loc
 
+    # Add a fake constant connector pin to LOGIC tile type
+    tile_type = tile_types["LOGIC"]
+    tile_type.fake_const_pin = True
+    tile_type.make_pins(cells_library)
+
     # Generate the VPR tile grid
     for phy_loc, tile in tile_grid.items():
 
@@ -329,14 +375,27 @@ def process_tilegrid_pp3(
                     else:
                         cell_loc = vpr_loc
 
-                    # Add the cell
+                    # Get the orignal cell
                     clock_cell = clock_cells[cell.name]
+                    pin_map = clock_cell.pin_map
+
+                    # If the cell is QMUX then extend its pin map with
+                    # QCLKIN0 and QCLKIN1 pins that are not present in the
+                    # techfile.
+                    if clock_cell.type == "QMUX":
+                        gmux_base = int(pin_map["QCLKIN0"].rsplit("_")[1])
+                        for i in [1, 2]:
+                            key = "QCLKIN{}".format(i)
+                            val = "GMUX_{}".format((gmux_base + i) % 5)
+                            pin_map[key] = val
+
+                    # Add the cell
                     clock_cell = ClockCell(
                         type=clock_cell.type,
                         name=clock_cell.name,
                         loc=cell_loc,
                         quadrant=clock_cell.quadrant,
-                        pin_map=clock_cell.pin_map
+                        pin_map=pin_map
                     )
 
                     vpr_clock_cells[clock_cell.name] = clock_cell
@@ -860,6 +919,54 @@ def process_connections_pp3(
             src=eps[0], dst=eps[1], is_direct=connection.is_direct
         )
 
+    # A QMUX should have 3 QCLKIN inputs but accorting to the EOS S3/PP3E
+    # techfile it has only one. It is assumed then when "QCLKIN0=GMUX_1" then
+    # "QCLKIN1=GMUX_2" etc.
+    new_qmux_connections = []
+    for connection in vpr_connections:
+
+        # Get only those that target QCLKIN0 of a QMUX.
+        if connection.dst.type != ConnectionType.CLOCK:
+            continue
+        if connection.src.type != ConnectionType.TILE:
+            continue
+
+        dst_cell_name, dst_pin = connection.dst.pin.split(".", maxsplit=1)
+        if not dst_cell_name.startswith("QMUX") or dst_pin != "QCLKIN0":
+            continue
+
+        src_cell_name, src_pin = connection.src.pin.split("_", maxsplit=1)
+        if not src_cell_name.startswith("GMUX"):
+            continue
+
+        # Add two new connections for QCLKIN1 and QCLKIN2.
+        # GMUX connections are already spread along the Z axis so the Z
+        # coordinate indicates the GMUX cell index.
+        gmux_base = connection.src.loc.z
+        for i in [1, 2]:
+            gmux_idx = (gmux_base + i) % 5
+
+            c = Connection(
+                src=ConnectionLoc(
+                    loc=Loc(
+                        x=connection.src.loc.x,
+                        y=connection.src.loc.y,
+                        z=gmux_idx
+                    ),
+                    pin="GMUX0_IZ",
+                    type=connection.src.type
+                ),
+                dst=ConnectionLoc(
+                    loc=connection.dst.loc,
+                    pin="{}.QCLKIN{}".format(dst_cell_name, i),
+                    type=connection.dst.type
+                ),
+                is_direct=connection.is_direct
+            )
+            new_qmux_connections.append(c)
+
+    vpr_connections.extend(new_qmux_connections)
+
     # Handle QMUX connections. Instead of making them SWITCHBOX -> TILE convert
     # to SWITCHBOX -> CLOCK
     for i, connection in enumerate(vpr_connections):
@@ -1220,8 +1327,11 @@ def main():
     else:
         cell_timings = None
 
+    # Process the cells library
+    vpr_cells_library = process_cells_library(cells_library)
+
     # Add synthetic stuff
-    add_synthetic_cell_and_tile_types(tile_types, cells_library)
+    add_synthetic_cell_and_tile_types(tile_types, vpr_cells_library)
 
     # Determine the grid offset so occupied locations start at GRID_MARGIN
     tl_min = min([loc.x for loc in phy_tile_grid]), \
@@ -1258,9 +1368,9 @@ def main():
         )
 
     # Process the tilegrid
-    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(device_name,
-        tile_types, phy_tile_grid, phy_clock_cells, cells_library, grid_size,
-        grid_offset, grid_limit
+    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
+        tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library,
+        grid_size, grid_offset, grid_limit
     )
 
     # Process the switchbox grid
@@ -1343,94 +1453,97 @@ def main():
         sw = add_vpr_switches_for_cell("CAND", cell_timings)
         vpr_switches.update(sw)
 
-    # DBEUG
-    print("Tile grid:")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    zmax = max([loc.z for loc in vpr_tile_grid])
-    for z in range(zmax + 1):
-        l = " {:>2}: ".format(z)
+    if DEBUG:
+        # DBEUG
+        print("Tile grid:")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
+        zmax = max([loc.z for loc in vpr_tile_grid])
+        for z in range(zmax + 1):
+            l = " {:>2}: ".format(z)
+            for y in range(ymax + 1):
+                l = " {:>2}: ".format(y)
+                for x in range(xmax + 1):
+                    loc = Loc(x=x, y=y, z=z)
+
+                    if loc not in vpr_tile_grid:
+                        l += " "
+                    elif vpr_tile_grid[loc] is not None:
+                        tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
+                        label = sorted(list(tile_type.cells.keys()))[0][0].upper()
+                        l += label
+                    else:
+                        l += "."
+                print(l)
+
+
+        # DBEUG
+        print("Tile capacity / sub-tile count")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
         for y in range(ymax + 1):
             l = " {:>2}: ".format(y)
             for x in range(xmax + 1):
-                loc = Loc(x=x, y=y, z=z)
-                if loc not in vpr_tile_grid:
+
+                tiles = {loc: tile for loc, tile in vpr_tile_grid.items() if \
+                         loc.x == x and loc.y == y}
+                count = len([t for t in tiles.values() if t is not None])
+
+                if len(tiles) == 0:
                     l += " "
-                elif vpr_tile_grid[loc] is not None:
-                    tile_type = vpr_tile_types[vpr_tile_grid[loc].type]
-                    label = sorted(list(tile_type.cells.keys()))[0][0].upper()
-                    l += label
+                elif count == 0:
+                    l += "."
+                else:
+                    l += "{:X}".format(count)
+
+            print(l)
+
+        # DEBUG
+        print("Switchbox grid:")
+        xmax = max([loc.x for loc in vpr_switchbox_grid])
+        ymax = max([loc.y for loc in vpr_switchbox_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=0)
+                if loc not in vpr_switchbox_grid:
+                    l += " "
+                elif vpr_switchbox_grid[loc] is not None:
+                    l += "X"
                 else:
                     l += "."
             print(l)
 
-    # DBEUG
-    print("Tile capacity / sub-tile count")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
+        # DBEUG
+        print("Route-through global clock cells:")
+        xmax = max([loc.x for loc in vpr_tile_grid])
+        ymax = max([loc.y for loc in vpr_tile_grid])
+        for y in range(ymax + 1):
+            l = " {:>2}: ".format(y)
+            for x in range(xmax + 1):
+                loc = Loc(x=x, y=y, z=0)
 
-            tiles = {loc: tile for loc, tile in vpr_tile_grid.items() if \
-                     loc.x == x and loc.y == y}
-            count = len([t for t in tiles.values() if t is not None])
+                for cell in vpr_clock_cells.values():
+                    if cell.loc == loc:
+                        l += cell.name[0].upper()
+                        break
+                else:
+                    l += "."
+            print(l)
 
-            if len(tiles) == 0:
-                l += " "
-            elif count == 0:
-                l += "."
-            else:
-                l += "{:X}".format(count)
+        # DEBUG
+        print("VPR Segments:")
+        for s in vpr_segments.values():
+            print("", s)
 
-        print(l)
-
-    # DEBUG
-    print("Switchbox grid:")
-    xmax = max([loc.x for loc in vpr_switchbox_grid])
-    ymax = max([loc.y for loc in vpr_switchbox_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
-            if loc not in vpr_switchbox_grid:
-                l += " "
-            elif vpr_switchbox_grid[loc] is not None:
-                l += "X"
-            else:
-                l += "."
-        print(l)
-
-    # DBEUG
-    print("Route-through global clock cells:")
-    xmax = max([loc.x for loc in vpr_tile_grid])
-    ymax = max([loc.y for loc in vpr_tile_grid])
-    for y in range(ymax + 1):
-        l = " {:>2}: ".format(y)
-        for x in range(xmax + 1):
-            loc = Loc(x=x, y=y, z=0)
-
-            for cell in vpr_clock_cells.values():
-                if cell.loc == loc:
-                    l += cell.name[0].upper()
-                    break
-            else:
-                l += "."
-        print(l)
-
-    # DEBUG
-    print("VPR Segments:")
-    for s in vpr_segments.values():
-        print("", s)
-
-    # DEBUG
-    print("VPR Switches:")
-    for s in vpr_switches.values():
-        print("", s)
+        # DEBUG
+        print("VPR Switches:")
+        for s in vpr_switches.values():
+            print("", s)
 
     # Prepare the VPR database and write it
     db_root = {
-        "cells_library": cells_library,
+        "vpr_cells_library": vpr_cells_library,
         "loc_map": loc_map,
         "vpr_quadrants": vpr_quadrants,
         "vpr_tile_types": vpr_tile_types,

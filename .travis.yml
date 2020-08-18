@@ -20,6 +20,12 @@ before_install:
 
 install:
  - stdbuf -i0 -o0 -e0 ./.github/travis/install.sh
+ - mkdir .tmp
+ - curl -L https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-linux.zip -o .tmp/ninja-linux.zip
+ - unzip .tmp/ninja-linux.zip -d .tmp
+
+before_script:
+  - export PATH=$PATH:$PWD/.tmp
 
 script:
   # ping stdout every 9 minutes or Travis kills build

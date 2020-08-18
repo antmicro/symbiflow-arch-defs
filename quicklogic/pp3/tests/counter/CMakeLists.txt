@@ -14,6 +14,9 @@ add_jlink_output(
   PARENT counter-ql-chandalar
 )
 
+add_dependencies(all_quick_tests counter-ql-chandalar_bit)
+add_dependencies(all_quick_tests counter-ql-chandalar_jlink)
+
 add_dependencies(all_ql_tests counter-ql-chandalar_bit)
 add_dependencies(all_ql_tests counter-ql-chandalar_jlink)
 

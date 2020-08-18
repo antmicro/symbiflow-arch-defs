@@ -380,6 +380,23 @@ endmodule
 // ============================================================================
 // Multiplexers
 
+module mux2x0 (
+  output Q,
+  input  S,
+  input  A,
+  input  B
+);
+
+  // The F-Frag
+  F_FRAG f_frag (
+  .F1(A),
+  .F2(B),
+  .FS(S),
+  .FZ(Q)
+  );
+
+endmodule
+
 module mux4x0 (
     output Q,
     input  S0,
@@ -405,7 +422,7 @@ module mux4x0 (
   .XA2(B),
   .XB1(C),
   .XB2(D),
-  .XZ (O)
+  .XZ (Q)
   );
 
 endmodule
@@ -425,31 +442,35 @@ module mux8x0 (
     input  H
 );
 
-  C_FRAG # (
-  .TAS1(1'b0),
-  .TAS2(1'b0),
-  .TBS1(1'b0),
-  .TBS2(1'b0),
-  .BAS1(1'b0),
-  .BAS2(1'b0),
-  .BBS1(1'b0),
-  .BBS2(1'b0),
-  )
-  c_frag (
-  .TBS(S2),
-  .TAB(S1),
-  .TSL(S0),
-  .TA1(A),
-  .TA2(B),
-  .TB1(C),
-  .TB2(D),
-  .BAB(S1),
-  .BSL(S0),
-  .BA1(E),
-  .BA2(F),
-  .BB1(G),
-  .BB2(H),
-  .CZ (O)
+  // Split into 2x mux4x0 plus a F_FRAG
+
+  wire q0, q1;
+
+  mux4x0 mux_0 (
+  .A (A),
+  .B (B),
+  .C (C),
+  .D (D),
+  .S0(S0),
+  .S1(S1),
+  .Q (q0)
+  );
+
+  mux4x0 mux_1 (
+  .A (E),
+  .B (F),
+  .C (G),
+  .D (H),
+  .S0(S0),
+  .S1(S1),
+  .Q (q1)
+  );
+
+  F_FRAG f_frag (
+  .F1(q0),
+  .F2(q1),
+  .FS(S2),
+  .FZ(Q)
   );
 
 endmodule
@@ -462,6 +483,7 @@ module LUT1 (
   input  I0
 );
   parameter [1:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   // The F-Frag
   F_FRAG f_frag (
@@ -480,6 +502,7 @@ module LUT2 (
   input  I1
 );
   parameter [3:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire XSL = I0;
   wire XAB = I1;
@@ -518,6 +541,7 @@ module LUT3 (
   input  I2
 );
   parameter [7:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire XSL = I1;
   wire XAB = I2;
@@ -590,6 +614,7 @@ module LUT4 (
   input  I3
 );
   parameter [15:0] INIT = 0;
+  parameter EQN = "(I0)";
 
   wire TSL = I1;
   wire BSL = I1;
@@ -718,10 +743,11 @@ module dff(
   .QST(1'b0),
   .QRT(1'b0),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -744,10 +770,11 @@ module dffc(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -770,10 +797,11 @@ module dffp(
   .QST(PRE),
   .QRT(1'b0),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -797,10 +825,11 @@ module dffpc(
   .QST(PRE),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -823,10 +852,11 @@ module dffe(
   .QST(1'b0),
   .QRT(1'b0),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -850,10 +880,11 @@ module dffec(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -878,10 +909,11 @@ module dffepc(
   .QST(PRE),
   .QRT(CLR),
   .QEN(EN),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule
@@ -904,10 +936,11 @@ module dffsc(
   .QST(1'b0),
   .QRT(CLR),
   .QEN(1'b1),
-  .QDI(D),
-  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
-  .CZI(),
-  .QZ (Q)
+  .QD (D),
+  .QZ (Q),
+
+  .CONST0 (1'b0),
+  .CONST1 (1'b1)
   );
 
 endmodule

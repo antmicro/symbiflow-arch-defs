@@ -90,6 +90,7 @@ function(SETUP_ENV)
       COMMAND ${CONDA_BIN} config --add channels conda-forge
       COMMAND ${CONDA_BIN} config --add channels pkgw-forge
       # Make sure symbiflow is highest priority channel
+      COMMAND ${CONDA_BIN} config --add channels quicklogic-corp
       COMMAND ${CONDA_BIN} config --add channels symbiflow
       COMMAND ${CONDA_BIN} install lxml
       COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_BIN}

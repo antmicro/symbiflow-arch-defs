@@ -10,10 +10,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   TECHFILE_NAME <techfile name>
   #   ROUTING_TIMING_FILE_NAME <routing timing CSV file>
   #   LIB_TIMING_FILES <list timing lib files [can be wildcard]>
+  #   RAM_TIMING_SDF <name of the RAM timing data>
+  #   RAM_PBTYPE_COPY <name of the RAM pb_type to use>
   #   )
   # ~~~
   set(options)
-  set(oneValueArgs FAMILY DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME)
+  set(oneValueArgs FAMILY DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME RAM_TIMING_SDF RAM_PBTYPE_COPY)
   set(multiValueArgs PACKAGES PB_TYPES LIB_TIMING_FILES DONT_NORMALIZE_FILES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
@@ -32,6 +34,8 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(ROUTING_TIMING_FILE_NAME ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ROUTING_TIMING_FILE_NAME})
   set(LIB_TIMING_FILES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_LIB_TIMING_FILES})
   set(DONT_NORMALIZE_FILES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_DONT_NORMALIZE_FILES})
+  set(RAM_TIMING_SDF ${QUICKLOGIC_DEFINE_DEVICE_TYPE_RAM_TIMING_SDF})
+  set(RAM_PBTYPE_COPY ${QUICKLOGIC_DEFINE_DEVICE_TYPE_RAM_PBTYPE_COPY})
 
   set(DEVICE_TYPE ${DEVICE}-virt)
 
@@ -139,6 +143,39 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     append_file_dependency(XML_DEPS ${PB_TYPE_XML})
     append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
+
+  # Generate model and pb_type XML for RAM
+  # This will generate model XML and pb_type XMLs. Since there are 4 RAMs
+  # there will be one pb_type for each of them with appropriate timings. Since
+  # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
+  set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
+  set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
+  set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/${RAM_TIMING_SDF}.sdf)
+
+  set(RAM_MODEL_XML  "ram.model.xml")
+  set(RAM_PBTYPE_XML "ram.pb_type.xml")
+
+  set(RAM_CELLS_SIM  "ram_sim.v")
+  set(RAM_CELLS_MAP  "ram_map.v")
+
+  get_file_target(RAM_SDF_FILE_TARGET ${RAM_SDF_FILE})
+
+  add_custom_command(
+      OUTPUT ${RAM_MODEL_XML} ${RAM_PBTYPE_XML} ${RAM_CELLS_SIM} ${RAM_CELLS_MAP}
+      COMMAND ${PYTHON3} ${RAM_GENERATOR}
+          --sdf ${RAM_SDF_FILE}
+          --mode-defs ${RAM_MODE_DEFS}
+          --xml-path ${CMAKE_CURRENT_BINARY_DIR}
+          --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND ${CMAKE_COMMAND} -E copy ${RAM_PBTYPE_COPY} ${RAM_PBTYPE_XML}
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
+  )
+
+  add_file_target(FILE ${RAM_MODEL_XML} GENERATED)
+  add_file_target(FILE ${RAM_PBTYPE_XML} GENERATED)
+
+  add_file_target(FILE ${RAM_CELLS_SIM} GENERATED)
+  add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
 
   # Generate the arch.xml
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/arch_import.py)
@@ -333,6 +370,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
       WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/passthrough.eblif
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
+      CACHE_LOOKAHEAD
       CACHE_ARGS
         --constant_net_method route
         --clock_modeling route
@@ -345,6 +383,9 @@ function(QUICKLOGIC_DEFINE_DEVICE)
         --route_chan_width 500
         --allow_dangling_combinational_nodes on
         --allowed_tiles_for_delay_model TL-LOGIC # TODO: Make this a parameter !
+        --allow_unrelated_clustering on
+        --balance_block_type_utilization on
+        --target_ext_pin_util 1.0
     )
 
   endforeach()

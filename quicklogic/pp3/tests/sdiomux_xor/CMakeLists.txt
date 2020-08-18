@@ -13,6 +13,9 @@ add_jlink_output(
   PARENT sdiomux_xor-ql-chandalar
 )
 
+add_dependencies(all_quick_tests sdiomux_xor-ql-chandalar_bit)
+add_dependencies(all_quick_tests sdiomux_xor-ql-chandalar_jlink)
+
 add_dependencies(all_ql_tests sdiomux_xor-ql-chandalar_bit)
 add_dependencies(all_ql_tests sdiomux_xor-ql-chandalar_jlink)
 

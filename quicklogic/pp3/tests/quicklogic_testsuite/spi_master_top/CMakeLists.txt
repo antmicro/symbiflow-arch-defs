@@ -20,4 +20,3 @@ add_jlink_output(
 
 add_dependencies(all_ql_tests spi_master_top-ql-chandalar_bit)
 add_dependencies(all_ql_tests spi_master_top-ql-chandalar_jlink)
-
