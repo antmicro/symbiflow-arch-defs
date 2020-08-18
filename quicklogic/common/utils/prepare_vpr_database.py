@@ -28,9 +28,17 @@ IGNORED_IO_CELL_TYPES = (
     "GND",
 )
 
+# A set of pins of LOGIC cell related to its F_FRAG part
+F_FRAG_PINS = {
+    "F1",
+    "F2",
+    "FS",
+    "FZ",
+}
+
 # =============================================================================
 
-DEBUG = False
+DEBUG = True
 
 
 def is_loc_within_limit(loc, limit):
@@ -72,6 +80,7 @@ def process_cells_library(cells_library):
     Processes the cells library, modifies some of them according to
     requirements of their VPR representation
     """
+
     vpr_cells_library = {}
 
     for cell_type, cell in cells_library.items():
@@ -94,6 +103,29 @@ def process_cells_library(cells_library):
             vpr_cells_library[cell_type] = CellType(
                 type=cell_type, pins=cell_pins
             )
+
+            continue
+
+        # Split LOGIC cell, extract F_FRAG
+        if cell_type == "LOGIC":
+            logic_pins = []
+            f_frag_pins = []
+
+            for pin in cell.pins:
+                if pin.name in F_FRAG_PINS:
+                    f_frag_pins.append(pin)
+                else:
+                    logic_pins.append(pin)
+
+            vpr_cells_library["LOGIC"] = CellType(
+                type="LOGIC", pins=logic_pins
+            )
+
+            vpr_cells_library["FFRAG"] = CellType(
+                type="FFRAG", pins=f_frag_pins
+            )
+
+            continue
 
         # Copy the cell
         vpr_cells_library[cell_type] = cell
@@ -128,7 +160,7 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
         tile_types[tile_type.type] = tile_type
 
 
-def make_tile_type(cells, cells_library, tile_types):
+def make_tile_type(cells, cells_library, tile_types, force=False):
     """
     Creates a tile type given a list of cells that constitute to it.
     """
@@ -151,7 +183,7 @@ def make_tile_type(cells, cells_library, tile_types):
     type_name = "_".join(parts).upper()
 
     # If the new tile type already exists, use the existing one
-    if type_name in tile_types:
+    if not force and type_name in tile_types:
         return tile_types[type_name]
 
     # Create the new tile type
@@ -211,6 +243,19 @@ def process_tilegrid(
     def add_loc_map(phy_loc, vpr_loc):
         fwd_loc_map[phy_loc] = vpr_loc
         bwd_loc_map[vpr_loc] = phy_loc
+
+    # Create new tile types for LOGIC and FFRAG. Do this here to replace
+    # existing ones.
+    for cell_type in ["LOGIC", "FFRAG"]:
+
+        # Create a tile type for the cell
+        new_type = make_tile_type(
+            [cells_library[cell_type]],
+            cells_library, tile_types,
+            force=True
+        )
+
+        tile_types[new_type.type] = new_type
 
     # Generate the VPR tile grid
     for phy_loc, tile in tile_grid.items():
@@ -412,10 +457,38 @@ def process_tilegrid(
         if len(tile_type.cells) == 1:
             cell_type = list(tile_type.cells.keys())[0]
 
-            # LOGIC, keep as is
+            # LOGIC, Split into a LOGIC tile with C_FRAG and Q_FRAG and a
+            # separate F_FRAG tile.
             if cell_type == "LOGIC":
-                add_loc_map(phy_loc, vpr_loc)
-                vpr_tile_grid[vpr_loc] = tile
+
+                for i, cell_type in enumerate(["LOGIC", "FFRAG"]):
+
+                    # New tile type already present
+                    new_type = tile_types[cell_type]
+
+                    # New location
+                    new_loc = Loc(vpr_loc.x, vpr_loc.y, i)
+
+                    # For the offset 0 add the full mapping, for others, just the
+                    # backward correspondence.
+                    if new_loc == vpr_loc:
+                        add_loc_map(phy_loc, new_loc)
+                    else:
+                        bwd_loc_map[new_loc] = phy_loc
+
+                    # Add the cell instance
+                    cell = Cell(
+                        type=cell_type,
+                        index=0,
+                        name=cell_type,
+                        alias=cell_type
+                    )
+
+                    # Add the tile instance
+                    vpr_tile_grid[new_loc] = Tile(
+                        type=new_type.type, name=tile.name, cells=[cell]
+                    )
+
                 continue
 
             # GMUX, split individual GMUX cells into sub-tiles
@@ -592,6 +665,15 @@ def process_connections(
                 # Modify the location according to the cell index
                 z = int(cell[-1])  # FIXME: Assuming indices 0-9
                 vpr_loc = Loc(vpr_loc.x, vpr_loc.y, z)
+
+            # If the connection mentions a LOGIC cell, remap its Z location
+            # for F_FRAG pins
+            if "LOGIC" in ep.pin and ep.type == ConnectionType.TILE:
+
+                cell, pin = ep.pin.split("_", maxsplit=1)
+                if pin in F_FRAG_PINS:
+                    vpr_loc = Loc(vpr_loc.x, vpr_loc.y, 1)
+                    vpr_pin = "FFRAG0_{}".format(pin)
 
             # Update the endpoint
             eps[j] = ConnectionLoc(loc=vpr_loc, pin=vpr_pin, type=ep.type)
@@ -1270,6 +1352,26 @@ def main():
         vpr_switches.update(sw)
 
     if DEBUG:
+
+        # DEBUG
+        print("Cells library:")
+        for t in sorted(list(vpr_cells_library.keys())):
+            cell_type = vpr_cells_library[t]
+            print("", t)
+            print("  I:", ", ".join([p.name for p in cell_type.pins if p.direction == PinDirection.INPUT]))
+            print("  O:", ", ".join([p.name for p in cell_type.pins if p.direction == PinDirection.OUTPUT]))
+        print("")
+
+        # DEBUG
+        print("Tile types:")
+        for t in sorted(list(vpr_tile_types.keys())):
+            print("", t)
+            tile_type = vpr_tile_types[t]
+            print("  Cells:", ", ".join(["{}x{}".format(k, v) for k,v in tile_type.cells.items()]))
+            print("  I:", ", ".join([p.name for p in tile_type.pins if p.direction == PinDirection.INPUT]))
+            print("  O:", ", ".join([p.name for p in tile_type.pins if p.direction == PinDirection.OUTPUT]))
+        print("")
+
         # DBEUG
         print("Tile grid:")
         xmax = max([loc.x for loc in vpr_tile_grid])
