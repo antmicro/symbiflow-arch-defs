@@ -144,39 +144,6 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
 
-  # Generate model and pb_type XML for RAM
-  # This will generate model XML and pb_type XMLs. Since there are 4 RAMs
-  # there will be one pb_type for each of them with appropriate timings. Since
-  # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
-  set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
-  set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
-  set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/${RAM_TIMING_SDF}.sdf)
-
-  set(RAM_MODEL_XML  "ram.model.xml")
-  set(RAM_PBTYPE_XML "ram.pb_type.xml")
-
-  set(RAM_CELLS_SIM  "ram_sim.v")
-  set(RAM_CELLS_MAP  "ram_map.v")
-
-  get_file_target(RAM_SDF_FILE_TARGET ${RAM_SDF_FILE})
-
-  add_custom_command(
-      OUTPUT ${RAM_MODEL_XML} ${RAM_PBTYPE_XML} ${RAM_CELLS_SIM} ${RAM_CELLS_MAP}
-      COMMAND ${PYTHON3} ${RAM_GENERATOR}
-          --sdf ${RAM_SDF_FILE}
-          --mode-defs ${RAM_MODE_DEFS}
-          --xml-path ${CMAKE_CURRENT_BINARY_DIR}
-          --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
-      COMMAND ${CMAKE_COMMAND} -E copy ${RAM_PBTYPE_COPY} ${RAM_PBTYPE_XML}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
-  )
-
-  add_file_target(FILE ${RAM_MODEL_XML} GENERATED)
-  add_file_target(FILE ${RAM_PBTYPE_XML} GENERATED)
-
-  add_file_target(FILE ${RAM_CELLS_SIM} GENERATED)
-  add_file_target(FILE ${RAM_CELLS_MAP} GENERATED)
-
   # Generate the arch.xml
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/arch_import.py)
 
@@ -187,7 +154,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       # we cannot model that in the VPR for now we simply use one for all 4 RAMs.
       set(RAM_GENERATOR ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/make_rams.py)
       set(RAM_MODE_DEFS ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/primitives/ram/ram_modes.json)
-      set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/RAM_ss_0p990v_m040c.sdf) # FIXME: Look for the file in the step above !
+      set(RAM_SDF_FILE  ${SDF_TIMING_DIR}/${RAM_TIMING_SDF}.sdf)
 
       set(RAM_MODEL_XML  "ram.model.xml")
       set(RAM_PBTYPE_XML "ram.pb_type.xml")
@@ -204,7 +171,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
               --mode-defs ${RAM_MODE_DEFS}
               --xml-path ${CMAKE_CURRENT_BINARY_DIR}
               --vlog-path ${CMAKE_CURRENT_BINARY_DIR}
-          COMMAND ${CMAKE_COMMAND} -E copy "ram_a1.pb_type.xml" ${RAM_PBTYPE_XML}
+          COMMAND ${CMAKE_COMMAND} -E copy ${RAM_PBTYPE_COPY} ${RAM_PBTYPE_XML}
           DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${RAM_GENERATOR} ${RAM_MODE_DEFS} ${RAM_SDF_FILE_TARGET}
       )
 
