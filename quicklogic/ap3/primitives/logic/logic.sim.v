@@ -5,10 +5,10 @@
 (* MODEL_NAME="LOGIC" *)
 (* whitebox *)
 module LOGIC (
-		lFragBitInfo, 
+        lFragBitInfo,
         L0I0,
         L0I1,
-        L0I2, 
+        L0I2,
         L0I3,
 		CD0S,
         Q0EN,
@@ -22,7 +22,7 @@ module LOGIC (
 		Q0DI,
         L1I0,
         L1I1,
-        L1I2, 
+        L1I2,
         L1I3,
 		CD1S,
         Q1EN,
@@ -33,7 +33,7 @@ module LOGIC (
         Q1DI,
 		L2I0,
         L2I1,
-        L2I2, 
+        L2I2,
         L2I3,
 		CD2S,
         Q2EN,
@@ -44,7 +44,7 @@ module LOGIC (
         Q2DI,
 		L3I0,
         L3I1,
-        L3I2, 
+        L3I2,
         L3I3,
 		CD3S,
         Q3EN,
@@ -55,7 +55,7 @@ module LOGIC (
         Q3DI,
 		L4I0,
         L4I1,
-        L4I2, 
+        L4I2,
         L4I3,
 		CD4S,
         Q4EN,
@@ -66,7 +66,7 @@ module LOGIC (
         Q4DI,
 		L5I0,
         L5I1,
-        L5I2, 
+        L5I2,
         L5I3,
 		CD5S,
         Q5EN,
@@ -77,7 +77,7 @@ module LOGIC (
         Q5DI,
 		L6I0,
         L6I1,
-        L6I2, 
+        L6I2,
         L6I3,
 		CD6S,
         Q6EN,
@@ -88,7 +88,7 @@ module LOGIC (
         Q6DI,
 		L7I0,
         L7I1,
-        L7I2, 
+        L7I2,
         L7I3,
 		CD7S,
         Q7EN,
@@ -141,7 +141,7 @@ module LOGIC (
     input [127:0] lFragBitInfo;
     input L0I0;
     input L0I1;
-    input L0I2; 
+    input L0I2;
     input L0I3;
     input CD0S;
     input Q0EN;
@@ -155,7 +155,7 @@ module LOGIC (
     input Q0DI;
     input L1I0;
     input L1I1;
-    input L1I2; 
+    input L1I2;
     input L1I3;
     input CD1S;
     input Q1EN;
@@ -166,7 +166,7 @@ module LOGIC (
     input Q1DI;
     input L2I0;
     input L2I1;
-    input L2I2; 
+    input L2I2;
     input L2I3;
     input CD2S;
     input Q2EN;
@@ -177,7 +177,7 @@ module LOGIC (
     input Q2DI;
     input L3I0;
     input L3I1;
-    input L3I2; 
+    input L3I2;
     input L3I3;
     input CD3S;
     input Q3EN;
@@ -188,7 +188,7 @@ module LOGIC (
     input Q3DI;
     input L4I0;
     input L4I1;
-    input L4I2; 
+    input L4I2;
     input L4I3;
     input CD4S;
     input Q4EN;
@@ -199,7 +199,7 @@ module LOGIC (
     input Q4DI;
     input L5I0;
     input L5I1;
-    input L5I2; 
+    input L5I2;
     input L5I3;
     input CD5S;
     input Q5EN;
@@ -210,7 +210,7 @@ module LOGIC (
     input Q5DI;
     input L6I0;
     input L6I1;
-    input L6I2; 
+    input L6I2;
     input L6I3;
     input CD6S;
     input Q6EN;
@@ -221,7 +221,7 @@ module LOGIC (
     input Q6DI;
     input L7I0;
     input L7I1;
-    input L7I2; 
+    input L7I2;
     input L7I3;
     input CD7S;
     input Q7EN;
@@ -271,13 +271,12 @@ module LOGIC (
     output CQ7Z;
     output L7CO;
 
-    reg notifier;
 
     ONE_LOGIC_CELL logic0(
             .lFragBitInfo (lFragBitInfo[15:0]),
             .LI0 (L0I0),
             .LI1 (L0I1),
-            .LI2 (L0I2), 
+            .LI2 (L0I2),
             .LI3 (L0I3),
             .CDS (CD0S),
             .QEN (Q0EN),
@@ -289,18 +288,17 @@ module LOGIC (
             .QRTS (QRT0S),
             .QCK (QCK),
             .QDI (Q0DI),
-            .notifier (notifier),
             .FZ (F0Z),
             .AQZ (AQ0Z),
             .BQZ (BQ0Z),
             .CQZ (CQ0Z),
-            .LCO (L0CO) ); 
+            .LCO (L0CO) );
 
     ONE_LOGIC_CELL logic1(
             .lFragBitInfo (lFragBitInfo[31:16]),
             .LI0 (L1I0),
             .LI1 (L1I1),
-            .LI2 (L1I2), 
+            .LI2 (L1I2),
             .LI3 (L1I3),
             .CDS (CD1S),
             .QEN (Q1EN),
@@ -312,18 +310,17 @@ module LOGIC (
             .QRTS (QRT1S),
             .QCK (QCK),
             .QDI (Q1DI),
-            .notifier (notifier),
             .FZ (F1Z),
             .AQZ (AQ1Z),
             .BQZ (BQ1Z),
             .CQZ (CQ1Z),
-            .LCO (L1CO) ); 
+            .LCO (L1CO) );
 
     ONE_LOGIC_CELL logic2(
             .lFragBitInfo (lFragBitInfo[47:32]),
             .LI0 (L2I0),
             .LI1 (L2I1),
-            .LI2 (L2I2), 
+            .LI2 (L2I2),
             .LI3 (L2I3),
             .CDS (CD2S),
             .QEN (Q2EN),
@@ -335,18 +332,17 @@ module LOGIC (
             .QRTS (QRT2S),
             .QCK (QCK),
             .QDI (Q2DI),
-            .notifier (notifier),
             .FZ (F2Z),
             .AQZ (AQ2Z),
             .BQZ (BQ2Z),
             .CQZ (CQ2Z),
-            .LCO (L2CO) ); 
+            .LCO (L2CO) );
 
     ONE_LOGIC_CELL logic3(
             .lFragBitInfo (lFragBitInfo[63:48]),
             .LI0 (L3I0),
             .LI1 (L3I1),
-            .LI2 (L3I2), 
+            .LI2 (L3I2),
             .LI3 (L3I3),
             .CDS (CD3S),
             .QEN (Q3EN),
@@ -358,18 +354,17 @@ module LOGIC (
             .QRTS (QRT3S),
             .QCK (QCK),
             .QDI (Q3DI),
-            .notifier (notifier),
             .FZ (F3Z),
             .AQZ (AQ3Z),
             .BQZ (BQ3Z),
             .CQZ (CQ3Z),
-            .LCO (L3CO) );  
+            .LCO (L3CO) );
 
     ONE_LOGIC_CELL logic4(
             .lFragBitInfo (lFragBitInfo[79:64]),
             .LI0 (L4I0),
             .LI1 (L4I1),
-            .LI2 (L4I2), 
+            .LI2 (L4I2),
             .LI3 (L4I3),
             .CDS (CD4S),
             .QEN (Q4EN),
@@ -381,7 +376,6 @@ module LOGIC (
             .QRTS (QRT4S),
             .QCK (QCK),
             .QDI (Q4DI),
-            .notifier (notifier),
             .FZ (F4Z),
             .AQZ (AQ4Z),
             .BQZ (BQ4Z),
@@ -392,7 +386,7 @@ module LOGIC (
             .lFragBitInfo (lFragBitInfo[95:80]),
             .LI0 (L5I0),
             .LI1 (L5I1),
-            .LI2 (L5I2), 
+            .LI2 (L5I2),
             .LI3 (L5I3),
             .CDS (CD5S),
             .QEN (Q5EN),
@@ -404,18 +398,17 @@ module LOGIC (
             .QRTS (QRT5S),
             .QCK (QCK),
             .QDI (Q5DI),
-            .notifier (notifier),
             .FZ (F5Z),
             .AQZ (AQ5Z),
             .BQZ (BQ5Z),
             .CQZ (CQ5Z),
-            .LCO (L5CO) ); 
+            .LCO (L5CO) );
 
     ONE_LOGIC_CELL logic6(
             .lFragBitInfo (lFragBitInfo[111:96]),
             .LI0 (L6I0),
             .LI1 (L6I1),
-            .LI2 (L6I2), 
+            .LI2 (L6I2),
             .LI3 (L6I3),
             .CDS (CD6S),
             .QEN (Q6EN),
@@ -427,18 +420,17 @@ module LOGIC (
             .QRTS (QRT6S),
             .QCK (QCK),
             .QDI (Q6DI),
-            .notifier (notifier),
             .FZ (F6Z),
             .AQZ (AQ6Z),
             .BQZ (BQ6Z),
             .CQZ (CQ6Z),
-            .LCO (L6CO) ); 
+            .LCO (L6CO) );
 
     ONE_LOGIC_CELL logic7(
             .lFragBitInfo (lFragBitInfo[127:112]),
             .LI0 (L7I0),
             .LI1 (L7I1),
-            .LI2 (L7I2), 
+            .LI2 (L7I2),
             .LI3 (L7I3),
             .CDS (CD7S),
             .QEN (Q7EN),
@@ -450,12 +442,11 @@ module LOGIC (
             .QRTS (QRT7S),
             .QCK (QCK),
             .QDI (Q7DI),
-            .notifier (notifier),
             .FZ (F7Z),
             .AQZ (AQ7Z),
             .BQZ (BQ7Z),
             .CQZ (CQ7Z),
-            .LCO (L7CO) ); 
+            .LCO (L7CO) );
 
     /***Logic Cell Specify Block Data***/
 
@@ -595,218 +586,8 @@ module LOGIC (
         (L7I1 => F7Z) = (0,0);
         (L7I3 => F7Z) = (0,0);
         (L7I2 => F7Z) = (0,0);
-
-    $recovery (posedge QRT, posedge QCK &&& Q0EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q0EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q0EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q0EN, 0, notifier);
-
-    $setup( posedge L0I0, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $setup( negedge L0I0, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L0I0 &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L0I0 &&& CD0S_EQ_0, 0, notifier);
-
-    $setup( posedge L0I1, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $setup( negedge L0I1, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L0I1 &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L0I1 &&& CD0S_EQ_0, 0, notifier);
-
-    $setup( posedge L0I2, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $setup( negedge L0I2, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L0I2 &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L0I2 &&& CD0S_EQ_0, 0, notifier);
-
-    $setup( posedge L0I3, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $setup( negedge L0I3, posedge QCK &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L0I3 &&& CD0S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L0I3 &&& CD0S_EQ_0, 0, notifier);
-
-
-    $recovery (posedge QRT, posedge QCK &&& Q1EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q1EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q1EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q1EN, 0, notifier);
-
-    $setup( posedge L1I0, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $setup( negedge L1I0, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L1I0 &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L1I0 &&& CD1S_EQ_0, 0, notifier);
-
-    $setup( posedge L1I1, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $setup( negedge L1I1, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L1I1 &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L1I1 &&& CD1S_EQ_0, 0, notifier);
-
-    $setup( posedge L1I2, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $setup( negedge L1I2, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L1I2 &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L1I2 &&& CD1S_EQ_0, 0, notifier);
-
-    $setup( posedge L1I3, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $setup( negedge L1I3, posedge QCK &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L1I3 &&& CD1S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L1I3 &&& CD1S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q2EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q2EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q2EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q2EN, 0, notifier);
-
-    $setup( posedge L2I0, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $setup( negedge L2I0, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L2I0 &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L2I0 &&& CD2S_EQ_0, 0, notifier);
-
-    $setup( posedge L2I1, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $setup( negedge L2I1, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L2I1 &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L2I1 &&& CD2S_EQ_0, 0, notifier);
-
-    $setup( posedge L2I2, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $setup( negedge L2I2, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L2I2 &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L2I2 &&& CD2S_EQ_0, 0, notifier);
-
-    $setup( posedge L2I3, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $setup( negedge L2I3, posedge QCK &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L2I3 &&& CD2S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L2I3 &&& CD2S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q3EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q3EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q3EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q3EN, 0, notifier);
-
-    $setup( posedge L3I0, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $setup( negedge L3I0, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L3I0 &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L3I0 &&& CD3S_EQ_0, 0, notifier);
-
-    $setup( posedge L3I1, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $setup( negedge L3I1, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L3I1 &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L3I1 &&& CD3S_EQ_0, 0, notifier);
-
-    $setup( posedge L3I2, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $setup( negedge L3I2, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L3I2 &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L3I2 &&& CD3S_EQ_0, 0, notifier);
-
-    $setup( posedge L3I3, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $setup( negedge L3I3, posedge QCK &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L3I3 &&& CD3S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L3I3 &&& CD3S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q4EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q4EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q4EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q4EN, 0, notifier);
-
-    $setup( posedge L4I0, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $setup( negedge L4I0, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L4I0 &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L4I0 &&& CD4S_EQ_0, 0, notifier);
-
-    $setup( posedge L4I1, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $setup( negedge L4I1, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L4I1 &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L4I1 &&& CD4S_EQ_0, 0, notifier);
-
-    $setup( posedge L4I2, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $setup( negedge L4I2, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L4I2 &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L4I2 &&& CD4S_EQ_0, 0, notifier);
-
-    $setup( posedge L4I3, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $setup( negedge L4I3, posedge QCK &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L4I3 &&& CD4S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L4I3 &&& CD4S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q5EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q5EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q5EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q5EN, 0, notifier);
-
-    $setup( posedge L5I0, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $setup( negedge L5I0, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L5I0 &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L5I0 &&& CD5S_EQ_0, 0, notifier);
-
-    $setup( posedge L5I1, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $setup( negedge L5I1, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L5I1 &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L5I1 &&& CD5S_EQ_0, 0, notifier);
-
-    $setup( posedge L5I2, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $setup( negedge L5I2, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L5I2 &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L5I2 &&& CD5S_EQ_0, 0, notifier);
-
-    $setup( posedge L5I3, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $setup( negedge L5I3, posedge QCK &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L5I3 &&& CD5S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L5I3 &&& CD5S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q6EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q6EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q6EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q6EN, 0, notifier);
-
-    $setup( posedge L6I0, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $setup( negedge L6I0, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L6I0 &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L6I0 &&& CD6S_EQ_0, 0, notifier);
-
-    $setup( posedge L6I1, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $setup( negedge L6I1, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L6I1 &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L6I1 &&& CD6S_EQ_0, 0, notifier);
-
-    $setup( posedge L6I2, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $setup( negedge L6I2, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L6I2 &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L6I2 &&& CD6S_EQ_0, 0, notifier);
-
-    $setup( posedge L6I3, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $setup( negedge L6I3, posedge QCK &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L6I3 &&& CD6S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L6I3 &&& CD6S_EQ_0, 0, notifier);
-
-    $recovery (posedge QRT, posedge QCK &&& Q7EN_EQ_1, 0, notifier);
-    $removal (posedge QST, posedge QCK &&& Q7EN_EQ_1, 0, notifier);
-
-    $setup( negedge Q7EN, posedge QCK, 0, notifier);
-    $hold( posedge QCK, negedge Q7EN, 0, notifier);
-
-    $setup( posedge L7I0, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $setup( negedge L7I0, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L7I0 &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L7I0 &&& CD7S_EQ_0, 0, notifier);
-
-    $setup( posedge L7I1, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $setup( negedge L7I1, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L7I1 &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L7I1 &&& CD7S_EQ_0, 0, notifier);
-
-    $setup( posedge L7I2, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $setup( negedge L7I2, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L7I2 &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L7I2 &&& CD7S_EQ_0, 0, notifier);
-
-    $setup( posedge L7I3, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $setup( negedge L7I3, posedge QCK &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, posedge L7I3 &&& CD7S_EQ_0, 0, notifier);
-    $hold( posedge QCK, negedge L7I3 &&& CD7S_EQ_0, 0, notifier);
-
     endspecify
-        
+
 
 endmodule
 

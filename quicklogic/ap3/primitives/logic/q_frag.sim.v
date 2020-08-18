@@ -2,7 +2,7 @@
 (* FASM_PARAMS="" *)
 (* MODEL_NAME="Q_FRAG" *)
 (* whitebox *)
-module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, notifier, AQZ);
+module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, AQZ);
 
     (* CLOCK *)
 	(* clkbuf_sink *)
@@ -44,15 +44,12 @@ module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, notifier, A
 	(* SETUP="QCK {setup_QCK_CDS}" *) (* NO_COMB *)
 	(* HOLD="QCK {hold_QCK_CDS}" *) (* NO_COMB *)
     input  wire CDS;
-    
-    input wire notifier;
 
     (* CLK_TO_Q = "QCK {iopath_QCK_AQZ}" *)
     output reg AQZ;
 
     wire mux_qst_op, mux_qrt_op ;
     reg QZ_reg;
-    reg setupHoldViolation;
 
     specify
         (QCK => AQZ) = "";
@@ -68,36 +65,25 @@ module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, notifier, A
         $hold(posedge QCK, CDS, "");
     endspecify
 
-    initial
-    begin
-        QZ_reg=1'bx;
-        setupHoldViolation = 1'b0;
-    end
-
     assign mux_qst_op = QSTS ? UQST : QST;
 
     assign mux_qrt_op = QRTS ? UQRT : QRT;
 
-    always @ (posedge QCK)   
+    always @ (posedge QCK)
     begin
         if(~mux_qrt_op && ~mux_qst_op )
             if(QEN && CDS)
-                QZ_reg = QDI;
+                QZ_reg <= QDI;
     end
-        
+
     always @(QRT or QST)
     begin
         if(mux_qrt_op)
-            QZ_reg = 1'b0;
+            QZ_reg <= 1'b0;
         else if (mux_qst_op)
-            QZ_reg = 1'b1;
+            QZ_reg <= 1'b1;
     end
 
-    assign AQZ = setupHoldViolation ? 1'bx : QZ_reg;
-
-    always @(notifier)
-    begin
-        setupHoldViolation = 1'b1;
-    end
+    assign AQZ = QZ_reg;
 
 endmodule

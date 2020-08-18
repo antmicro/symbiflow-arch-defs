@@ -3,31 +3,31 @@
 (* MODEL_NAME="L_FRAG" *)
 (* whitebox *)
 module L_FRAG (
-        fragBitInfo, 
-        I0, 
-        I1, 
-        I2, 
-        I3, 
+        fragBitInfo,
+        I0,
+        I1,
+        I2,
+        I3,
         LUTOutput,
         CarryOut);
 
-    input wire [15:0] fragBitInfo; 
+    input wire [15:0] fragBitInfo;
     input wire I0, I1, I2, I3;
-    
-    (* DELAY_CONST_fragBitInfo="1e-10" *) 
-    (* DELAY_CONST_I0="1e-10" *) 
-    (* DELAY_CONST_I1="1e-10" *) 
-    (* DELAY_CONST_I2="1e-10" *) 
-    (* DELAY_CONST_I3="1e-10" *) 
-    output wire LUTOutput; 
 
-    (* DELAY_CONST_fragBitInfo="1e-10" *) 
-    (* DELAY_CONST_I0="1e-10" *) 
-    (* DELAY_CONST_I1="1e-10" *) 
-    (* DELAY_CONST_I2="1e-10" *) 
+    (* DELAY_CONST_fragBitInfo="1e-10" *)
+    (* DELAY_CONST_I0="1e-10" *)
+    (* DELAY_CONST_I1="1e-10" *)
+    (* DELAY_CONST_I2="1e-10" *)
+    (* DELAY_CONST_I3="1e-10" *)
+    output wire LUTOutput;
+
+    (* DELAY_CONST_fragBitInfo="1e-10" *)
+    (* DELAY_CONST_I0="1e-10" *)
+    (* DELAY_CONST_I1="1e-10" *)
+    (* DELAY_CONST_I2="1e-10" *)
     output wire CarryOut;
 
-    wire stage0_op0, stage0_op1, stage0_op2, stage0_op3, stage0_op4, stage0_op5, stage0_op6, stage0_op7; 
+    wire stage0_op0, stage0_op1, stage0_op2, stage0_op3, stage0_op4, stage0_op5, stage0_op6, stage0_op7;
     wire stage1_op0, stage1_op1, stage1_op2, stage1_op3;
     wire stage2_op0, stage2_op1;
 
@@ -42,7 +42,7 @@ module L_FRAG (
     assign stage0_op7 = I0 ? fragBitInfo[15] : fragBitInfo[14];
 
 
-    assign stage1_op0 = I1 ? stage0_op1 : stage0_op0; 
+    assign stage1_op0 = I1 ? stage0_op1 : stage0_op0;
     assign stage1_op1 = I1 ? stage0_op3 : stage0_op2;
     assign stage1_op2 = I1 ? stage0_op5 : stage0_op4;
     assign stage1_op3 = I1 ? stage0_op7 : stage0_op6;
