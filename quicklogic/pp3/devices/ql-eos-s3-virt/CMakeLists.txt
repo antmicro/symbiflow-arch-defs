@@ -17,7 +17,7 @@ quicklogic_define_device_type(
   DONT_NORMALIZE_FILES ${DONT_NORMALIZE_FILES}
   PB_TYPES
     GND VCC
-    LOGIC
+    LOGIC FFRAG
     CLOCK BIDIR SDIOMUX
     GMUX
     ASSP
