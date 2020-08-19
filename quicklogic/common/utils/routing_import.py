@@ -416,28 +416,27 @@ def get_node_id_for_tile_pin(graph, loc, tile_type, pin_name):
 
     nodes = None
 
-    # First try without the capacity prefix
-    if loc.z == 0:
-        rr_pin_name = "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
+    # First try with the capacity prefix
+    rr_pin_name = "TL-{}[{}].{}[0]".format(
+        tile_type, loc.z, fixup_pin_name(pin_name)
+    )
 
-        try:
-            nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
-        except KeyError:
-            pass
+    try:
+        nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
+    except KeyError:
+        pass
 
-    # Didn't find, try with the capacity prefix
-    if nodes is None:
-        rr_pin_name = "TL-{}[{}].{}[0]".format(
-            tile_type, loc.z, fixup_pin_name(pin_name)
-        )
+    # When not found try without it
+    rr_pin_name = "TL-{}.{}[0]".format(tile_type, fixup_pin_name(pin_name))
 
-        try:
-            nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
-        except KeyError:
-            pass
+    try:
+        nodes = graph.get_nodes_for_pin((loc.x, loc.y), rr_pin_name)
+    except KeyError:
+        pass
 
     # Still not found.
     if nodes is None:
+        print(rr_pin_name, loc)
         return None
 
     # Got it
@@ -459,11 +458,26 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
         # Empty tiles do not have pins
         if tile is None:
             continue
+        tile_type = tile.type
+
+        # If the tile is heterogeneous use the name of the bottom most one
+        # (z=0) as the prefix. For capacity tiles all names are the same.
+        if loc.z > 0:
+            base_loc  = Loc(loc.x, loc.y, 0)
+            base_tile = tile_grid.get(base_loc, None)
+            if base_tile is None:
+                print(
+                    "WARNING: No tile at z=0 for heterogeneous tile for pin '{} at {}".format(
+                        pin.name, loc
+                    )
+                )
+                return
+            tile_type = base_tile.type
 
         # For each pin of the tile
         for pin in tile_types[tile.type].pins:
 
-            node_id = get_node_id_for_tile_pin(graph, loc, tile.type, pin.name)
+            node_id = get_node_id_for_tile_pin(graph, loc, tile_type, pin.name)
             if node_id is None:
                 print(
                     "WARNING: No node for pin '{}' at {}".format(
@@ -487,6 +501,7 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
     # Adds entry to the map
     def add_to_map(conn_loc):
 
+        # Get the tile
         tile = tile_grid.get(conn_loc.loc, None)
         if tile is None:
             print(
@@ -495,15 +510,31 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
                 )
             )
             return
+        tile_type = tile.type
+
+        # If the tile is heterogeneous use the name of the bottom most one
+        # (z=0) as the prefix. For capacity tiles all names are the same.
+        if conn_loc.loc.z > 0:
+            base_loc  = Loc(conn_loc.loc.x, conn_loc.loc.y, 0)
+            base_tile = tile_grid.get(base_loc, None)
+            if base_tile is None:
+                print(
+                    "WARNING: No tile at z=0 for heterogeneous tile for pin '{} at {}".format(
+                        pin.name, conn_loc
+                    )
+                )
+                return
+            tile_type = base_tile.type
 
         # Get the VPR rr node for the pin
         node_id = get_node_id_for_tile_pin(
-            graph, conn_loc.loc, tile.type, conn_loc.pin
+            graph, conn_loc.loc, tile_type, conn_loc.pin
         )
+
         if node_id is None:
             print(
-                "WARNING: No node for pin '{}' at ({},{})".format(
-                    conn_loc.pin, conn_loc.loc.x, conn_loc.loc.y
+                "WARNING: No node for pin '{}' at {}".format(
+                    conn_loc.pin, conn_loc.loc
                 )
             )
             return
@@ -825,14 +856,14 @@ def populate_tile_connections(
 
         # Connection to/from the local tile
         if is_local(connection):
-            loc = connection.src.loc
+            sbox_loc = Loc(connection.src.loc.x, connection.src.loc.y, 0)
 
             # No switchbox model at the loc, skip.
-            if loc not in switchbox_models:
+            if sbox_loc not in switchbox_models:
                 continue
 
             # Get the switchbox model (both locs are the same)
-            switchbox_model = switchbox_models[loc]
+            switchbox_model = switchbox_models[sbox_loc]
 
             # To tile
             if connection.dst.type == ConnectionType.TILE:
@@ -915,13 +946,14 @@ def populate_tile_connections(
 
                 # Endpoint at switchbox
                 elif ep.type == ConnectionType.SWITCHBOX:
+                    sbox_loc = Loc(ep.loc.x, ep.loc.y, 0)
 
                     # No switchbox model at the loc, skip.
-                    if ep.loc not in switchbox_models:
+                    if sbox_loc not in switchbox_models:
                         continue
 
                     # Get the switchbox model (both locs are the same)
-                    switchbox_model = switchbox_models[ep.loc]
+                    switchbox_model = switchbox_models[sbox_loc]
 
                     # To switchbox
                     if ep == connection.dst:
