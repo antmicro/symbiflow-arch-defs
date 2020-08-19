@@ -1196,7 +1196,7 @@ function(ADD_FPGA_TARGET)
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY SV2V_CONVERT)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE INPUT_XDC_FILE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS SV2V_FLAGS)
+  set(multiValueArgs SOURCES INCLUDES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS SV2V_FLAGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -1271,6 +1271,12 @@ function(ADD_FPGA_TARGET)
     set(READ_FUNCTION "read_verilog")
   endif()
 
+  #message($ADD_FPGA_TARGET_INCLUDES)
+   foreach(INC ${ADD_FPGA_TARGET_INCLUDES})
+      message(${INC})
+      add_file_target(FILE ${INC} SCANNER_TYPE verilog)
+  endforeach()
+
   if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
     if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
       foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
@@ -1314,6 +1320,7 @@ function(ADD_FPGA_TARGET)
     append_file_location(SOURCE_FILES ${SRC})
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
+  list(APPEND SOURCE_FILES_DEPS ${ADD_FPGA_TARGET_INCLUDES})
 
   # Convert SystemVerilog files
 
