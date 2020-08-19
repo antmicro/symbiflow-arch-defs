@@ -1,0 +1,21 @@
+set_io clk    W5   # 100MHz
+
+set_io enable V17  # sw[0]
+set_io reset  V16   # sw[1]
+
+set_io led[0] U16
+set_io led[1] E19
+set_io led[2] U19
+set_io led[3] V19
+set_io led[4] W18
+set_io led[5] U15
+set_io led[6] U14
+set_io led[7] V14
+set_io led[8] V13
+set_io led[9] V3
+set_io led[10] W3
+set_io led[11] U3
+set_io led[12] P3
+set_io led[13] N3
+set_io led[14] P1
+set_io led[15] L1
