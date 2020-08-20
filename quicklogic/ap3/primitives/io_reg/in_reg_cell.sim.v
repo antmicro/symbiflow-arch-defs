@@ -5,20 +5,17 @@
 `timescale 1ns/10ps
 (* whitebox *)
 (* FASM_PARAMS="" *)
-module IN_REG_CELL(IQC, QRT, IQZ, A2F);
-
-    (* SETUP="IQC {setup_IQC_A2F_$inp}" *) (* NO_COMB *)
-    (* HOLD="IQC {hold_IQC_A2F_$inp}" *) (* NO_COMB *)
-    input wire A2F;
+module IN_REG_CELL(IQC, QRT, A2F, IQZ);
 
     (* CLOCK *)
 	(* clkbuf_sink *)
     input wire IQC;
 
-    (* SETUP="IQC 1e-10" *) (* NO_COMB *)
     input wire QRT;
 
-    (* CLK_TO_Q = "IQC {iopath_IQC_IQZ_$out}" *)
+    input wire A2F;
+
+    (* CLK_TO_Q = "IQC {iopath_IQC_IQZ}" *)
     output wire IQZ;
 
     wire A2F_delayed;
@@ -32,10 +29,6 @@ module IN_REG_CELL(IQC, QRT, IQZ, A2F);
         $hold(posedge IQC, QRT, "");
         $setup(A2F, posedge IQC, "");
         $hold(posedge IQC, A2F, "");
-        $setup(ISEL, posedge IQC, "");
-        $hold(posedge IQC, ISEL, "");
-        $setup(FIXHOLD, posedge IQC, "");
-        $hold(posedge IQC, FIXHOLD, "");
     endspecify
 
     DELAY delay_inst (

@@ -1368,7 +1368,7 @@ def main():
         )
 
     # Process the tilegrid
-    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(
+    vpr_tile_grid, vpr_clock_cells, loc_map = process_tilegrid(device_name,
         tile_types, phy_tile_grid, phy_clock_cells, vpr_cells_library,
         grid_size, grid_offset, grid_limit
     )
@@ -1505,7 +1505,7 @@ def main():
         for y in range(ymax + 1):
             l = " {:>2}: ".format(y)
             for x in range(xmax + 1):
-                loc = Loc(x=x, y=y, z=0)
+                loc = Loc(x=x, y=y, z=z)
                 if loc not in vpr_switchbox_grid:
                     l += " "
                 elif vpr_switchbox_grid[loc] is not None:
@@ -1541,6 +1541,7 @@ def main():
         for s in vpr_switches.values():
             print("", s)
 
+    print (vpr_package_pinmaps)
     # Prepare the VPR database and write it
     db_root = {
         "vpr_cells_library": vpr_cells_library,
