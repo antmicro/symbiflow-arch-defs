@@ -1,0 +1,14 @@
+.model top
+.inputs d
+.outputs d
+.end
+#.model top
+#.inputs inp
+#.outputs out
+#.names $false
+#.names $true
+#1
+#.names $undef
+#.subckt in_buff A=inp Q=$iopadmap$inp
+#.subckt out_buff A=$iopadmap$inp Q=out
+####.end

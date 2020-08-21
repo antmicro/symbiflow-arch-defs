@@ -6,15 +6,21 @@
 `timescale 1ns/10ps
 
 module IO_REG (
+		A2F,
 		IQC,
 		QRT,
 		OQI,
 		IQZ,
+		F2A,
+		F2A_DEF
 		);
 
+	input wire [0:7] A2F;
 	input wire IQC;
 	input wire QRT;
 	input wire [0:17] OQI;
+	output wire [0:17] F2A;
+	output wire [0:3] F2A_DEF;
 	output reg [0:7] IQZ;
 
 	genvar i;

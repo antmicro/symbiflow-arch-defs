@@ -33,19 +33,17 @@ module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, AQZ);
     input  wire QRTS;
 
     // No timing for QEN -> QZ in LIB/SDF
-	(* SETUP="QCK {setup_QCK_QEN}" *) (* NO_COMB *)
-	(* HOLD="QCK {hold_QCK_QEN}" *) (* NO_COMB *)
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire QEN;
 
-	(* SETUP="QCK {setup_QCK_QDI}" *) (* NO_COMB *)
-	(* HOLD="QCK {hold_QCK_QDI}" *) (* NO_COMB *)
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire QDI;
 
-	(* SETUP="QCK {setup_QCK_CDS}" *) (* NO_COMB *)
-	(* HOLD="QCK {hold_QCK_CDS}" *) (* NO_COMB *)
+	(* SETUP="QCK 1e-10" *) (* NO_COMB *)
     input  wire CDS;
 
-    (* CLK_TO_Q = "QCK {iopath_QCK_AQZ}" *)
+    //(* CLK_TO_Q = "QCK {iopath_QCK_AQZ}" *)
+    (* CLK_TO_Q = "QCK 1e-10" *)
     output reg AQZ;
 
     wire mux_qst_op, mux_qrt_op ;
@@ -61,8 +59,14 @@ module Q_FRAG (QEN, QST, UQST, QSTS, QRT, UQRT, QRTS, QCK, QDI, CDS, AQZ);
         $hold(posedge QCK, QRT, "");
         $setup(QEN, posedge QCK, "");
         $hold(posedge QCK, QEN, "");
-        $setup(CDS, posedge QCK, "");
-        $hold(posedge QCK, CDS, "");
+        $setup(QRTS, posedge QCK, "");
+        $hold(posedge QCK, QRTS, "");
+        $setup(QSTS, posedge QCK, "");
+        $hold(posedge QCK, QSTS, "");
+        $setup(UQST, posedge QCK, "");
+        $hold(posedge QCK, UQST, "");
+        $setup(UQRT, posedge QCK, "");
+        $hold(posedge QCK, UQRT, "");
     endspecify
 
     assign mux_qst_op = QSTS ? UQST : QST;

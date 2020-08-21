@@ -334,7 +334,7 @@ function(QUICKLOGIC_DEFINE_DEVICE)
       ARCH ${ARCH}
       DEVICE_TYPE ${DEVICE_TYPE}
       PACKAGES ${PACKAGES}
-      WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/passthrough.eblif
+      WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/${FAMILY}/passthrough.eblif
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
       CACHE_LOOKAHEAD

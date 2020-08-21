@@ -15,7 +15,8 @@ module IN_REG_CELL(IQC, QRT, A2F, IQZ);
 
     input wire A2F;
 
-    (* CLK_TO_Q = "IQC {iopath_IQC_IQZ}" *)
+    //(* CLK_TO_Q = "IQC {iopath_IQC_IQZ}" *)
+    (* CLK_TO_Q = "IQC 1e-10" *)
     output wire IQZ;
 
     wire A2F_delayed;

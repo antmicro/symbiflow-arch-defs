@@ -2,6 +2,7 @@
 `include "./clock_cell.sim.v"
 
 module CLOCK(
+    input wire CEN,
     output wire IC,
     output wire OP
 );
