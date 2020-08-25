@@ -502,15 +502,19 @@
             <!-- TODO: remove sel signal, this is just a mode selector. To be safe, just make it unconnected here -->
             <input name="sel" num_pins="1"/>
             <input name="rst" num_pins="1"/>
+            <input name="hold" num_pins="1"/>
             <output name="dataOut" num_pins="1"/>
             <clock name="clk" num_pins="1"/>
             <!-- TODO: Delay to be filled by physical design results -->
             <T_setup value="1.891e-11" port="out_reg.dataIn" clock="clk"/>
+            <T_setup value="1.891e-11" port="out_reg.rst" clock="clk"/>
+            <T_setup value="1.891e-11" port="out_reg.hold" clock="clk"/>
+            <T_setup value="1.891e-11" port="out_reg.sel" clock="clk"/>
             <T_clock_to_Q max="6.032e-11" port="out_reg.dataOut" clock="clk"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_clk" input="outpad.ICQ" output="out_reg.clk">
-            <direct name="direct_rst" input="outpad.QRT" output="out_reg.rst">
+            <direct name="direct_clk" input="outpad.IQC" output="out_reg.clk" />
+            <direct name="direct_rst" input="outpad.QRT" output="out_reg.rst" />
             <direct name="direct_dataIn" input="outpad.OQI" output="out_reg.dataIn">
               <!-- TODO: Delay to be filled by physical design results -->
               <delay_constant max="0e-12" min="0e-12" in_port="outpad.OQI" out_port="out_reg.dataIn"/>
@@ -555,15 +559,19 @@
             <!-- TODO: remove sel signal, this is just a mode selector. To be safe, just make it unconnected here -->
             <input name="sel" num_pins="1"/>
             <input name="rst" num_pins="1"/>
+            <input name="hold" num_pins="1"/>
             <output name="dataOut" num_pins="1"/>
             <clock name="clk" num_pins="1"/>
             <!-- TODO: Delay to be filled by physical design results -->
             <T_setup value="1.891e-11" port="in_reg.dataIn" clock="clk"/>
+            <T_setup value="1.891e-11" port="in_reg.sel" clock="clk"/>
+            <T_setup value="1.891e-11" port="in_reg.rst" clock="clk"/>
+            <T_setup value="1.891e-11" port="in_reg.hold" clock="clk"/>
             <T_clock_to_Q max="6.032e-11" port="in_reg.dataOut" clock="clk"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_clk" input="inpad.ICQ" output="in_reg.clk">
-            <direct name="direct_rst" input="inpad.QRT" output="in_reg.rst">
+            <direct name="direct_clk" input="inpad.IQC" output="in_reg.clk" />
+            <direct name="direct_rst" input="inpad.QRT" output="in_reg.rst" />
             <direct name="direct_dataIn" input="inpad.A2F" output="in_reg.dataIn">
               <!-- TODO: Delay to be filled by physical design results -->
               <delay_constant max="0e-12" min="0e-12" in_port="inpad.A2F" out_port="in_reg.dataIn"/>
@@ -594,8 +602,8 @@
         </interconnect>
       </pb_type>
       <interconnect>
-        <complete name="outpad_clk" input="io.ICQ" output="outpad.ICQ">
-        <complete name="outpad_rst" input="io.QRT" output="outpad.QRT">
+        <complete name="outpad_clk" input="io.IQC" output="outpad.IQC" />
+        <complete name="outpad_rst" input="io.QRT" output="outpad.QRT" />
         <direct name="outpad_oqi" input="io.OQI[17:0]" output="outpad[17:0].OQI">
           <!-- TODO: Delay to be filled by physical design results -->
           <delay_constant max="0e-12" min="0e-12" in_port="io.OQI[17:0]" out_port="outpad[17:0].OQI"/>
@@ -604,8 +612,8 @@
           <!-- TODO: Delay to be filled by physical design results -->
           <delay_constant max="0e-12" min="0e-12" in_port="outpad[17:0].F2A" out_port="io.F2A"/>
         </direct>
-        <complete name="inpad_clk" input="io.ICQ" output="inpad.ICQ">
-        <complete name="inpad_rst" input="io.QRT" output="inpad.QRT">
+        <complete name="inpad_clk" input="io.IQC" output="inpad.IQC" />
+        <complete name="inpad_rst" input="io.QRT" output="inpad.QRT" />
         <direct name="inpad_a2f" input="io.A2F[7:0]" output="inpad[7:0].A2F">
           <!-- TODO: Delay to be filled by physical design results -->
           <delay_constant max="0e-12" min="0e-12" in_port="io.A2F[7:0]" out_port="inpad[7:0].A2F"/>
@@ -681,15 +689,18 @@
               </delay_matrix>
             </pb_type>
             <!-- Define flip-flop -->
-            <pb_type name="FF" blif_model=".ff" num_pb="1" class="flipflop">
+            <pb_type name="FF" blif_model=".subckt ff" num_pb="1" >
               <input name="D" num_pins="1" port_class="D"/>
               <input name="QEN" num_pins="1"/>
               <input name="QST" num_pins="1"/>
               <input name="QRT" num_pins="1"/>
               <output name="CQZ" num_pins="1" port_class="Q"/>
               <clock name="QCK" num_pins="1" port_class="clock"/>
-              <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="clk"/>
+              <T_setup value="1.891e-11" port="ff.D" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QEN" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QST" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QRT" clock="QCK"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="QCK"/>
             </pb_type>
             <interconnect>
               <direct name="direct_lutin" input="BLE4.LI" output="LUT4[0:0].in"/>
@@ -753,15 +764,18 @@
               <delay_constant max="0.01e-9" in_port="ADDER.CI" out_port="ADDER.CO"/>
             </pb_type>
             <!-- Define flip-flop -->
-            <pb_type name="FF" blif_model=".ff" num_pb="1" class="flipflop">
+            <pb_type name="FF" blif_model=".subckt ff" num_pb="1" >
               <input name="D" num_pins="1" port_class="D"/>
               <input name="QEN" num_pins="1"/>
               <input name="QST" num_pins="1"/>
               <input name="QRT" num_pins="1"/>
               <output name="CQZ" num_pins="1" port_class="Q"/>
               <clock name="QCK" num_pins="1" port_class="clock"/>
-              <T_setup value="1.891e-11" port="ff.D" clock="clk"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="clk"/>
+              <T_setup value="1.891e-11" port="ff.D" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QEN" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QST" clock="QCK"/>
+              <T_setup value="1.891e-11" port="ff.QRT" clock="QCK"/>
+              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="QCK"/>
             </pb_type>
             <interconnect>
               <direct name="direct_a" input="BADDER.A" output="ADDER[0:0].A"/>
@@ -896,8 +910,23 @@
         <input name="PROTECT" num_pins="1"/>
         <!-- TODO: Annotate correct timing for the RAM based on physical design -->
         <T_setup value="1.891e-11" port="RAM.RADDR" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.REN" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.RRLSEL" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.RMODE" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.SBOG" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.ENDIAN" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.UPAF" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.UPAE" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.FIFO_DEPTH" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.FMODE" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.POWERDN" clock="RCLK"/>
+        <T_setup value="1.891e-11" port="RAM.PROTECT" clock="RCLK"/>
         <T_clock_to_Q max="6.032e-11" port="RAM.RDATA" clock="RCLK"/>
+        <T_clock_to_Q max="6.032e-11" port="RAM.FFLAGS" clock="WCLK"/>
         <T_setup value="1.891e-11" port="RAM.WADDR" clock="WCLK"/>
+        <T_setup value="1.891e-11" port="RAM.WMODE" clock="WCLK"/>
+        <T_setup value="1.891e-11" port="RAM.WEN" clock="WCLK"/>
+        <T_setup value="1.891e-11" port="RAM.FFLUSH" clock="WCLK"/>
         <T_setup value="1.891e-11" port="RAM.WDATA" clock="WCLK"/>
       </pb_type>
       <interconnect>
@@ -942,7 +971,7 @@
       <input name="SBOG" num_pins="2"/>
       <output name="MAC_OUT" num_pins="64"/>
       <!-- Define DSP primitive -->
-      <pb_type name="DSP" blif_model=".subckt DSP" num_pb="1">
+      <pb_type name="DSP" blif_model=".subckt DSP32" num_pb="1">
         <clock name="CLOCK" num_pins="1"/>
         <input name="MODE_SEL" num_pins="2"/>
         <input name="OUT_SEL" num_pins="2"/>
@@ -957,8 +986,17 @@
         <input name="SBOG" num_pins="2"/>
         <output name="MAC_OUT" num_pins="64"/>
         <!-- TODO: Annotate correct timing for the DSP based on physical design -->
+        <T_setup value="1.891e-11" port="DSP.MODE_SEL" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.OUT_SEL" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.CSEL" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.OSEL" clock="CLOCK"/>
         <T_setup value="1.891e-11" port="DSP.COEF_DATA" clock="CLOCK"/>
         <T_setup value="1.891e-11" port="DSP.OPER_DATA" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.ENABLE" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.CLR" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.RND" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.SAT" clock="CLOCK"/>
+        <T_setup value="1.891e-11" port="DSP.SBOG" clock="CLOCK"/>
         <T_clock_to_Q max="6.032e-11" port="DSP.MAC_OUT" clock="CLOCK"/>
       </pb_type>
       <interconnect>
