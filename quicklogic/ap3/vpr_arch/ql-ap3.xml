@@ -346,7 +346,7 @@
            and are repeated every 8 columns and 4 rows
            priority is higher than the DPRAM when instanciated at the same location
         -->
-      <region type="DSP" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
+      <region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
     </auto_layout>
     <!-- Define a fixed-layout for ap3 device -->
     <fixed_layout name="32x36" width="34" height="32">
@@ -365,7 +365,7 @@
            and are repeated every 8 columns and 4 rows
            priority is higher than the DPRAM when instanciated at the same location
         -->
-      <region type="DSP" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
+      <region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
     </fixed_layout>
@@ -471,7 +471,7 @@
       <output name="F2A_DEF" num_pins="4" equivalent="none"/>
       <clock name="IQC" num_pins="1"/>
       <!-- Define output pads begins -->
-      <pb_type name="outpad" num_pb="18">
+      <pb_type name="outpad_vec" num_pb="18">
         <input name="OQI" num_pins="1"/>
         <input name="QRT" num_pins="1"/>
         <output name="F2A" num_pins="1"/>
@@ -485,13 +485,13 @@
             <delay_constant max="0e-12" in_port="out_buff.A" out_port="out_buff.Q"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_oqi" input="outpad.OQI" output="out_buff.A">
+            <direct name="direct_oqi" input="outpad_vec.OQI" output="out_buff.A">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="outpad.OQI" out_port="out_buff.A"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec.OQI" out_port="out_buff.A"/>
             </direct>
-            <direct name="direct_f2a" input="out_buff.Q" output="outpad.F2A">
+            <direct name="direct_f2a" input="out_buff.Q" output="outpad_vec.F2A">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="out_buff.Q" out_port="outpad.F2A"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="out_buff.Q" out_port="outpad_vec.F2A"/>
             </direct>
           </interconnect>
         </mode>
@@ -513,22 +513,32 @@
             <T_clock_to_Q max="6.032e-11" port="out_reg.dataOut" clock="clk"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_clk" input="outpad.IQC" output="out_reg.clk" />
-            <direct name="direct_rst" input="outpad.QRT" output="out_reg.rst" />
-            <direct name="direct_dataIn" input="outpad.OQI" output="out_reg.dataIn">
+            <direct name="direct_clk" input="outpad_vec.IQC" output="out_reg.clk" />
+            <direct name="direct_rst" input="outpad_vec.QRT" output="out_reg.rst" />
+            <direct name="direct_dataIn" input="outpad_vec.OQI" output="out_reg.dataIn">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="outpad.OQI" out_port="out_reg.dataIn"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec.OQI" out_port="out_reg.dataIn"/>
             </direct>
-            <direct name="direct_dataOut" input="out_reg.dataOut" output="outpad.F2A">
+            <direct name="direct_dataOut" input="out_reg.dataOut" output="outpad_vec.F2A">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="out_reg.dataOut" out_port="outpad.F2A"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="out_reg.dataOut" out_port="outpad_vec.F2A"/>
+            </direct>
+          </interconnect>
+        </mode>
+        <mode name="inpad">
+          <pb_type name="inpad" blif_model=".input" num_pb="1">
+            <output name="inpad" num_pins="1"/>
+          </pb_type>
+          <interconnect>
+            <direct name="inpad" input="inpad.inpad" output="outpad_vec.F2A">
+              <delay_constant max="1.394e-11" in_port="inpad.inpad" out_port="outpad_vec.F2A"/>
             </direct>
           </interconnect>
         </mode>
       </pb_type>
       <!-- Define output pads ends -->
       <!-- Define input pads begins -->
-      <pb_type name="inpad" num_pb="8">
+      <pb_type name="inpad_vec" num_pb="8">
         <input name="A2F" num_pins="1"/>
         <input name="QRT" num_pins="1"/>
         <output name="IQZ" num_pins="1"/>
@@ -542,13 +552,13 @@
             <delay_constant max="0e-12" in_port="in_buff.A" out_port="in_buff.Q"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_a2f" input="inpad.A2F" output="in_buff.A">
+            <direct name="direct_a2f" input="inpad_vec.A2F" output="in_buff.A">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="inpad.A2F" out_port="in_buff.A"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec.A2F" out_port="in_buff.A"/>
             </direct>
-            <direct name="direct_iqz" input="out_buff.Q" output="inpad.IQZ">
+            <direct name="direct_iqz" input="in_buff.Q" output="inpad_vec.IQZ">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="out_buff.Q" out_port="inpad.IQZ"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="in_buff.Q" out_port="inpad_vec.IQZ"/>
             </direct>
           </interconnect>
         </mode>
@@ -570,15 +580,25 @@
             <T_clock_to_Q max="6.032e-11" port="in_reg.dataOut" clock="clk"/>
           </pb_type>
           <interconnect>
-            <direct name="direct_clk" input="inpad.IQC" output="in_reg.clk" />
-            <direct name="direct_rst" input="inpad.QRT" output="in_reg.rst" />
-            <direct name="direct_dataIn" input="inpad.A2F" output="in_reg.dataIn">
+            <direct name="direct_clk" input="inpad_vec.IQC" output="in_reg.clk" />
+            <direct name="direct_rst" input="inpad_vec.QRT" output="in_reg.rst" />
+            <direct name="direct_dataIn" input="inpad_vec.A2F" output="in_reg.dataIn">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="inpad.A2F" out_port="in_reg.dataIn"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec.A2F" out_port="in_reg.dataIn"/>
             </direct>
-            <direct name="direct_dataOut" input="in_reg.dataOut" output="inpad.IQZ">
+            <direct name="direct_dataOut" input="in_reg.dataOut" output="inpad_vec.IQZ">
               <!-- TODO: Delay to be filled by physical design results -->
-              <delay_constant max="0e-12" min="0e-12" in_port="in_reg.dataOut" out_port="inpad.IQZ"/>
+              <delay_constant max="0e-12" min="0e-12" in_port="in_reg.dataOut" out_port="inpad_vec.IQZ"/>
+            </direct>
+          </interconnect>
+        </mode>
+        <mode name="outpad">
+          <pb_type name="outpad" blif_model=".output" num_pb="1">
+            <input name="outpad" num_pins="1"/>
+          </pb_type>
+          <interconnect>
+            <direct name="outpad" input="inpad_vec.A2F" output="outpad.outpad">
+              <delay_constant max="4.243e-11" in_port="inpad_vec.A2F" out_port="outpad.outpad"/>
             </direct>
           </interconnect>
         </mode>
@@ -601,30 +621,50 @@
           </direct>
         </interconnect>
       </pb_type>
+      <!--mode name="inpad">
+        <pb_type name="inpad" blif_model=".input" num_pb="1">
+          <output name="inpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="inpad" input="inpad.inpad" output="inpad_vec.A2F">
+            <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="inpad_vec.A2F"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <mode name="outpad">
+        <pb_type name="outpad" blif_model=".output" num_pb="1">
+          <input name="outpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="outpad" input="outpad_vec.F2A" output="outpad.outpad">
+            <delay_constant max="1.394e-11" in_port="outpad_vec.F2A" out_port="outpad.outpad"/>
+          </direct>
+        </interconnect>
+      </mode-->
       <interconnect>
-        <complete name="outpad_clk" input="io.IQC" output="outpad.IQC" />
-        <complete name="outpad_rst" input="io.QRT" output="outpad.QRT" />
-        <direct name="outpad_oqi" input="io.OQI[17:0]" output="outpad[17:0].OQI">
+        <complete name="outpad_vec_clk" input="io.IQC" output="outpad_vec.IQC" />
+        <complete name="outpad_vec_rst" input="io.QRT" output="outpad_vec.QRT" />
+        <direct name="outpad_vec_oqi" input="io.OQI[17:0]" output="outpad_vec[17:0].OQI">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="io.OQI[17:0]" out_port="outpad[17:0].OQI"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="io.OQI[17:0]" out_port="outpad_vec[17:0].OQI"/>
         </direct>
-        <direct name="outpad_f2a" input="outpad[17:0].F2A" output="io.F2A">
+        <direct name="outpad_vec_f2a" input="outpad_vec[17:0].F2A" output="io.F2A">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="outpad[17:0].F2A" out_port="io.F2A"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec[17:0].F2A" out_port="io.F2A"/>
         </direct>
-        <complete name="inpad_clk" input="io.IQC" output="inpad.IQC" />
-        <complete name="inpad_rst" input="io.QRT" output="inpad.QRT" />
-        <direct name="inpad_a2f" input="io.A2F[7:0]" output="inpad[7:0].A2F">
+        <complete name="inpad_vec_clk" input="io.IQC" output="inpad_vec.IQC" />
+        <complete name="inpad_vec_rst" input="io.QRT" output="inpad_vec.QRT" />
+        <direct name="inpad_vec_a2f" input="io.A2F[7:0]" output="inpad_vec[7:0].A2F">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="io.A2F[7:0]" out_port="inpad[7:0].A2F"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="io.A2F[7:0]" out_port="inpad_vec[7:0].A2F"/>
         </direct>
-        <direct name="inpad_iqz" input="inpad[7:0].IQZ" output="io.IQZ[7:0]">
+        <direct name="inpad_vec_iqz" input="inpad_vec[7:0].IQZ" output="io.IQZ[7:0]">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="inpad[7:0].IQZ" out_port="io.IQZ[7:0]"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec[7:0].IQZ" out_port="io.IQZ[7:0]"/>
         </direct>
         <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="io.F2A_DEF[3:0]">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="io.F2A_DEF[7:0]"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="io.F2A_DEF[3:0]"/>
         </direct>
       </interconnect>
     </pb_type>
@@ -681,7 +721,7 @@
               <input name="in" num_pins="4" port_class="lut_in"/>
               <output name="out" num_pins="1" port_class="lut_out"/>
               <!-- LUT timing using delay matrix -->
-              <delay_matrix type="max" in_port="lut4.in" out_port="lut4.out">
+              <delay_matrix type="max" in_port="LUT4.in" out_port="LUT4.out">
                     1.145e-10
                     1.145e-10
                     1.145e-10
@@ -696,11 +736,11 @@
               <input name="QRT" num_pins="1"/>
               <output name="CQZ" num_pins="1" port_class="Q"/>
               <clock name="QCK" num_pins="1" port_class="clock"/>
-              <T_setup value="1.891e-11" port="ff.D" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QEN" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QST" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QRT" clock="QCK"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.D" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QEN" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QST" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QRT" clock="QCK"/>
+              <T_clock_to_Q max="6.032e-11" port="FF.CQZ" clock="QCK"/>
             </pb_type>
             <interconnect>
               <direct name="direct_lutin" input="BLE4.LI" output="LUT4[0:0].in"/>
@@ -708,17 +748,17 @@
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
                 <pack_pattern name="ble4" in_port="LUT4.out" out_port="FF.D"/>
               </direct>
-              <direct name="direct_qck" input="BLE4.QCK" output="FF.QCK"/>
+              <!--direct name="direct_qck" input="BLE4.QCK" output="FF.QCK"/>
               <direct name="direct_qst" input="BLE4.QST" output="FF.QST"/>
               <direct name="direct_qrt" input="BLE4.QRT" output="FF.QRT"/>
-              <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/>
+              <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/-->
               <direct name="direct_fz" input="LUT4.out" output="BLE4.FZ"/>
-              <direct name="direct_aqz" input="FF.Q" output="BLE4.AQZ"/>
-              <mux name="mux_bqz" input="FF.Q LUT4.out" output="BLE4.BQZ">
+              <direct name="direct_aqz" input="FF.CQZ" output="BLE4.AQZ"/>
+              <mux name="mux_bqz" input="FF.CQZ LUT4.out" output="BLE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.BQZ[0:0]"/>
               </mux>
-              <mux name="mux_cqz" input="FF.Q LUT4.out" output="BLE4.CQZ">
+              <mux name="mux_cqz" input="FF.CQZ LUT4.out" output="BLE4.CQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.CQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.CQZ[0:0]"/>
               </mux>
@@ -727,9 +767,9 @@
           <interconnect>
             <direct name="direct_lutin" input="LOGIC_CELL.LI" output="BLE4[0:0].LI"/>
             <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BLE4[0:0].QCK"/>
-            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BLE4[0:0].QEN"/>
+            <!--direct name="direct_qen" input="LOGIC_CELL.QEN" output="BLE4[0:0].QEN"/>
             <direct name="direct_qst" input="LOGIC_CELL.QST" output="BLE4[0:0].QST"/>
-            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BLE4[0:0].QRT"/>
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BLE4[0:0].QRT"/-->
             <direct name="direct_fz" input="BLE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
             <direct name="direct_aqz" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
             <direct name="direct_bqz" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
@@ -771,11 +811,11 @@
               <input name="QRT" num_pins="1"/>
               <output name="CQZ" num_pins="1" port_class="Q"/>
               <clock name="QCK" num_pins="1" port_class="clock"/>
-              <T_setup value="1.891e-11" port="ff.D" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QEN" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QST" clock="QCK"/>
-              <T_setup value="1.891e-11" port="ff.QRT" clock="QCK"/>
-              <T_clock_to_Q max="6.032e-11" port="ff.CQZ" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.D" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QEN" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QST" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QRT" clock="QCK"/>
+              <T_clock_to_Q max="6.032e-11" port="FF.CQZ" clock="QCK"/>
             </pb_type>
             <interconnect>
               <direct name="direct_a" input="BADDER.A" output="ADDER[0:0].A"/>
@@ -786,19 +826,19 @@
                 <pack_pattern name="adder_ff" in_port="ADDER.S" out_port="FF.D"/>
               </direct>
               <direct name="direct_qck" input="BADDER.QCK" output="FF.QCK"/>
-              <direct name="direct_qen" input="BADDER.QEN" output="FF.QEN"/>
+              <!--direct name="direct_qen" input="BADDER.QEN" output="FF.QEN"/>
               <direct name="direct_qst" input="BADDER.QST" output="FF.QST"/>
-              <direct name="direct_qrt" input="BADDER.QRT" output="FF.QRT"/>
+              <direct name="direct_qrt" input="BADDER.QRT" output="FF.QRT"/-->
               <direct name="direct_co" input="ADDER.CO" output="BADDER.CO"/>
               <direct name="direct_fz" input="ADDER.S" output="BADDER.FZ"/>
-              <direct name="direct_aqz" input="FF.Q" output="BADDER.AQZ"/>
-              <mux name="mux_bqz" input="FF.Q ADDER.S" output="BADDER.BQZ">
+              <direct name="direct_aqz" input="FF.CQZ" output="BADDER.AQZ"/>
+              <mux name="mux_bqz" input="FF.CQZ ADDER.S" output="BADDER.BQZ">
                 <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.BQZ[0:0]"/>
-                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.BQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BADDER.BQZ[0:0]"/>
               </mux>
-              <mux name="mux_cqz" input="FF.Q ADDER.S" output="BADDER.CQZ">
+              <mux name="mux_cqz" input="FF.CQZ ADDER.S" output="BADDER.CQZ">
                 <delay_constant max="16.6e-12" in_port="ADDER.S[0:0]" out_port="BADDER.CQZ[0:0]"/>
-                <delay_constant max="30e-12" in_port="FF[0:0].Q" out_port="BADDER.CQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BADDER.CQZ[0:0]"/>
               </mux>
             </interconnect>
           </pb_type>
@@ -807,9 +847,9 @@
             <direct name="direct_b" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
             <direct name="direct_ci" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
             <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
-            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BADDER[0:0].QEN"/>
+            <!--direct name="direct_qen" input="LOGIC_CELL.QEN" output="BADDER[0:0].QEN"/>
             <direct name="direct_qst" input="LOGIC_CELL.QST" output="BADDER[0:0].QST"/>
-            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BADDER[0:0].QRT"/>
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BADDER[0:0].QRT"/-->
             <direct name="direct_co" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
             <direct name="direct_fz" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
             <direct name="direct_aqz" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
@@ -844,7 +884,7 @@
         <direct name="carry_in" input="SLC.CI" output="LOGIC_CELL[0:0].CI">
           <!-- Put all inter-block carry chain delay on this one edge -->
           <delay_constant max="0.16e-9" in_port="SLC.CI" out_port="LOGIC_CELL[0:0].CI"/>
-          <pack_pattern name="chain" in_port="SLC.CI" out_port="LOGIC_CELl[0:0].CI"/>
+          <pack_pattern name="chain" in_port="SLC.CI" out_port="LOGIC_CELL[0:0].CI"/>
         </direct>
         <direct name="carry_out" input="LOGIC_CELL[7:7].CO" output="SLC.CO">
           <pack_pattern name="chain" in_port="LOGIC_CELL[7:7].CO" out_port="SLC.CO"/>
