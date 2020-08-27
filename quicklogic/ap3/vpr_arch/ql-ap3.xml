@@ -713,6 +713,9 @@
         <mode name="LUT">
           <pb_type name="BLE4" num_pb="1">
             <input name="LI" num_pins="4"/>
+            <input name="QEN" num_pins="1"/>
+            <input name="QST" num_pins="1"/>
+            <input name="QRT" num_pins="1"/>
             <output name="FZ" num_pins="1"/>
             <output name="BQZ" num_pins="1"/>
             <output name="CQZ" num_pins="1"/>
@@ -750,10 +753,10 @@
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
                 <pack_pattern name="ble4" in_port="LUT4.out" out_port="FF.D"/>
               </direct>
-              <!--direct name="direct_qck" input="BLE4.QCK" output="FF.QCK"/>
+              <direct name="direct_qck" input="BLE4.QCK" output="FF.QCK"/>
               <direct name="direct_qst" input="BLE4.QST" output="FF.QST"/>
               <direct name="direct_qrt" input="BLE4.QRT" output="FF.QRT"/>
-              <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/-->
+              <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/>
               <direct name="direct_fz" input="LUT4.out" output="BLE4.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="BLE4.AQZ"/>
               <mux name="mux_bqz" input="FF.CQZ LUT4.out" output="BLE4.BQZ">
@@ -769,9 +772,9 @@
           <interconnect>
             <direct name="direct_lutin" input="LOGIC_CELL.LI" output="BLE4[0:0].LI"/>
             <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BLE4[0:0].QCK"/>
-            <!--direct name="direct_qen" input="LOGIC_CELL.QEN" output="BLE4[0:0].QEN"/>
+            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BLE4[0:0].QEN"/>
             <direct name="direct_qst" input="LOGIC_CELL.QST" output="BLE4[0:0].QST"/>
-            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BLE4[0:0].QRT"/-->
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BLE4[0:0].QRT"/>
             <direct name="direct_fz" input="BLE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
             <direct name="direct_aqz" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
             <direct name="direct_bqz" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
@@ -785,6 +788,9 @@
             <input name="A" num_pins="1"/>
             <input name="B" num_pins="1"/>
             <input name="CI" num_pins="1"/>
+            <input name="QEN" num_pins="1"/>
+            <input name="QST" num_pins="1"/>
+            <input name="QRT" num_pins="1"/>
             <output name="CO" num_pins="1"/>
             <output name="FZ" num_pins="1"/>
             <output name="BQZ" num_pins="1"/>
@@ -828,9 +834,9 @@
                 <pack_pattern name="adder_ff" in_port="ADDER.S" out_port="FF.D"/>
               </direct>
               <direct name="direct_qck" input="BADDER.QCK" output="FF.QCK"/>
-              <!--direct name="direct_qen" input="BADDER.QEN" output="FF.QEN"/>
+              <direct name="direct_qen" input="BADDER.QEN" output="FF.QEN"/>
               <direct name="direct_qst" input="BADDER.QST" output="FF.QST"/>
-              <direct name="direct_qrt" input="BADDER.QRT" output="FF.QRT"/-->
+              <direct name="direct_qrt" input="BADDER.QRT" output="FF.QRT"/>
               <direct name="direct_co" input="ADDER.CO" output="BADDER.CO"/>
               <direct name="direct_fz" input="ADDER.S" output="BADDER.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="BADDER.AQZ"/>
@@ -849,9 +855,9 @@
             <direct name="direct_b" input="LOGIC_CELL.LI[1:1]" output="BADDER[0:0].B"/>
             <direct name="direct_ci" input="LOGIC_CELL.CI" output="BADDER[0:0].CI"/>
             <direct name="direct_qck" input="LOGIC_CELL.QCK" output="BADDER[0:0].QCK"/>
-            <!--direct name="direct_qen" input="LOGIC_CELL.QEN" output="BADDER[0:0].QEN"/>
+            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="BADDER[0:0].QEN"/>
             <direct name="direct_qst" input="LOGIC_CELL.QST" output="BADDER[0:0].QST"/>
-            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BADDER[0:0].QRT"/-->
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="BADDER[0:0].QRT"/>
             <direct name="direct_co" input="BADDER[0:0].CO" output="LOGIC_CELL.CO"/>
             <direct name="direct_fz" input="BADDER[0:0].FZ" output="LOGIC_CELL.FZ"/>
             <direct name="direct_aqz" input="BADDER[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
