@@ -328,7 +328,9 @@
   <layout>
     <!-- Auto layout is for architecture exploration
          TODO: Add BRAM and Multipliers for ap3 device -->
+    <?ignore
     <auto_layout aspect_ratio="1.0">
+      <corners type="EMPTY" priority="151"/>
       <!-- 'io_top' blocks at the top side -->
       <row type="io_top" priority="100" startx="1" starty="H-1"/>
       <!-- 'io_right' blocks at the right side -->
@@ -337,7 +339,6 @@
       <row type="io_bottom" priority="100" startx="1" starty="0"/>
       <!-- 'io_left' blocks at the left side -->
       <col type="io_left" priority="100" startx="0" starty="1"/>
-      <corners type="EMPTY" priority="101"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
       <!-- Row of RAM repeated every 4 rows -->
@@ -348,24 +349,25 @@
         -->
       <region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
     </auto_layout>
+    ?>
     <!-- Define a fixed-layout for ap3 device -->
-    <fixed_layout name="32x36" width="34" height="32">
+    <fixed_layout name="34x38" width="34" height="38">
       <!-- 'io_top' blocks at the top side -->
-      <row type="io_top" priority="100" startx="1" starty="33"/>
+      <region type="io_top" priority="100" startx="1" endx="32" starty="H-1"/>
       <!-- 'io_right' blocks at the right side -->
-      <col type="io_right" priority="100" startx="33" starty="1"/>
+      <region type="io_right" priority="100" startx="W-1" starty="1" endy="36"/>
       <!-- 'io_bottom' blocks at the bottom side -->
-      <row type="io_bottom" priority="100" startx="1" starty="0"/>
+      <region type="io_bottom" priority="100" startx="1" endx="32" starty="0" endy="0"/>
       <!-- 'io_left' blocks at the left side -->
-      <col type="io_left" priority="100" startx="0" starty="1"/>
+      <region type="io_left" priority="100" startx="0" endx="0" starty="1" endy="36"/>
       <corners type="EMPTY" priority="101"/>
-      <!-- Row of RAM repeated every 4 rows -->
-      <row type="DPRAM" priority="20" startx="1" starty="5" repeaty="4"/>
       <!-- DSPs starts from the 9th column and 5th row 
-           and are repeated every 8 columns and 4 rows
+           and are repeated every 12 columns and 8 (in-between 2 rows) rows
            priority is higher than the DPRAM when instanciated at the same location
         -->
-      <region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
+      <region type="DSP32" priority="50" startx="9" endx="32" starty="5" endy="36" incrx="12" incry="9"/>
+      <!-- Row of RAM repeated every 8 (in-between 2 rows) rows -->
+      <row type="DPRAM" priority="20" startx="1" starty="5" repeaty="9"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
     </fixed_layout>
