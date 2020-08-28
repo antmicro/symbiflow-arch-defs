@@ -390,8 +390,10 @@
   <!-- ODIN II specific config ends -->
   <!-- Physical descriptions begin -->
   <layout>
+    <?ignore
     <!-- Auto layout is for architecture exploration-->
     <auto_layout aspect_ratio="1.0">
+      <corners type="EMPTY" priority="50" />
       <!-- Bottom-left corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
       <!-- Bottom-right corner should be EMPTY -->
@@ -426,8 +428,11 @@
         -->
       <!--region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/-->
     </auto_layout>
+    ?>
     <!-- Define a fixed-layout for ap3 device, can be called by '-device' option using vpr -->
     <fixed_layout name="36x40" width="36" height="40">
+      <corners type="EMPTY" priority="50" />
+      <?ignore
        <!-- Bottom-left corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
       <!-- Bottom-right corner should be EMPTY -->
@@ -436,22 +441,23 @@
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="H-2" endy="H-1"/>
       <!-- Top-right corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="H-2" endy="H-1"/>
+      ?>
       <!-- 'io_top' blocks at the top side -->
-      <region type="io_top" priority="100" startx="2" endx="W-2" starty="H-1" endy="H-1"/>
+      <region type="io_top" priority="100" startx="2" endx="W-3" starty="H-1" endy="H-1"/>
        <!-- 'ap3_io_top' blocks at the top side -->
-      <region type="ap3_io_top" priority="100" startx="2" endx="W-2" starty="H-2" endy="H-2"/>
+      <region type="ap3_io_top" priority="100" startx="2" endx="W-3" starty="H-2" endy="H-2"/>
       <!-- 'io_right' blocks at the right side -->
-      <region type="io_right" priority="100" startx="W-1" endx="W-1" starty="2" endy="H-2"/>
+      <region type="io_right" priority="100" startx="W-1" endx="W-1" starty="2" endy="H-3"/>
       <!-- 'io_right' blocks at the right side -->
-      <region type="ap3_io_right" priority="100" startx="W-2" endx="W-2" starty="2" endy="H-2"/>
+      <region type="ap3_io_right" priority="100" startx="W-2" endx="W-2" starty="2" endy="H-3"/>
       <!-- 'io_bottom' blocks at the bottom side -->
-      <region type="io_bottom" priority="100" startx="2" endx="W-2" starty="0" endy="0"/>
+      <region type="io_bottom" priority="100" startx="2" endx="W-3" starty="0" endy="0"/>
       <!-- 'io_bottom' blocks at the bottom side -->
-      <region type="ap3_io_bottom" priority="100" startx="2" endx="W-2" starty="1" endy="1"/>
+      <region type="ap3_io_bottom" priority="100" startx="2" endx="W-3" starty="1" endy="1"/>
       <!-- 'io_left' blocks at the left side -->
-      <region type="io_left" priority="100" startx="0" endx="0" starty="2" endy="H-1"/>
+      <region type="io_left" priority="100" startx="0" endx="0" starty="2" endy="H-3"/>
       <!-- 'ap3_io_left' blocks at the left side -->
-      <region type="ap3_io_left" priority="100" startx="1" endx="1" starty="2" endy="H-2"/>
+      <region type="ap3_io_left" priority="100" startx="1" endx="1" starty="2" endy="H-3"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="99"/>
       <!-- DSPs starts from the 9th column and 5th row 
@@ -835,6 +841,10 @@
               <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/>
               <direct name="direct_fz" input="LUT4.out" output="BLE4.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="BLE4.AQZ"/>
+              <!--mux name="mux_qdi" input="LUT4.out LUT4.in[3:3]" output="FF.D" >
+                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="FF.D[0:0]"/>
+                <delay_constant max="30e-12" in_port="LUT4.in[3:3]" out_port="FF.D[0:0]"/>
+              </mux-->
               <mux name="mux_bqz" input="FF.CQZ LUT4.out" output="BLE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.BQZ[0:0]"/>
@@ -904,7 +914,7 @@
               <direct name="direct_lut4_i3" input="LE4.LI[3:3]" output="LUT4[0:0].I3"/>
               <direct name="direct_lut2ff" input="LUT4.O" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
-                <pack_pattern name="ble4" in_port="LUT4.O" out_port="FF.D"/>
+                <pack_pattern name="le4" in_port="LUT4.O" out_port="FF.D"/>
               </direct>
               <direct name="direct_qck" input="LE4.QCK" output="FF.QCK"/>
               <direct name="direct_qst" input="LE4.QST" output="FF.QST"/>
@@ -912,6 +922,10 @@
               <direct name="direct_qen" input="LE4.QEN" output="FF.QEN"/>
               <direct name="direct_fz" input="LUT4.O" output="LE4.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="LE4.AQZ"/>
+              <!--mux name="mux_qdi" input="LUT4.out LUT4.in[3:3]" output="FF.D" >
+                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="FF.D[0:0]"/>
+                <delay_constant max="30e-12" in_port="LUT4.in[3:3]" out_port="FF.D[0:0]"/>
+              </mux-->
               <mux name="mux_bqz" input="FF.CQZ LUT4.O" output="LE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.O[0:0]" out_port="LE4.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="LE4.BQZ[0:0]"/>
