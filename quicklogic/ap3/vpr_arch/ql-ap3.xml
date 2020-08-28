@@ -4,8 +4,20 @@
 <architecture>
   <!-- ODIN II specific config -->
   <models>
-    <!-- TODO: Add models describing BRAM and Multiplier -->
-   <model name="full_adder">
+    <!-- 4-input LUT used in the SLC -->
+    <model name="LUT4">
+      <input_ports>
+        <port name="I0" combinational_sink_ports="O"/>
+        <port name="I1" combinational_sink_ports="O"/>
+        <port name="I2" combinational_sink_ports="O"/>
+        <port name="I3" combinational_sink_ports="O"/>
+      </input_ports>
+      <output_ports>
+        <port name="O"/>
+      </output_ports>
+    </model>
+    <!-- Full Adder used in the SLC -->
+    <model name="full_adder">
       <input_ports>
         <port name="A" combinational_sink_ports="S CO"/>
         <port name="B" combinational_sink_ports="S CO"/>
@@ -140,9 +152,22 @@
          core pins, i.e, OQI, QRT, IQZ, IQC, are on the bottom side
       -->
     <tile name="io_top">
-      <sub_tile name="io_top" capacity="1">
+      <sub_tile name="io_top" capacity="30">
         <equivalent_sites>
           <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="1"/>
+        <output name="F2A" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="bottom">io_top.A2F io_top.F2A</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <tile name="ap3_io_top">
+      <sub_tile name="ap3_io_top" capacity="1">
+        <equivalent_sites>
+          <site pb_type="ap3_io" pin_mapping="direct"/>
         </equivalent_sites>
         <input name="A2F" num_pins="8" equivalent="none"/>
         <input name="OQI" num_pins="18" equivalent="none"/>
@@ -152,8 +177,8 @@
         <output name="F2A_DEF" num_pins="4" equivalent="none"/>
         <clock name="IQC" num_pins="1"/>
         <pinlocations pattern="custom">
-          <loc side="top">io_top.A2F io_top.F2A io_top.F2A_DEF</loc>
-          <loc side="bottom">io_top.OQI io_top.QRT io_top.IQZ io_top.IQC</loc>
+          <loc side="top">ap3_io_top.A2F ap3_io_top.F2A ap3_io_top.F2A_DEF</loc>
+          <loc side="bottom">ap3_io_top.OQI ap3_io_top.QRT ap3_io_top.IQZ ap3_io_top.IQC</loc>
         </pinlocations>
         <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
       </sub_tile>
@@ -163,9 +188,22 @@
          core pins, i.e, OQI, QRT, IQZ, IQC, are on the left side
       -->
     <tile name="io_right">
-      <sub_tile name="io_right" capacity="1">
+      <sub_tile name="io_right" capacity="30">
         <equivalent_sites>
           <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="1"/>
+        <output name="F2A" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="left">io_right.A2F io_right.F2A</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <tile name="ap3_io_right">
+      <sub_tile name="ap3_io_right" capacity="1">
+        <equivalent_sites>
+          <site pb_type="ap3_io" pin_mapping="direct"/>
         </equivalent_sites>
         <input name="A2F" num_pins="8" equivalent="none"/>
         <input name="OQI" num_pins="18" equivalent="none"/>
@@ -175,8 +213,8 @@
         <output name="F2A_DEF" num_pins="4" equivalent="none"/>
         <clock name="IQC" num_pins="1"/>
         <pinlocations pattern="custom">
-          <loc side="right">io_right.A2F io_right.F2A io_right.F2A_DEF</loc>
-          <loc side="left">io_right.OQI io_right.QRT io_right.IQZ io_right.IQC</loc>
+          <loc side="right">ap3_io_right.A2F ap3_io_right.F2A ap3_io_right.F2A_DEF</loc>
+          <loc side="left">ap3_io_right.OQI ap3_io_right.QRT ap3_io_right.IQZ ap3_io_right.IQC</loc>
         </pinlocations>
         <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
       </sub_tile>
@@ -186,9 +224,22 @@
          core pins, i.e, OQI, QRT, IQZ, IQC, are on the top side
       -->
     <tile name="io_bottom">
-      <sub_tile name="io_bottom" capacity="1">
+      <sub_tile name="io_bottom" capacity="30">
         <equivalent_sites>
           <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="1"/>
+        <output name="F2A" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="top">io_bottom.A2F io_bottom.F2A</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <tile name="ap3_io_bottom">
+      <sub_tile name="ap3_io_bottom" capacity="1">
+        <equivalent_sites>
+          <site pb_type="ap3_io" pin_mapping="direct"/>
         </equivalent_sites>
         <input name="A2F" num_pins="8" equivalent="none"/>
         <input name="OQI" num_pins="18" equivalent="none"/>
@@ -198,8 +249,8 @@
         <output name="F2A_DEF" num_pins="4" equivalent="none"/>
         <clock name="IQC" num_pins="1"/>
         <pinlocations pattern="custom">
-          <loc side="bottom">io_bottom.A2F io_bottom.F2A io_bottom.F2A_DEF</loc>
-          <loc side="top">io_bottom.OQI io_bottom.QRT io_bottom.IQZ io_bottom.IQC</loc>
+          <loc side="bottom">ap3_io_bottom.A2F ap3_io_bottom.F2A ap3_io_bottom.F2A_DEF</loc>
+          <loc side="top">ap3_io_bottom.OQI ap3_io_bottom.QRT ap3_io_bottom.IQZ ap3_io_bottom.IQC</loc>
         </pinlocations>
         <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
       </sub_tile>
@@ -209,9 +260,22 @@
          core pins, i.e, OQI, QRT, IQZ, IQC, are on the right side
       -->
     <tile name="io_left">
-      <sub_tile name="io_left" capacity="1">
+      <sub_tile name="io_left" capacity="30">
         <equivalent_sites>
           <site pb_type="io" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="A2F" num_pins="1"/>
+        <output name="F2A" num_pins="1"/>
+        <pinlocations pattern="custom">
+          <loc side="right">io_left.A2F io_left.F2A</loc>
+        </pinlocations>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+      </sub_tile>
+    </tile>
+    <tile name="ap3_io_left">
+      <sub_tile name="ap3_io_left" capacity="1">
+        <equivalent_sites>
+          <site pb_type="ap3_io" pin_mapping="direct"/>
         </equivalent_sites>
         <input name="A2F" num_pins="8" equivalent="none"/>
         <input name="OQI" num_pins="18" equivalent="none"/>
@@ -221,8 +285,8 @@
         <output name="F2A_DEF" num_pins="4" equivalent="none"/>
         <clock name="IQC" num_pins="1"/>
         <pinlocations pattern="custom">
-          <loc side="left">io_left.A2F io_left.F2A io_left.F2A_DEF</loc>
-          <loc side="right">io_left.OQI io_left.QRT io_left.IQZ io_left.IQC</loc>
+          <loc side="left">ap3_io_left.A2F ap3_io_left.F2A ap3_io_left.F2A_DEF</loc>
+          <loc side="right">ap3_io_left.OQI ap3_io_left.QRT ap3_io_left.IQZ ap3_io_left.IQC</loc>
         </pinlocations>
         <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
       </sub_tile>
@@ -326,50 +390,77 @@
   <!-- ODIN II specific config ends -->
   <!-- Physical descriptions begin -->
   <layout>
-    <!-- Auto layout is for architecture exploration
-         TODO: Add BRAM and Multipliers for ap3 device -->
-    <?ignore
+    <!-- Auto layout is for architecture exploration-->
     <auto_layout aspect_ratio="1.0">
-      <corners type="EMPTY" priority="151"/>
+      <!-- Bottom-left corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
+      <!-- Bottom-right corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="0" endy="1"/>
+      <!-- Top-left corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="0" endx="1" starty="H-2" endy="H-1"/>
+      <!-- Top-right corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="H-2" endy="H-1"/>
       <!-- 'io_top' blocks at the top side -->
-      <row type="io_top" priority="100" startx="1" starty="H-1"/>
+      <region type="io_top" priority="100" startx="2" endx="W-2" starty="H-1" endy="H-1"/>
+       <!-- 'ap3_io_top' blocks at the top side -->
+      <region type="ap3_io_top" priority="100" startx="2" endx="W-2" starty="H-2" endy="H-2"/>
       <!-- 'io_right' blocks at the right side -->
-      <col type="io_right" priority="100" startx="W-1" starty="1"/>
+      <region type="io_right" priority="100" startx="W-1" endx="W-1" starty="2" endy="H-2"/>
+      <!-- 'io_right' blocks at the right side -->
+      <region type="ap3_io_right" priority="100" startx="W-2" endx="W-2" starty="2" endy="H-2"/>
       <!-- 'io_bottom' blocks at the bottom side -->
-      <row type="io_bottom" priority="100" startx="1" starty="0"/>
+      <region type="io_bottom" priority="100" startx="2" endx="W-2" starty="0" endy="0"/>
+      <!-- 'io_bottom' blocks at the bottom side -->
+      <region type="ap3_io_bottom" priority="100" startx="2" endx="W-2" starty="1" endy="1"/>
       <!-- 'io_left' blocks at the left side -->
-      <col type="io_left" priority="100" startx="0" starty="1"/>
+      <region type="io_left" priority="100" startx="0" endx="0" starty="2" endy="H-1"/>
+      <!-- 'ap3_io_left' blocks at the left side -->
+      <region type="ap3_io_left" priority="100" startx="1" endx="1" starty="2" endy="H-2"/>
       <!--Fill with 'SLC'-->
       <fill type="SLC" priority="10"/>
       <!-- Row of RAM repeated every 4 rows -->
-      <row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/>
+      <!-- row type="DPRAM" priority="20" startx="1" repeaty="4" starty="5"/-->
       <!-- DSPs starts from the 9th column and 5th row 
            and are repeated every 8 columns and 4 rows
            priority is higher than the DPRAM when instanciated at the same location
         -->
-      <region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/>
+      <!--region type="DSP32" priority="30" startx="9" repeatx="8" starty="5" repeaty="4"/-->
     </auto_layout>
-    ?>
-    <!-- Define a fixed-layout for ap3 device -->
-    <fixed_layout name="34x38" width="34" height="38">
+    <!-- Define a fixed-layout for ap3 device, can be called by '-device' option using vpr -->
+    <fixed_layout name="36x40" width="36" height="40">
+       <!-- Bottom-left corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
+      <!-- Bottom-right corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="0" endy="1"/>
+      <!-- Top-left corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="0" endx="1" starty="H-2" endy="H-1"/>
+      <!-- Top-right corner should be EMPTY -->
+      <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="H-2" endy="H-1"/>
       <!-- 'io_top' blocks at the top side -->
-      <region type="io_top" priority="100" startx="1" endx="32" starty="H-1"/>
+      <region type="io_top" priority="100" startx="2" endx="W-2" starty="H-1" endy="H-1"/>
+       <!-- 'ap3_io_top' blocks at the top side -->
+      <region type="ap3_io_top" priority="100" startx="2" endx="W-2" starty="H-2" endy="H-2"/>
       <!-- 'io_right' blocks at the right side -->
-      <region type="io_right" priority="100" startx="W-1" starty="1" endy="36"/>
+      <region type="io_right" priority="100" startx="W-1" endx="W-1" starty="2" endy="H-2"/>
+      <!-- 'io_right' blocks at the right side -->
+      <region type="ap3_io_right" priority="100" startx="W-2" endx="W-2" starty="2" endy="H-2"/>
       <!-- 'io_bottom' blocks at the bottom side -->
-      <region type="io_bottom" priority="100" startx="1" endx="32" starty="0" endy="0"/>
+      <region type="io_bottom" priority="100" startx="2" endx="W-2" starty="0" endy="0"/>
+      <!-- 'io_bottom' blocks at the bottom side -->
+      <region type="ap3_io_bottom" priority="100" startx="2" endx="W-2" starty="1" endy="1"/>
       <!-- 'io_left' blocks at the left side -->
-      <region type="io_left" priority="100" startx="0" endx="0" starty="1" endy="36"/>
-      <corners type="EMPTY" priority="101"/>
+      <region type="io_left" priority="100" startx="0" endx="0" starty="2" endy="H-1"/>
+      <!-- 'ap3_io_left' blocks at the left side -->
+      <region type="ap3_io_left" priority="100" startx="1" endx="1" starty="2" endy="H-2"/>
+      <!--Fill with 'SLC'-->
+      <fill type="SLC" priority="99"/>
       <!-- DSPs starts from the 9th column and 5th row 
            and are repeated every 12 columns and 8 (in-between 2 rows) rows
            priority is higher than the DPRAM when instanciated at the same location
         -->
-      <region type="DSP32" priority="50" startx="9" endx="32" starty="5" endy="36" incrx="12" incry="9"/>
+      <region type="DSP32" priority="102" startx="10" endx="33" starty="6" endy="37" incrx="12" incry="9"/>
       <!-- Row of RAM repeated every 8 (in-between 2 rows) rows -->
-      <row type="DPRAM" priority="20" startx="1" starty="5" repeaty="9"/>
-      <!--Fill with 'SLC'-->
-      <fill type="SLC" priority="10"/>
+      <row type="DPRAM" priority="101" startx="2" starty="6" repeaty="9"/>
     </fixed_layout>
   </layout>
   <device>
@@ -463,8 +554,33 @@
   </switchblocklist>
   <!-- TODO: Direct connections across pb_type, may be applied to CI and CO of SLC -->
   <complexblocklist>
-    <!-- Define multi-mode I/O block -->
+    <!-- Define virtual I/Os for VPR - -->
     <pb_type name="io">
+      <input name="A2F" num_pins="1"/>
+      <output name="F2A" num_pins="1"/>
+      <mode name="outpad">
+        <pb_type name="outpad" blif_model=".output" num_pb="1">
+          <input name="outpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="outpad" input="io.A2F" output="outpad.outpad">
+            <delay_constant max="1.394e-11" in_port="io.A2F" out_port="outpad.outpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <mode name="inpad">
+        <pb_type name="inpad" blif_model=".input" num_pb="1">
+          <output name="inpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="inpad" input="inpad.inpad" output="io.F2A">
+            <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="io.F2A"/>
+          </direct>
+        </interconnect>
+      </mode>
+    </pb_type>
+    <!-- Define multi-mode I/O block -->
+    <pb_type name="ap3_io">
       <input name="A2F" num_pins="8" equivalent="none"/>
       <input name="OQI" num_pins="18" equivalent="none"/>
       <input name="QRT" num_pins="1" equivalent="none"/>
@@ -527,16 +643,6 @@
             </direct>
           </interconnect>
         </mode>
-        <mode name="inpad">
-          <pb_type name="inpad" blif_model=".input" num_pb="1">
-            <output name="inpad" num_pins="1"/>
-          </pb_type>
-          <interconnect>
-            <direct name="inpad" input="inpad.inpad" output="outpad_vec.F2A">
-              <delay_constant max="1.394e-11" in_port="inpad.inpad" out_port="outpad_vec.F2A"/>
-            </direct>
-          </interconnect>
-        </mode>
       </pb_type>
       <!-- Define output pads ends -->
       <!-- Define input pads begins -->
@@ -594,16 +700,6 @@
             </direct>
           </interconnect>
         </mode>
-        <mode name="outpad">
-          <pb_type name="outpad" blif_model=".output" num_pb="1">
-            <input name="outpad" num_pins="1"/>
-          </pb_type>
-          <interconnect>
-            <direct name="outpad" input="inpad_vec.A2F" output="outpad.outpad">
-              <delay_constant max="4.243e-11" in_port="inpad_vec.A2F" out_port="outpad.outpad"/>
-            </direct>
-          </interconnect>
-        </mode>
       </pb_type>
       <!-- Define input pads ends -->
       <!-- Define static configuration pads begins -->
@@ -623,50 +719,30 @@
           </direct>
         </interconnect>
       </pb_type>
-      <!--mode name="inpad">
-        <pb_type name="inpad" blif_model=".input" num_pb="1">
-          <output name="inpad" num_pins="1"/>
-        </pb_type>
-        <interconnect>
-          <direct name="inpad" input="inpad.inpad" output="inpad_vec.A2F">
-            <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="inpad_vec.A2F"/>
-          </direct>
-        </interconnect>
-      </mode>
-      <mode name="outpad">
-        <pb_type name="outpad" blif_model=".output" num_pb="1">
-          <input name="outpad" num_pins="1"/>
-        </pb_type>
-        <interconnect>
-          <direct name="outpad" input="outpad_vec.F2A" output="outpad.outpad">
-            <delay_constant max="1.394e-11" in_port="outpad_vec.F2A" out_port="outpad.outpad"/>
-          </direct>
-        </interconnect>
-      </mode-->
       <interconnect>
-        <complete name="outpad_vec_clk" input="io.IQC" output="outpad_vec.IQC" />
-        <complete name="outpad_vec_rst" input="io.QRT" output="outpad_vec.QRT" />
-        <direct name="outpad_vec_oqi" input="io.OQI[17:0]" output="outpad_vec[17:0].OQI">
+        <complete name="outpad_vec_clk" input="ap3_io.IQC" output="outpad_vec.IQC" />
+        <complete name="outpad_vec_rst" input="ap3_io.QRT" output="outpad_vec.QRT" />
+        <direct name="outpad_vec_oqi" input="ap3_io.OQI[17:0]" output="outpad_vec[17:0].OQI">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="io.OQI[17:0]" out_port="outpad_vec[17:0].OQI"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="ap3_io.OQI[17:0]" out_port="outpad_vec[17:0].OQI"/>
         </direct>
-        <direct name="outpad_vec_f2a" input="outpad_vec[17:0].F2A" output="io.F2A">
+        <direct name="outpad_vec_to_f2a" input="outpad_vec[17:0].F2A" output="ap3_io.F2A">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec[17:0].F2A" out_port="io.F2A"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec[17:0].F2A" out_port="ap3_io.F2A"/>
         </direct>
-        <complete name="inpad_vec_clk" input="io.IQC" output="inpad_vec.IQC" />
-        <complete name="inpad_vec_rst" input="io.QRT" output="inpad_vec.QRT" />
-        <direct name="inpad_vec_a2f" input="io.A2F[7:0]" output="inpad_vec[7:0].A2F">
+        <complete name="inpad_vec_clk" input="ap3_io.IQC" output="inpad_vec.IQC" />
+        <complete name="inpad_vec_rst" input="ap3_io.QRT" output="inpad_vec.QRT" />
+        <direct name="virtual_inpad_to_a2f" input="ap3_io.A2F" output="inpad_vec[7:0].A2F">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="io.A2F[7:0]" out_port="inpad_vec[7:0].A2F"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="ap3_io.A2F" out_port="inpad_vec[7:0].A2F"/>
         </direct>
-        <direct name="inpad_vec_iqz" input="inpad_vec[7:0].IQZ" output="io.IQZ[7:0]">
+        <direct name="inpad_vec_iqz" input="inpad_vec[7:0].IQZ" output="ap3_io.IQZ[7:0]">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec[7:0].IQZ" out_port="io.IQZ[7:0]"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec[7:0].IQZ" out_port="ap3_io.IQZ[7:0]"/>
         </direct>
-        <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="io.F2A_DEF[3:0]">
+        <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="ap3_io.F2A_DEF">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="io.F2A_DEF[3:0]"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="ap3_io.F2A_DEF"/>
         </direct>
       </interconnect>
     </pb_type>
@@ -709,8 +785,8 @@
         <output name="CQZ" num_pins="1"/>
         <output name="AQZ" num_pins="1"/>
         <clock name="QCK" num_pins="1"/>
-        <!-- BEGIN Define 4-input LUT mode -->
-        <mode name="LUT">
+        <!-- BEGIN Define a default 4-input LUT mode using the .names  -->
+        <mode name="LUT_default">
           <pb_type name="BLE4" num_pb="1">
             <input name="LI" num_pins="4"/>
             <input name="QEN" num_pins="1"/>
@@ -779,6 +855,83 @@
             <direct name="direct_aqz" input="BLE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
             <direct name="direct_bqz" input="BLE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
             <direct name="direct_cqz" input="BLE4[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
+          </interconnect>
+        </mode>
+        <!-- END Define a default 4-input LUT mode using the .names -->
+        <!-- BEGIN Define 4-input LUT mode -->
+        <mode name="LUT">
+          <pb_type name="LE4" num_pb="1">
+            <input name="LI" num_pins="4"/>
+            <input name="QEN" num_pins="1"/>
+            <input name="QST" num_pins="1"/>
+            <input name="QRT" num_pins="1"/>
+            <output name="FZ" num_pins="1"/>
+            <output name="BQZ" num_pins="1"/>
+            <output name="CQZ" num_pins="1"/>
+            <output name="AQZ" num_pins="1"/>
+            <clock name="QCK" num_pins="1"/>
+            <!-- Define LUT -->
+            <pb_type name="LUT4" blif_model=".subckt LUT4" num_pb="1">
+              <input name="I0" num_pins="1"/>
+              <input name="I1" num_pins="1"/>
+              <input name="I2" num_pins="1"/>
+              <input name="I3" num_pins="1"/>
+              <output name="O" num_pins="1"/>
+              <!-- LUT timing -->
+              <delay_constant max="0.3e-9" in_port="LUT4.I0" out_port="LUT4.O"/>
+              <delay_constant max="0.3e-9" in_port="LUT4.I1" out_port="LUT4.O"/>
+              <delay_constant max="0.3e-9" in_port="LUT4.I2" out_port="LUT4.O"/>
+              <delay_constant max="0.3e-9" in_port="LUT4.I3" out_port="LUT4.O"/>
+            </pb_type>
+            <!-- Define flip-flop -->
+            <pb_type name="FF" blif_model=".subckt ff" num_pb="1" >
+              <input name="D" num_pins="1" port_class="D"/>
+              <input name="QEN" num_pins="1"/>
+              <input name="QST" num_pins="1"/>
+              <input name="QRT" num_pins="1"/>
+              <output name="CQZ" num_pins="1" port_class="Q"/>
+              <clock name="QCK" num_pins="1" port_class="clock"/>
+              <T_setup value="1.891e-11" port="FF.D" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QEN" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QST" clock="QCK"/>
+              <T_setup value="1.891e-11" port="FF.QRT" clock="QCK"/>
+              <T_clock_to_Q max="6.032e-11" port="FF.CQZ" clock="QCK"/>
+            </pb_type>
+            <interconnect>
+              <direct name="direct_lut4_i0" input="LE4.LI[0:0]" output="LUT4[0:0].I0"/>
+              <direct name="direct_lut4_i1" input="LE4.LI[1:1]" output="LUT4[0:0].I1"/>
+              <direct name="direct_lut4_i2" input="LE4.LI[2:2]" output="LUT4[0:0].I2"/>
+              <direct name="direct_lut4_i3" input="LE4.LI[3:3]" output="LUT4[0:0].I3"/>
+              <direct name="direct_lut2ff" input="LUT4.O" output="FF.D">
+                <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
+                <pack_pattern name="ble4" in_port="LUT4.O" out_port="FF.D"/>
+              </direct>
+              <direct name="direct_qck" input="LE4.QCK" output="FF.QCK"/>
+              <direct name="direct_qst" input="LE4.QST" output="FF.QST"/>
+              <direct name="direct_qrt" input="LE4.QRT" output="FF.QRT"/>
+              <direct name="direct_qen" input="LE4.QEN" output="FF.QEN"/>
+              <direct name="direct_fz" input="LUT4.O" output="LE4.FZ"/>
+              <direct name="direct_aqz" input="FF.CQZ" output="LE4.AQZ"/>
+              <mux name="mux_bqz" input="FF.CQZ LUT4.O" output="LE4.BQZ">
+                <delay_constant max="16.6e-12" in_port="LUT4.O[0:0]" out_port="LE4.BQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="LE4.BQZ[0:0]"/>
+              </mux>
+              <mux name="mux_cqz" input="FF.CQZ LUT4.O" output="LE4.CQZ">
+                <delay_constant max="16.6e-12" in_port="LUT4.O[0:0]" out_port="LE4.CQZ[0:0]"/>
+                <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="LE4.CQZ[0:0]"/>
+              </mux>
+            </interconnect>
+          </pb_type>
+          <interconnect>
+            <direct name="direct_lutin" input="LOGIC_CELL.LI" output="LE4[0:0].LI"/>
+            <direct name="direct_qck" input="LOGIC_CELL.QCK" output="LE4[0:0].QCK"/>
+            <direct name="direct_qen" input="LOGIC_CELL.QEN" output="LE4[0:0].QEN"/>
+            <direct name="direct_qst" input="LOGIC_CELL.QST" output="LE4[0:0].QST"/>
+            <direct name="direct_qrt" input="LOGIC_CELL.QRT" output="LE4[0:0].QRT"/>
+            <direct name="direct_fz" input="LE4[0:0].FZ" output="LOGIC_CELL.FZ"/>
+            <direct name="direct_aqz" input="LE4[0:0].AQZ" output="LOGIC_CELL.AQZ"/>
+            <direct name="direct_bqz" input="LE4[0:0].BQZ" output="LOGIC_CELL.BQZ"/>
+            <direct name="direct_cqz" input="LE4[0:0].CQZ" output="LOGIC_CELL.CQZ"/>
           </interconnect>
         </mode>
         <!-- END Define 4-input LUT mode -->
