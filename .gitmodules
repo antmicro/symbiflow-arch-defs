@@ -64,3 +64,6 @@
 [submodule "third_party/pythondata-software-compiler_rt"]
 	path = third_party/pythondata-software-compiler_rt
 	url = https://github.com/litex-hub/pythondata-software-compiler_rt
+[submodule "third_party/opentitan"]
+	path = third_party/opentitan
+	url = https://github.com/lowRISC/opentitan
