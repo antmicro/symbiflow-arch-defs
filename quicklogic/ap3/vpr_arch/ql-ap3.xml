@@ -28,6 +28,17 @@
         <port name="S"/>
       </output_ports>
     </model>
+    <!-- Carry out in adder used in the SLC -->
+    <!--model name="QL_CARRY">
+      <input_ports>
+        <port name="I0" combinational_sink_ports="CO"/>
+        <port name="I1" combinational_sink_ports="CO"/>
+        <port name="CI" combinational_sink_ports="CO"/>
+      </input_ports>
+      <output_ports>
+        <port name="CO"/>
+      </output_ports>
+    </model-->
     <!-- Flip-flop model used in SLC -->
     <model name="ff">
       <input_ports>
@@ -143,6 +154,18 @@
       </input_ports>
       <output_ports>
         <port name="MAC_OUT" clock="CLOCK"/>
+      </output_ports>
+    </model>
+    <model name="logic_1">
+      <input_ports/>
+      <output_ports>
+        <port name="a"/>
+      </output_ports>
+    </model>
+    <model name="logic_0">
+      <input_ports/>
+      <output_ports>
+        <port name="a"/>
       </output_ports>
     </model>
   </models>
@@ -386,6 +409,36 @@
         <pinlocations pattern="spread"/>
       </sub_tile>
     </tile>
+    <tile name="TL-VCC">
+      <sub_tile name="ST-VCC" capacity="1">
+        <output name="VCC" num_pins="1"/>
+        <equivalent_sites>
+          <site pb_type="PB-VCC" pin_mapping="custom">
+            <direct from="ST-VCC.VCC" to="PB-VCC.VCC"/>
+          </site>
+        </equivalent_sites>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+        <pinlocations pattern="custom">
+          <loc side="right">ST-VCC.VCC</loc>
+        </pinlocations>
+        <switchbox_locations pattern="all"/>
+      </sub_tile>
+    </tile>
+    <tile name="TL-GND">
+      <sub_tile name="ST-GND" capacity="1">
+        <output name="GND" num_pins="1"/>
+        <equivalent_sites>
+          <site pb_type="PB-GND" pin_mapping="custom">
+            <direct from="ST-GND.GND" to="PB-GND.GND"/>
+          </site>
+        </equivalent_sites>
+        <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+        <pinlocations pattern="custom">
+          <loc side="right">ST-GND.GND</loc>
+        </pinlocations>
+        <switchbox_locations pattern="all"/>
+      </sub_tile>
+    </tile>
   </tiles>
   <!-- ODIN II specific config ends -->
   <!-- Physical descriptions begin -->
@@ -393,7 +446,6 @@
     <?ignore
     <!-- Auto layout is for architecture exploration-->
     <auto_layout aspect_ratio="1.0">
-      <corners type="EMPTY" priority="50" />
       <!-- Bottom-left corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
       <!-- Bottom-right corner should be EMPTY -->
@@ -431,8 +483,6 @@
     ?>
     <!-- Define a fixed-layout for ap3 device, can be called by '-device' option using vpr -->
     <fixed_layout name="36x40" width="36" height="40">
-      <corners type="EMPTY" priority="50" />
-      <?ignore
        <!-- Bottom-left corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
       <!-- Bottom-right corner should be EMPTY -->
@@ -441,7 +491,6 @@
       <region type="EMPTY" priority="101" startx="0" endx="1" starty="H-2" endy="H-1"/>
       <!-- Top-right corner should be EMPTY -->
       <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="H-2" endy="H-1"/>
-      ?>
       <!-- 'io_top' blocks at the top side -->
       <region type="io_top" priority="100" startx="2" endx="W-3" starty="H-1" endy="H-1"/>
        <!-- 'ap3_io_top' blocks at the top side -->
@@ -467,6 +516,8 @@
       <region type="DSP32" priority="102" startx="10" endx="33" starty="6" endy="37" incrx="12" incry="9"/>
       <!-- Row of RAM repeated every 8 (in-between 2 rows) rows -->
       <row type="DPRAM" priority="101" startx="2" starty="6" repeaty="9"/>
+      <single priority="10" type="TL-VCC" x="0" y="0"/>
+      <single priority="10" type="TL-GND" x="1" y="0"/>
     </fixed_layout>
   </layout>
   <device>
@@ -732,23 +783,23 @@
           <!-- TODO: Delay to be filled by physical design results -->
           <delay_constant max="0e-12" min="0e-12" in_port="ap3_io.OQI[17:0]" out_port="outpad_vec[17:0].OQI"/>
         </direct>
-        <direct name="outpad_vec_to_f2a" input="outpad_vec[17:0].F2A" output="ap3_io.F2A">
+        <direct name="outpad_vec_to_f2a" input="outpad_vec[17:0].F2A" output="ap3_io.F2A[17:0]">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec[17:0].F2A" out_port="ap3_io.F2A"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="outpad_vec[17:0].F2A" out_port="ap3_io.F2A[17:0]"/>
         </direct>
         <complete name="inpad_vec_clk" input="ap3_io.IQC" output="inpad_vec.IQC" />
         <complete name="inpad_vec_rst" input="ap3_io.QRT" output="inpad_vec.QRT" />
-        <direct name="virtual_inpad_to_a2f" input="ap3_io.A2F" output="inpad_vec[7:0].A2F">
+        <direct name="virtual_inpad_to_a2f" input="ap3_io.A2F[7:0]" output="inpad_vec[7:0].A2F">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="ap3_io.A2F" out_port="inpad_vec[7:0].A2F"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="ap3_io.A2F[7:0]" out_port="inpad_vec[7:0].A2F"/>
         </direct>
         <direct name="inpad_vec_iqz" input="inpad_vec[7:0].IQZ" output="ap3_io.IQZ[7:0]">
           <!-- TODO: Delay to be filled by physical design results -->
           <delay_constant max="0e-12" min="0e-12" in_port="inpad_vec[7:0].IQZ" out_port="ap3_io.IQZ[7:0]"/>
         </direct>
-        <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="ap3_io.F2A_DEF">
+        <direct name="const_pad_f2a_def" input="const_pad[3:0].F2A_DEF" output="ap3_io.F2A_DEF[3:0]">
           <!-- TODO: Delay to be filled by physical design results -->
-          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="ap3_io.F2A_DEF"/>
+          <delay_constant max="0e-12" min="0e-12" in_port="const_pad[3:0].F2A_DEF" out_port="ap3_io.F2A_DEF[3:0]"/>
         </direct>
       </interconnect>
     </pb_type>
@@ -841,10 +892,6 @@
               <direct name="direct_qen" input="BLE4.QEN" output="FF.QEN"/>
               <direct name="direct_fz" input="LUT4.out" output="BLE4.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="BLE4.AQZ"/>
-              <!--mux name="mux_qdi" input="LUT4.out LUT4.in[3:3]" output="FF.D" >
-                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="FF.D[0:0]"/>
-                <delay_constant max="30e-12" in_port="LUT4.in[3:3]" out_port="FF.D[0:0]"/>
-              </mux-->
               <mux name="mux_bqz" input="FF.CQZ LUT4.out" output="BLE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="BLE4.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="BLE4.BQZ[0:0]"/>
@@ -914,7 +961,7 @@
               <direct name="direct_lut4_i3" input="LE4.LI[3:3]" output="LUT4[0:0].I3"/>
               <direct name="direct_lut2ff" input="LUT4.O" output="FF.D">
                 <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
-                <pack_pattern name="le4" in_port="LUT4.O" out_port="FF.D"/>
+                <pack_pattern name="ble4" in_port="LUT4.O" out_port="FF.D"/>
               </direct>
               <direct name="direct_qck" input="LE4.QCK" output="FF.QCK"/>
               <direct name="direct_qst" input="LE4.QST" output="FF.QST"/>
@@ -922,10 +969,6 @@
               <direct name="direct_qen" input="LE4.QEN" output="FF.QEN"/>
               <direct name="direct_fz" input="LUT4.O" output="LE4.FZ"/>
               <direct name="direct_aqz" input="FF.CQZ" output="LE4.AQZ"/>
-              <!--mux name="mux_qdi" input="LUT4.out LUT4.in[3:3]" output="FF.D" >
-                <delay_constant max="16.6e-12" in_port="LUT4.out[0:0]" out_port="FF.D[0:0]"/>
-                <delay_constant max="30e-12" in_port="LUT4.in[3:3]" out_port="FF.D[0:0]"/>
-              </mux-->
               <mux name="mux_bqz" input="FF.CQZ LUT4.O" output="LE4.BQZ">
                 <delay_constant max="16.6e-12" in_port="LUT4.O[0:0]" out_port="LE4.BQZ[0:0]"/>
                 <delay_constant max="30e-12" in_port="FF[0:0].CQZ" out_port="LE4.BQZ[0:0]"/>
@@ -1229,6 +1272,24 @@
         <direct name="CLOCK" input="DSP32.CLOCK" output="DSP.CLOCK"/>
         <direct name="SBOG" input="DSP32.SBOG" output="DSP.SBOG"/>
         <direct name="MAC_OUT" input="DSP.MAC_OUT" output="DSP32.MAC_OUT"/>
+      </interconnect>
+    </pb_type>
+    <pb_type name="PB-VCC">
+      <output name="VCC" num_pins="1"/>
+      <pb_type name="VCC" blif_model=".subckt logic_1" num_pb="1">
+        <output name="a" num_pins="1"/>
+      </pb_type>
+      <interconnect>
+        <direct name="direct_VCC" input="VCC.a" output="PB-VCC.VCC"/>
+      </interconnect>
+    </pb_type>
+    <pb_type name="PB-GND">
+      <output name="GND" num_pins="1"/>
+      <pb_type name="GND" blif_model=".subckt logic_0" num_pb="1">
+        <output name="a" num_pins="1"/>
+      </pb_type>
+      <interconnect>
+        <direct name="direct_GND" input="GND.a" output="PB-GND.GND"/>
       </interconnect>
     </pb_type>
     <!-- Define 32-bit DSP ends -->
