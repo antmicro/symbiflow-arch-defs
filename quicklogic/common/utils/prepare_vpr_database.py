@@ -494,6 +494,7 @@ def process_tilegrid_pp3(
                 if not is_loc_free(new_loc, vpr_tile_grid):
                     continue
 
+                bwd_loc_map[new_loc] = phy_loc
                 if cell.name not in cells_set:
                     cells_set.append(cell.name)
                     tile_type = make_tile_type(
@@ -1086,7 +1087,7 @@ def process_package_pinmap(package_pinmap, vpr_tile_grid, grid_limit=None):
 
             # Remap location
             new_package_pinmap[pin.name].append(
-                PackagePin(name=pin.name, loc=loc, cell=cell)
+                PackagePin(name=pin.name, alias=pin.alias, loc=loc, cell=cell)
             )
 
     # Convert to regular dict
