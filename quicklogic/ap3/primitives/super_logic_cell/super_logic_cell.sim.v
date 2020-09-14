@@ -1,4 +1,4 @@
-`include "./logic_cell.sim.v"
+`include "../logic_cell/logic_cell.sim.v"
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)

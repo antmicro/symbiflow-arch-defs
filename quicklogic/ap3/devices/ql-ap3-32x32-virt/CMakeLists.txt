@@ -17,16 +17,11 @@ quicklogic_define_device_type(
   DONT_NORMALIZE_FILES ""#${DONT_NORMALIZE_FILES}
   PB_TYPES
     GND VCC
-    LOGIC
-    CLOCK 
-    IO_REG
-    GMUX
-    CAND
-    CANDEN
-    QMUX
-    QPMUX
-    SQMUX
-    SQEMUX
+    FF
+    LUT4
+    FULL_ADDER
+    LOGIC_CELL
+    SUPER_LOGIC_CELL
     RAM 
     DSP
 )
