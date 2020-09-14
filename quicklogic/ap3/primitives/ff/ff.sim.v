@@ -1,8 +1,8 @@
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODEL_NAME="ff" *)
+(* MODEL_NAME="FF" *)
 (* whitebox *)
-module ff (QCK, D, QEN, QST, QRT, CQZ);
+module FF (QCK, D, QEN, QST, QRT, CQZ);
 
     (* CLOCK *)
 	(* clkbuf_sink *)

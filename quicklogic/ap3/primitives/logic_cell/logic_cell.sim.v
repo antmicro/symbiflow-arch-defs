@@ -26,12 +26,13 @@ module LOGIC_CELL (
     output wire FZ, AQZ, BQZ, CQZ, CO;
 
     parameter MODE = "LUT_FF";
+    
+    parameter LE_QDI_MUX = "I0";
+    parameter LE_BQZ_MUX = "I0";
+    parameter LE_CQZ_MUX = "I0";
 
     generate if (MODE == "LUT_FF") begin
         // LOGIC Cell used as LUT+FF where LUT output is input to FF
-
-        parameter LE_BQZ_MUX = "I0";
-        parameter LE_CQZ_MUX = "I0";
 
         LE4 #(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) le4_inst(
                 .LI(LI),
@@ -46,9 +47,6 @@ module LOGIC_CELL (
         );
     end else if (MODE == "LUT_FF_Separate") begin 
             
-        parameter LE_BQZ_MUX = "I0";
-        parameter LE_CQZ_MUX = "I0";
-
         LE4_QDI #(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) le4_qdi_inst(
                 .LI(LI),
                 .QEN(QEN),
@@ -63,10 +61,6 @@ module LOGIC_CELL (
     
     end else if (MODE == "LUT_ADDER") begin 
     
-        parameter LE_QDI_MUX = "I0";
-        parameter LE_BQZ_MUX = "I0";
-        parameter LE_CQZ_MUX = "I0";
-        
         BADDER #(.QDI_MUX(LE_QDI_MUX), .BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) add_inst(
                 .LI(LI),
                 .CI(CI),

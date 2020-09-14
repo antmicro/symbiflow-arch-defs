@@ -28,7 +28,7 @@ module BADDER (
 
     wire ff_in, ff_out;
 
-    full_adder adder_inst(.A(LI[0]), B(LI[1]), .CI(CI), .S(sum_out), .CO(CO));
+    FULL_ADDER adder_inst(.A(LI[0]), .B(LI[1]), .CI(CI), .S(sum_out), .CO(CO));
 
     parameter QDI_MUX = "I0";
     MUX #(.MODE(QDI_MUX)) mux_qdi(.I0(sum_out), .I1(LI[3]), .O(ff_in));
@@ -40,10 +40,10 @@ module BADDER (
     assign AQZ = ff_out;
     
     parameter BQZ_MUX = "I0";
-    MUX #(.MODE(BQZ_MUX)) mux_bqz(.I0(ff_out), .I1(lut_out), .O(BQZ));
+    MUX #(.MODE(BQZ_MUX)) mux_bqz(.I0(ff_out), .I1(sum_out), .O(BQZ));
 
     parameter CQZ_MUX = "I0";
-    MUX #(.MODE(CQZ_MUX)) mux_cqz(.I0(ff_out), .I1(lut_out), .O(BQZ));
+    MUX #(.MODE(CQZ_MUX)) mux_cqz(.I0(ff_out), .I1(sum_out), .O(BQZ));
 
 endmodule
 

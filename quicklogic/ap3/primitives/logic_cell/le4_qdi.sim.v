@@ -28,8 +28,9 @@ module LE4_QDI (
     assign ff_in = LI[3];
 
     wire ff_out;
+    wire lut_out;
 
-    LUT4 lut4_inst(.I0(LI[0]), I1(LI[1]), .I2(LI[2]), .I3(), .O(lut_out));
+    LUT4 lut4_inst(.I0(LI[0]), .I1(LI[1]), .I2(LI[2]), .I3(), .O(lut_out));
 
     FF ff_inst(.D(ff_in), .QEN(QEN), .QST(QST), .QRT(QRT), .QCK(QCK), .CQZ(ff_out));    
 

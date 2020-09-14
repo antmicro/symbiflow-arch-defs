@@ -27,7 +27,7 @@ module LE4 (
 
     wire ff_out;
 
-    LUT4 lut4_inst(.I0(LI[0]), I1(LI[1]), .I2(LI[2]), .I3(LI[3]), .O(lut_out));
+    LUT4 lut4_inst(.I0(LI[0]), .I1(LI[1]), .I2(LI[2]), .I3(LI[3]), .O(lut_out));
 
     FF ff_inst(.D(lut_out), .QEN(QEN), .QST(QST), .QRT(QRT), .QCK(QCK), .CQZ(ff_out));    
 

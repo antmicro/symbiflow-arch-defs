@@ -30,15 +30,10 @@ module SUPER_LOGIC_CELL (
     output wire [7:0] FZ, AQZ, BQZ, CQZ;
     output wire CO;
 
-    parameter [7:0] LC_MODE;
-    parameter [7:0] LC_QDI_MUX;
-    parameter [7:0] LC_BQZ_MUX;
-    parameter [7:0] LC_CQZ_MUX;
-
-    assign LC_MODE[0] = "LUT_FF";
-    assign LC_QDI_MUX[0] = "I0";
-    assign LC_BQZ_MUX[0] = "I0";
-    assign LC_CQZ_MUX[0] = "I0";
+    parameter [7:0] LC_MODE = "LUT_FF";
+    parameter [7:0] LC_QDI_MUX = "I0";
+    parameter [7:0] LC_BQZ_MUX = "I0";
+    parameter [7:0] LC_CQZ_MUX = "I0";
 
     wire [6:0] CO_int;
 
@@ -57,35 +52,96 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[0])
         );
 
-    genvar i;
-    generate for (i = 1; i < 8; i = i + 1) begin: slice
-
-        assign LC_MODE[i] = "LUT_FF";
-        assign LC_QDI_MUX[i] = "I0";
-        assign LC_BQZ_MUX[i] = "I0";
-        assign LC_CQZ_MUX[i] = "I0";
-        LOGIC_CELL #(.MODE(LC_MODE[i]), .LE_QDI_MUX(LC_QDI_MUX[i]),
-                    .LE_BQZ_MUX(LC_BQZ_MUX[i]), .LE_CQZ_MUX(LC_CQZ_MUX[i])) lc_i (
-            .LI(LiI),
-            .CI(CO_int[i-1]),
+    LOGIC_CELL #(.MODE(LC_MODE[1]), .LE_QDI_MUX(LC_QDI_MUX[1]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[1]), .LE_CQZ_MUX(LC_CQZ_MUX[1])) lc_1 (
+            .LI(L1I),
+            .CI(CO_int[0]),
             .QEN(QEN),
             .QST(QST),
             .QRT(QRT),
             .QCK(QCK),
-            .FZ(FZ[i]),
-            .AQZ(AQZ[i]),
-            .BQZ(BQZ[i]),
-            .CQZ(CQZ[i]),
-            .CO(CO_int[i])
+            .FZ(FZ[1]),
+            .AQZ(AQZ[1]),
+            .BQZ(BQZ[1]),
+            .CQZ(CQZ[1]),
+            .CO(CO_int[1])
         );
 
-    end: slice
-    endgenerate
+    LOGIC_CELL #(.MODE(LC_MODE[2]), .LE_QDI_MUX(LC_QDI_MUX[2]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[2]), .LE_CQZ_MUX(LC_CQZ_MUX[2])) lc_2 (
+            .LI(L2I),
+            .CI(CO_int[1]),
+            .QEN(QEN),
+            .QST(QST),
+            .QRT(QRT),
+            .QCK(QCK),
+            .FZ(FZ[2]),
+            .AQZ(AQZ[2]),
+            .BQZ(BQZ[2]),
+            .CQZ(CQZ[2]),
+            .CO(CO_int[2])
+        );
 
-    assign LC_MODE[7] = "LUT_FF";
-    assign LC_QDI_MUX[7] = "I0";
-    assign LC_BQZ_MUX[7] = "I0";
-    assign LC_CQZ_MUX[7] = "I0";
+    LOGIC_CELL #(.MODE(LC_MODE[3]), .LE_QDI_MUX(LC_QDI_MUX[3]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[3]), .LE_CQZ_MUX(LC_CQZ_MUX[3])) lc_3 (
+            .LI(L3I),
+            .CI(CO_int[2]),
+            .QEN(QEN),
+            .QST(QST),
+            .QRT(QRT),
+            .QCK(QCK),
+            .FZ(FZ[3]),
+            .AQZ(AQZ[3]),
+            .BQZ(BQZ[3]),
+            .CQZ(CQZ[3]),
+            .CO(CO_int[3])
+        );
+
+    LOGIC_CELL #(.MODE(LC_MODE[4]), .LE_QDI_MUX(LC_QDI_MUX[4]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[4]), .LE_CQZ_MUX(LC_CQZ_MUX[4])) lc_4 (
+            .LI(L4I),
+            .CI(CO_int[3]),
+            .QEN(QEN),
+            .QST(QST),
+            .QRT(QRT),
+            .QCK(QCK),
+            .FZ(FZ[4]),
+            .AQZ(AQZ[4]),
+            .BQZ(BQZ[4]),
+            .CQZ(CQZ[4]),
+            .CO(CO_int[4])
+        );
+
+    LOGIC_CELL #(.MODE(LC_MODE[5]), .LE_QDI_MUX(LC_QDI_MUX[5]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[5]), .LE_CQZ_MUX(LC_CQZ_MUX[5])) lc_5 (
+            .LI(L5I),
+            .CI(CO_int[4]),
+            .QEN(QEN),
+            .QST(QST),
+            .QRT(QRT),
+            .QCK(QCK),
+            .FZ(FZ[5]),
+            .AQZ(AQZ[5]),
+            .BQZ(BQZ[5]),
+            .CQZ(CQZ[5]),
+            .CO(CO_int[5])
+        );
+
+    LOGIC_CELL #(.MODE(LC_MODE[6]), .LE_QDI_MUX(LC_QDI_MUX[6]),
+                .LE_BQZ_MUX(LC_BQZ_MUX[6]), .LE_CQZ_MUX(LC_CQZ_MUX[6])) lc_6 (
+            .LI(L6I),
+            .CI(CO_int[5]),
+            .QEN(QEN),
+            .QST(QST),
+            .QRT(QRT),
+            .QCK(QCK),
+            .FZ(FZ[6]),
+            .AQZ(AQZ[6]),
+            .BQZ(BQZ[6]),
+            .CQZ(CQZ[6]),
+            .CO(CO_int[6])
+        );
+
     LOGIC_CELL #(.MODE(LC_MODE[7]), .LE_QDI_MUX(LC_QDI_MUX[7]),
                 .LE_BQZ_MUX(LC_BQZ_MUX[7]), .LE_CQZ_MUX(LC_CQZ_MUX[7])) lc_7 (
         .LI(L7I),

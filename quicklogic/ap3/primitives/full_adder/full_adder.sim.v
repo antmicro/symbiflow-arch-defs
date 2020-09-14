@@ -1,8 +1,8 @@
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODEL_NAME="full_adder" *)
+(* MODEL_NAME="FULL_ADDER" *)
 (* whitebox *)
-module full_adder (
+module FULL_ADDER (
         A,
         B,
         CI,
