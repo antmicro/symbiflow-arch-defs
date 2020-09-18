@@ -86,7 +86,6 @@ def get_pip_timing(pip, pip_timing=None):
             # milliOhms -> Ohms
             R = pip_timing.drive_resistance / 1e3
 
-
     if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
         penalty_cost = 1e-6
 
@@ -221,8 +220,8 @@ UPDATE node SET track_pkey = ? WHERE pkey IN (
 
     write_cur.execute("""COMMIT TRANSACTION""")
 
-# =============================================================================
 
+# =============================================================================
 
 # A set of synthetic tiles to be added
 SYNTHETIC_TILES = {
@@ -284,19 +283,11 @@ TILE_SPLIT_STYLES = {
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--db_root',
-        help='Project X-Ray Database',
-        required=True
+        '--db_root', help='Project X-Ray Database', required=True
     )
+    parser.add_argument('--part', help='FPGA part', required=True)
     parser.add_argument(
-        '--part',
-        help='FPGA part',
-        required=True
-    )
-    parser.add_argument(
-        '--connection_database',
-        help='Connection database',
-        required=True
+        '--connection_database', help='Connection database', required=True
     )
     parser.add_argument(
         '--grid_map_output',
@@ -316,13 +307,12 @@ def main():
         db = prjxray.db.Database(args.db_root, args.part)
         grid = db.grid()
 
-        get_switch, get_switch_timing = create_get_switch(
-            conn,
-            get_pip_timing
+        get_switch, get_switch_timing = create_get_switch(conn, get_pip_timing)
+
+        import_phy_grid(
+            db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing
         )
 
-        import_phy_grid(db, grid, conn, get_switch, get_switch_timing, get_site_pin_timing)
-        
         segment_wire_map = SegmentWireMap(default_segment="unknown", db=db)
         import_segments(conn, db, segment_wire_map)
 
@@ -335,17 +325,15 @@ def main():
         print("{}: Nodes classified".format(datetime.datetime.now()))
         with open(args.grid_map_output, 'w') as f:
             create_vpr_grid(
-                conn,
-                SYNTHETIC_TILES,
-                TILES_TO_MERGE,
-                TILES_TO_SPLIT,
-                TILE_SPLIT_STYLES,
-                f
+                conn, SYNTHETIC_TILES, TILES_TO_MERGE, TILES_TO_SPLIT,
+                TILE_SPLIT_STYLES, f
             )
         print("{}: VPR grid created".format(datetime.datetime.now()))
         vcc_track_pkey, gnd_track_pkey = form_tracks(conn, segment_wire_map)
         print("{}: Tracks formed".format(datetime.datetime.now()))
-        connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey)
+        connect_hardpins_to_constant_network(
+            conn, vcc_track_pkey, gnd_track_pkey
+        )
         print("{}: VCC/GND pins connected".format(datetime.datetime.now()))
 
         print(
