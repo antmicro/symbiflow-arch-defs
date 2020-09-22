@@ -1,0 +1,37 @@
+#set(LIB_TIMING_FILES "*_ss_0p990v_m040c.lib" "*_ss_0p990v_m040c_Cmax_2P97V.lib")
+#set(DONT_NORMALIZE_FILES "RAM_ss_0p990v_m040c.lib" "RAM_ff_0p990v_m040c.lib")
+
+set(FAMILY "ap3")
+set(DEVICE "ql-ap3-32x32")
+set(PACKAGES "ql745a")
+set(DEVICE_TYPE "ql-ap3-32x32-virt")
+
+quicklogic_define_device_type(
+  FAMILY ${FAMILY}
+  DEVICE ${DEVICE}
+  ARCH ql-ap3
+  PACKAGES ${PACKAGES}
+  ROUTING_TIMING_FILE_NAME QL745A_RoutingDelays_SSM40.csv
+  TECHFILE_NAME QL745A.xml
+  LIB_TIMING_FILES ""#${LIB_TIMING_FILES}
+  DONT_NORMALIZE_FILES ""#${DONT_NORMALIZE_FILES}
+  PB_TYPES
+    GND VCC
+    ff
+    LUT4
+    full_adder
+    LOGIC_CELL
+    SUPER_LOGIC_CELL
+    RAM 
+    DSP
+)
+    #RAM
+    #DSP
+
+foreach(PACKAGE ${PACKAGES})
+  define_ql_device_cells_install_target(
+    DEVICE ${DEVICE}
+    DEVICE_TYPE ${DEVICE_TYPE}
+    PACKAGE ${PACKAGES}
+    )
+endforeach()

@@ -1,0 +1,102 @@
+<tiles>
+    <tile name="io">
+        <input name="A2F" num_pins="8" equivalent="none"/>
+        <input name="OQI" num_pins="18" equivalent="none"/>
+        <input name="QRT" num_pins="1" equivalent="none"/>
+        <output name="IQZ" num_pins="8" equivalent="none"/>
+        <output name="F2A" num_pins="18" equivalent="none"/>
+        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
+        <clock name="IQC" num_pins="1"/>
+        <sub_tile name="input_io" capacity="8">
+            <equivalent_sites>
+                <site pb_type="input" pin_mapping="direct"/>
+            </equivalent_sites>
+            <input name="A2F" num_pins="1" equivalent="none"/>
+            <input name="QRT" num_pins="1" equivalent="none"/>
+            <output name="IQZ" num_pins="1" equivalent="none"/>
+            <clock name="IQC" num_pins="1"/>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+        </sub_tile>
+        <sub_tile name="output_io" capacity="18">
+            <equivalent_sites>
+                <site pb_type="output" pin_mapping="direct"/>
+            </equivalent_sites>
+            <input name="OQI" num_pins="1" equivalent="none"/>
+            <input name="QRT" num_pins="1" equivalent="none"/>
+            <output name="F2A" num_pins="1" equivalent="none"/>
+            <clock name="IQC" num_pins="1"/>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+        </sub_tile>
+        <sub_tile name="const_io" capacity="4">
+            <equivalent_sites>
+                <site pb_type="const_pad" pin_mapping="direct"/>
+            </equivalent_sites>
+            <output name="F2A_DEF" num_pins="1" equivalent="none"/>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+        </sub_tile>
+    </tile>
+    <!-- Super Logic Cluster tile -->
+    <tile name="SUPER_LOGIC_CELL" area="3900">
+        <sub_tile name="SUPER_LOGIC_CELL">
+            <equivalent_sites>
+                <site pb_type="SUPER_LOGIC_CELL" pin_mapping="direct"/>
+            </equivalent_sites>
+            <!-- Data inputs to each logic cell -->
+            <input name="L0I" num_pins="4" equivalent="full"/>
+            <input name="L1I" num_pins="4" equivalent="full"/>
+            <input name="L2I" num_pins="4" equivalent="full"/>
+            <input name="L3I" num_pins="4" equivalent="full"/>
+            <input name="L4I" num_pins="4" equivalent="full"/>
+            <input name="L5I" num_pins="4" equivalent="full"/>
+            <input name="L6I" num_pins="4" equivalent="full"/>
+            <input name="L7I" num_pins="4" equivalent="full"/>
+            <!-- Carry input to the 1st logic cell -->
+            <input name="CI" num_pins="1"/>
+            <!-- Flip-flop control signals -->
+            <input name="QEN" num_pins="1"/>
+            <input name="QST" num_pins="1"/>
+            <input name="QRT" num_pins="1"/>
+            <!-- Carry output from the last logic cell -->
+            <output name="CO" num_pins="1"/>
+            <output name="FZ" num_pins="8" equivalent="none"/>
+            <output name="AQZ" num_pins="8" equivalent="none"/>
+            <output name="BQZ" num_pins="8" equivalent="none"/>
+            <output name="CQZ" num_pins="8" equivalent="none"/>
+            <clock name="QCK" num_pins="1"/>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000">
+            </fc>
+            <!-- TODO: Pin location should be customized, according to physical design! -->
+            <pinlocations pattern="spread"/>
+        </sub_tile>
+    </tile>
+    <tile name="TL-VCC">
+        <sub_tile name="ST-VCC" capacity="1">
+            <output name="VCC" num_pins="1"/>
+            <equivalent_sites>
+                <site pb_type="PB-VCC" pin_mapping="custom">
+                    <direct from="ST-VCC.VCC" to="PB-VCC.VCC"/>
+                </site>
+            </equivalent_sites>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+            <pinlocations pattern="custom">
+                <loc side="right">ST-VCC.VCC</loc>
+            </pinlocations>
+            <switchbox_locations pattern="all"/>
+        </sub_tile>
+    </tile>
+    <tile name="TL-GND">
+        <sub_tile name="ST-GND" capacity="1">
+            <output name="GND" num_pins="1"/>
+            <equivalent_sites>
+                <site pb_type="PB-GND" pin_mapping="custom">
+                    <direct from="ST-GND.GND" to="PB-GND.GND"/>
+                </site>
+            </equivalent_sites>
+            <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
+            <pinlocations pattern="custom">
+                <loc side="right">ST-GND.GND</loc>
+            </pinlocations>
+            <switchbox_locations pattern="all"/>
+        </sub_tile>
+    </tile>
+</tiles>

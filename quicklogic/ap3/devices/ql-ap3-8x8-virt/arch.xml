@@ -1,0 +1,21 @@
+<architecture name="QL745A" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <models>
+    <include href="models/ql-ap3-8x8-models.xml" xpointer="xpointer(models/child::node())" />
+  </models>
+  <tiles>
+    <include href="tiles/ql-ap3-8x8-tiles.xml"/>
+  </tiles>
+  <layout>
+    <include href="layout/ql-ap3-8x8-layout.xml"/>
+  </layout>
+  <device>
+    <sizing R_minW_nmos="13090.000000" R_minW_pmos="19086.831111"/>
+    <area grid_logic_tile_area="0"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+    <switch_block type="custom"/>
+    <connection_block input_switch_name="ipin_cblock"/>
+  </device>
+</architecture>

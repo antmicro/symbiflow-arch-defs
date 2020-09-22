@@ -1,0 +1,25 @@
+  <layout>
+    <!-- Define a fixed-layout for ap3 device, can be called by '-device' option using vpr -->
+    <fixed_layout name="10x10" width="10" height="10">
+        <!-- Bottom-left corner should be EMPTY -->
+        <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
+        <!-- Bottom-right corner should be EMPTY -->
+        <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="0" endy="1"/>
+        <!-- Top-left corner should be EMPTY -->
+        <region type="EMPTY" priority="101" startx="0" endx="1" starty="H-2" endy="H-1"/>
+        <!-- Top-right corner should be EMPTY -->
+        <region type="EMPTY" priority="101" startx="W-2" endx="W-1" starty="H-2" endy="H-1"/>
+        <!-- 'io_top' blocks at the top side -->
+        <region type="io" priority="100" startx="1" endx="W-2" starty="H-1" endy="H-1"/>
+        <!-- 'io_right' blocks at the right side -->
+        <region type="io" priority="100" startx="W-1" endx="W-1" starty="1" endy="H-2"/>
+        <!-- 'io_bottom' blocks at the bottom side -->
+        <region type="io" priority="100" startx="1" endx="W-2" starty="0" endy="0"/>
+        <!-- 'io_left' blocks at the left side -->
+        <region type="io" priority="100" startx="0" endx="0" starty="1" endy="H-2"/>
+        <!--Fill with 'SLC'-->
+        <fill type="SUPER_LOGIC_CELL" priority="99"/>
+        <single priority="10" type="TL-VCC" x="0" y="H-1"/>
+        <single priority="10" type="TL-GND" x="0" y="0"/>
+    </fixed_layout>
+  </layout>

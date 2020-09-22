@@ -1,5 +1,9 @@
 `include "../vpr_pad/vpr_opad.sim.v"
 
+`timescale 1ns/10ps
+(* FASM_PARAMS="" *)
+(* MODES="" *)
+(* whitebox *)
 module out_buff (
 	A,
 	Q
