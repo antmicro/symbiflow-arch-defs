@@ -5,30 +5,30 @@
 (* FASM_PARAMS="" *)
 (* MODES="out_buff; out_reg" *)
 (* whitebox *)
-module output (
+module OUTPUT_IO (
 	OQI,
 	QRT,
 	IQC,
 	F2A
-);
+    );
 
     parameter MODE = "out_buff";
 
-	input wire OQI;
-	
-	input wire QRT;
-	
-	input wire IQC;
-	
-	output wire F2A;
+    input wire OQI;
+
+    input wire QRT;
+
+    input wire IQC;
+
+    output wire F2A;
 
     generate if (MODE == "out_buff") begin
-		
-		out_buff inst_buff(.A(OQI), .Q(F2A));
 
-	end else if (MODE == "out_reg") begin 
-	
-		out_reg inst_reg(.dataIn(OQI), .sel(), .rst(QRT), .hold(), .clk(IQC), .dataOut(F2A));
+        OUT_BUFF inst_buff(.A(OQI), .Q(F2A));
+
+    end else if (MODE == "out_reg") begin 
+
+        OUT_REG inst_reg(.dataIn(OQI), .sel(), .rst(QRT), .clk(IQC), .dataOut(F2A));
 
     end endgenerate
 

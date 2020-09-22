@@ -6,17 +6,21 @@
             ]
         }
     },
-    "IO_REG": {
-        "io_reg": {
-            "IN_REG": [
+    "io": {
+        "input": {
+            "in_buff": [
             ],
-            "OUT_REG": [
+            "in_reg": [
             ],
-            "IN_BUFF": [
+        },
+        "output": {    
+            "out_BUFF": [
             ],
-            "OUT_BUFF": [
+            "out_reg": [
             ],
-            "D_BUFF": [
+        },
+        "const_pad": {   
+            "d_buff": [
             ]
         }
     },

@@ -1,50 +1,54 @@
-`include "../vpr_pad/vpr_opad.sim.v"
+`include "../vpr_pad/vpr_ipad.sim.v"
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
 (* MODES="" *)
 (* whitebox *)
-module out_reg (
+module OUT_REG (
 	dataIn,
 	sel,
 	rst,
-	hold,
 	clk,
 	dataOut
-);
+    );
 
-	(* SETUP="clk 1e-10" *) (* NO_COMB *)
-	input wire dataIn;
-	
-	(* SETUP="clk 1e-10" *) (* NO_COMB *)
-	input wire sel;
-	
-	(* SETUP="clk 1e-10" *) (* NO_COMB *)
-	input wire rst;
-	
-	(* SETUP="clk 1e-10" *) (* NO_COMB *)
-	input wire hold;
-    
-	(* CLOCK *)
-	(* clkbuf_sink *)
-	input wire clk;
-	
+    (* SETUP="clk 1e-10" *) (* NO_COMB *)
+    input wire dataIn;
+
+    (* SETUP="clk 1e-10" *) (* NO_COMB *)
+    input wire sel;
+
+    (* SETUP="clk 1e-10" *) (* NO_COMB *)
+    input wire rst;
+
+    (* CLOCK *)
+    (* clkbuf_sink *)
+    input wire clk;
+
     (* CLK_TO_Q = "clk 1e-10" *)
-	output reg dataOut;
+    output reg dataOut;
 
-	(* pack="DATAOUT_TO_OPAD" *)
-	wire out_pad;
+    (* pack="IPAD_TO_DATAOUT" *)
+    wire in_pad;
+    
+    (* keep *)
+    VPR_IPAD inpad(in_pad);
 
-	(* ASSOC_CLOCK="clk" *)
-    always @(posedge clk or posedge rst or posedge hold)
+    wire sel_mux_op;
+
+    reg dataOut_reg;
+
+    (* ASSOC_CLOCK="clk" *)
+    always @(posedge clk or posedge rst)
+    begin
         if (rst)
-            dataOut <= 1'b0;
-        else if (hold)
-            dataOut <= 1'b1;
-        else if (sel)
-            dataOut <= dataIn;
+            dataOut_reg <= 1'b0;
+        else
+            dataOut_reg <= dataIn;
+    end
 
-	(* keep *)
-	VPR_OPAD opad_inst(out_pad);
+    assign sel_mux_op = (sel) ? dataIn : dataOut_reg;
+
+    assign dataOut = sel_mux_op;
 
 endmodule

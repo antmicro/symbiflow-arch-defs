@@ -1,19 +1,19 @@
-`include "../vpr_pad/vpr_ipad.sim.v"
+`include "../vpr_pad/vpr_opad.sim.v"
 
-module in_buff (
+module IN_BUFF (
 	A,
 	Q
-);
+    );
 
-	input wire A;
-	output wire Q;
+    input wire A;
+    output wire Q;
 
-	(* pack="IPAD_TO_A" *)
-	wire in_pad;
+    /*(* pack="A_TO_OPAD" *)
+    wire out_pad;
 
+    (* keep *)
+    VPR_OPAD opad_inst(out_pad);*/
+    
     assign Q = A;
-	
-	(* keep *)
-	VPR_IPAD ipad_inst(in_pad);
 
 endmodule

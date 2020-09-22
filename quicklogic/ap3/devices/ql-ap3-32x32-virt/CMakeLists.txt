@@ -24,6 +24,14 @@ quicklogic_define_device_type(
     SUPER_LOGIC_CELL
     RAM 
     DSP
+    in_buff
+    out_buff
+    in_reg
+    out_reg
+    d_buff
+    const_pad
+    input_io
+    output_io
 )
     #RAM
     #DSP

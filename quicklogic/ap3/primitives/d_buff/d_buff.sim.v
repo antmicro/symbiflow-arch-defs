@@ -2,7 +2,7 @@
 `include "../gnd/gnd.sim.v"
 `include "../vcc/vcc.sim.v"
 
-module d_buff (
+module D_BUFF (
 	Q
 );
 

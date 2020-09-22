@@ -1,23 +1,23 @@
-`include "../vpr_pad/vpr_opad.sim.v"
+`include "../vpr_pad/vpr_ipad.sim.v"
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
 (* MODES="" *)
 (* whitebox *)
-module out_buff (
+module OUT_BUFF (
 	A,
 	Q
-);
+    );
 
-	input wire A;
-	output wire Q;
+    input wire A;
+    output wire Q;
 
-	(* pack="Q_TO_OPAD" *)
-	wire out_pad;
+    (* pack="IPAD_TO_Q" *)
+    wire in_pad;
 
     assign Q = A;
-	
-	(* keep *)
-	VPR_OPAD opad_inst(out_pad);
+
+    (* keep *)
+    VPR_IPAD inpad(in_pad);
 
 endmodule
