@@ -346,13 +346,6 @@ function(PROJECT_RAY_TILE)
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
-  if (NOT "${FAMILY}" STREQUAL "xc7")
-      set(PRIMITIVES_PATH "${FAMILY}")
-  else ()
-      set(PRIMITIVES_PATH "common")
-  endif ()
-
   set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc/common/utils/${PRJRAY_NAME}_tile_import.py)
   get_project_ray_dependencies(DEPS ${PRJRAY_DB_DIR} ${PRJRAY_ARCH} ${TILE})
 
@@ -360,10 +353,10 @@ function(PROJECT_RAY_TILE)
   set(MODEL_INCLUDE_FILES "")
   foreach(SITE_TYPE ${PROJECT_RAY_TILE_SITE_TYPES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_RAY_TILE_SITE_TYPES}")
 
@@ -409,7 +402,7 @@ function(PROJECT_RAY_TILE)
     --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
     --part ${PROTOTYPE_PART}
     --tile ${TILE_UPPER}
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${FAMILY}/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
@@ -530,13 +523,6 @@ function(PROJECT_RAY_EQUIV_TILE)
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
-  if (NOT "${FAMILY}" STREQUAL "xc7")
-      set(PRIMITIVES_PATH "${FAMILY}")
-  else ()
-      set(PRIMITIVES_PATH "common")
-  endif ()
-
   # This code is using prefixed variables because PB_TYPE_SITES list are
   # variables from parent scope, and prefixing is the canonical CMake way to
   # avoid collisions.
@@ -578,10 +564,10 @@ function(PROJECT_RAY_EQUIV_TILE)
   list(REMOVE_DUPLICATES PROJECT_RAY_EQUIV_TILE_SITES)
   foreach(SITE_TYPE ${PROJECT_RAY_EQUIV_TILE_SITES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${PRIMITIVES_PATH}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/primitives/${SITE_TYPE_LOWER}/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
 
   set(TILES_ARGS "${PROJECT_RAY_EQUIV_TILE_TILES}")
@@ -620,7 +606,7 @@ function(PROJECT_RAY_EQUIV_TILE)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
     --output_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${FAMILY}/archs/${ARCH}/tiles
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${FAMILY}/primitives
     --connection_database ${GENERIC_CHANNELS_LOCATION}
     --tile_types ${TILES_ARGS}
     --pb_types ${PROJECT_RAY_EQUIV_TILE_PB_TYPES_ARGS}
@@ -707,13 +693,6 @@ function(PROJECT_RAY_TILE_CAPACITY)
   set(PRJRAY_DIR ${DOC_PRJ})
   set(PRJRAY_DB_DIR ${DOC_PRJ_DB})
 
-  # FIXME: A workaround for xc7 primitives not being located under xc7 path.
-  if (NOT "${FAMILY}" STREQUAL "xc7")
-      set(PRIMITIVES_PATH "${FAMILY}")
-  else ()
-      set(PRIMITIVES_PATH "common")
-  endif ()
-
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc/${FAMILY}/archs/${ARCH}/pin_assignments.json)
 
@@ -730,7 +709,7 @@ function(PROJECT_RAY_TILE_CAPACITY)
       --db_root ${PRJRAY_DB_DIR}/${PRJRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
-      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${PRIMITIVES_PATH}/primitives
+      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc/${FAMILY}/primitives
       --tile_type ${TILE}
       --pb_types ${SITE_TYPES_COMMA}
       --pin_assignments ${PIN_ASSIGNMENTS}
