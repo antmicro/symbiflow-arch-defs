@@ -2,7 +2,7 @@
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODES="" *)
+(* MODEL_NAME="IN_REG" *)
 (* whitebox *)
 module IN_REG (
     dataIn,

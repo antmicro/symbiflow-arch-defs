@@ -2,7 +2,7 @@
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODES="" *)
+(* MODEL_NAME="OUT_BUFF" *)
 (* whitebox *)
 module OUT_BUFF (
 	A,

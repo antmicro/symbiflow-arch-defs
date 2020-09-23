@@ -1,5 +1,9 @@
 `include "../vpr_pad/vpr_opad.sim.v"
 
+`timescale 1ns/10ps
+(* FASM_PARAMS="" *)
+(* MODEL_NAME="IN_BUFF" *)
+(* whitebox *)
 module IN_BUFF (
 	A,
 	Q

@@ -2,6 +2,10 @@
 `include "../gnd/gnd.sim.v"
 `include "../vcc/vcc.sim.v"
 
+`timescale 1ns/10ps
+(* FASM_PARAMS="" *)
+(* MODEL_NAME="D_BUFF" *)
+(* whitebox *)
 module D_BUFF (
 	Q
 );
