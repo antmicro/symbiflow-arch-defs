@@ -89,5 +89,4 @@
         <port name="dataOut" clock="clk"/>
       </output_ports>
     </model-->
-    d
  </models>

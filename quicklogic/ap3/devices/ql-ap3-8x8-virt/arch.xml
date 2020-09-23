@@ -1,12 +1,12 @@
 <architecture name="QL745A" xmlns:xi="http://www.w3.org/2001/XInclude">
   <models>
-    <include href="models/ql-ap3-8x8-models.xml" xpointer="xpointer(models/child::node())" />
+    <include href="./models/ql-ap3-8x8-models.xml" />
   </models>
   <tiles>
-    <include href="tiles/ql-ap3-8x8-tiles.xml"/>
+    <include href="./tiles/ql-ap3-8x8-tiles.xml"/>
   </tiles>
   <layout>
-    <include href="layout/ql-ap3-8x8-layout.xml"/>
+    <include href="./layout/ql-ap3-8x8-layout.xml"/>
   </layout>
   <device>
     <sizing R_minW_nmos="13090.000000" R_minW_pmos="19086.831111"/>
@@ -97,12 +97,27 @@
       <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
     </switchblock>
   </switchblocklist>
+  <directlist>
+    <direct name="adder_carry" from_pin="SUPER_LOGIC_CELL.CO" to_pin="SUPER_LOGIC_CELL.CI" x_offset="0" y_offset="-1" z_offset="0"/>
+  </directlist>
   <complexblocklist>
-    <include href="../../primitives/input_io/input_io.pb_type.xml"/>
-    <include href="../../primitives/output_io/output_io.pb_type.xml"/>
-    <include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
-    <include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
-    <include href="../../primitives/vcc/vcc.pb_type.xml"/>
-    <include href="../../primitives/gnd/gnd.pb_type.xml"/>
+    <pb_type name="INPUT_IO">
+      <include href="../../primitives/input_io/input_io.pb_type.xml"/>
+    </pb_type>
+    <pb_type name="OUTPUT_IO">
+      <include href="../../primitives/output_io/output_io.pb_type.xml"/>
+    </pb_type>
+    <pb_type name="CONST_PAD">
+      <include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
+    </pb_type>
+    <pb_type name="SUPER_LOGIC_CELL">
+      <include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
+    </pb_type>
+    <pb_type name="VCC">
+      <include href="../../primitives/vcc/vcc.pb_type.xml"/>
+    </pb_type>
+    <pb_type name="GND">
+      <include href="../../primitives/gnd/gnd.pb_type.xml"/>
+    </pb_type>
   </complexblocklist>
 </architecture>
