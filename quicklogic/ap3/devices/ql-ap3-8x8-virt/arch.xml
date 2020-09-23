@@ -18,4 +18,91 @@
     <switch_block type="custom"/>
     <connection_block input_switch_name="ipin_cblock"/>
   </device>
+  <switchlist>
+    <!-- TODO: the switch definition should follow the external RRGraph definition -->
+    <!-- l2s_mux drives length-2 wires on the semi-global metal layer -->
+    <switch type="mux" name="l2s_mux" R="878" Cin="2e-15" Cout="0.000000e+00" mux_trans_size="1.5" buf_size="14.2000000">
+      <Tdel num_inputs="6" delay="5.65e-11"/>
+      <Tdel num_inputs="15" delay="6.84e-11"/>
+    </switch>
+    <!-- l4g_mux drives length-4 wires on the global metal layer -->
+    <switch type="mux" name="l4g_mux" R="448" Cin="1.8e-15" Cout="0.000000e+00" mux_trans_size="1.5" buf_size="20.0000000">
+      <Tdel num_inputs="12" delay="5.93e-11"/>
+      <Tdel num_inputs="25" delay="7.35e-11"/>
+    </switch>
+    <!--switch ipin_cblock resistance set to yeild for 4x minimum drive strength buffer-->
+    <switch type="mux" name="ipin_cblock" R="3272.5" Cout="0." Cin="2e-15" Tdel="7.562e-11" mux_trans_size="1.2" buf_size="auto"/>
+  </switchlist>
+  <segmentlist>
+    <!-- TODO: the segment definition should follow the external RRGraph definition -->
+    <!-- 85% length-2 wires on the semi-global metal layer -->
+    <segment freq="0.85" name="l2s" length="2" type="unidir" Rmetal="174" Cmetal="0.0">
+      <mux name="l2s_mux"/>
+      <sb type="pattern">1 1 1</sb>
+      <cb type="pattern">1 1</cb>
+    </segment>
+    <!-- 15% length-4 wires on the global metal layer -->
+    <segment freq="0.15" name="l4g" length="4" type="unidir" Rmetal="23" Cmetal="0.0">
+      <mux name="l4g_mux"/>
+      <sb type="pattern">1 1 1 1 1</sb>
+      <cb type="pattern">1 0 0 0</cb>
+    </segment>
+  </segmentlist>
+  <!-- Define custom switch blocks:
+       TODO: May check if we can reuse this for ap3 device -->
+  <switchblocklist>
+    <switchblock name="wilton_turn_core" type="unidir">
+      <switchblock_location type="CORE"/>
+      <switchfuncs>
+        <func type="lt" formula="W-t"/>
+        <func type="lb" formula="t-1"/>
+        <func type="rt" formula="t-1"/>
+        <func type="br" formula="W-t-2"/>
+        <func type="tl" formula="W-t"/>
+        <func type="bl" formula="t+1"/>
+        <func type="tr" formula="t+1"/>
+        <func type="rb" formula="W-t-2"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="1" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+    <switchblock name="wilton_turn_perimeter" type="unidir">
+      <switchblock_location type="PERIMETER"/>
+      <switchfuncs>
+        <func type="lt" formula="W-t"/>
+        <func type="lb" formula="t-1"/>
+        <func type="rt" formula="t-1"/>
+        <func type="br" formula="W-t-2"/>
+        <func type="tl" formula="W-t"/>
+        <func type="bl" formula="t+1"/>
+        <func type="tr" formula="t+1"/>
+        <func type="rb" formula="W-t-2"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0,1" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+    <switchblock name="wilton_straight" type="unidir">
+      <switchblock_location type="EVERYWHERE"/>
+      <switchfuncs>
+        <func type="lr" formula="t"/>
+        <func type="bt" formula="t"/>
+        <func type="rl" formula="t"/>
+        <func type="tb" formula="t"/>
+      </switchfuncs>
+      <wireconn from_type="l2s" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l4g" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+      <wireconn from_type="l4g" to_type="l2s" from_switchpoint="0" to_switchpoint="0" num_conns="from"/>
+    </switchblock>
+  </switchblocklist>
+  <complexblocklist>
+    <include href="../../primitives/input_io/input_io.pb_type.xml"/>
+    <include href="../../primitives/output_io/output_io.pb_type.xml"/>
+    <include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
+    <include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
+    <include href="../../primitives/vcc/vcc.pb_type.xml"/>
+    <include href="../../primitives/gnd/gnd.pb_type.xml"/>
+  </complexblocklist>
 </architecture>
