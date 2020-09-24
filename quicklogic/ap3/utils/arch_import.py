@@ -10,7 +10,13 @@ import xml.dom.minidom
 
 # =============================================================================
 def replace(parent_node, base_path):
-    xml_node = parent_node.find("include")
+
+    xi_url = "http://www.w3.org/2001/XInclude"
+    ET.register_namespace("xi", xi_url)
+    nsmap = {"xi": xi_url}
+
+    xml_node = parent_node.find("xi:include", nsmap)
+
     if xml_node is not None:
         href_path = xml_node.get("href")
         curr_file = os.path.join(base_path, href_path)
@@ -58,10 +64,6 @@ def main():
     )
 
     args = parser.parse_args()
-
-    xi_url = "http://www.w3.org/2001/XInclude"
-    ET.register_namespace("xi", xi_url)
-    nsmap = {"xi": xi_url}
 
     # Read and parse the XML archfile
     parser = ET.XMLParser(resolve_entities=False, strip_cdata=False)
