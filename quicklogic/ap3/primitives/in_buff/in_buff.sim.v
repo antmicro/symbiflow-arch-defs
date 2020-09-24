@@ -10,6 +10,8 @@ module IN_BUFF (
     );
 
     input wire A;
+	(* 
+	DELAY_CONST_A="1e-10" *)
     output wire Q;
 
     /*(* pack="A_TO_OPAD" *)

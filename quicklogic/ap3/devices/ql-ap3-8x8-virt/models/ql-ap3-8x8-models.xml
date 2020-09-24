@@ -38,7 +38,7 @@
         </output_ports>
     </model>
     <!-- Input buffer as a I/O cell -->
-    <model name="in_buff">
+    <model name="IN_BUFF">
         <input_ports>
             <port name="A" combinational_sink_ports="Q"/>
         </input_ports>
@@ -47,7 +47,7 @@
         </output_ports>
     </model>
     <!-- Output buffer as a I/O cell -->
-    <model name="out_buff">
+    <model name="OUT_BUFF">
         <input_ports>
             <port name="A" combinational_sink_ports="Q"/>
         </input_ports>
@@ -56,7 +56,7 @@
         </output_ports>
     </model>
     <!-- D output buffer (constant generator) as a I/O cell -->
-    <model name="d_buff">
+    <model name="D_BUFF">
         <input_ports>
             <port name="EN" combinational_sink_ports="Q"/>
         </input_ports>
@@ -65,7 +65,7 @@
         </output_ports>
     </model>
     <!-- Input buffer (registered) as a I/O cell -->
-    <model name="in_reg">
+    <model name="IN_REG">
         <input_ports>
             <port name="clk" is_clock="1"/>
             <port name="dataIn" clock="clk"/>
@@ -78,7 +78,7 @@
         </output_ports>
     </model>
     <!-- Output buffer (registered) as a I/O cell -->
-    <model name="out_reg">
+    <model name="OUT_REG">
         <input_ports>
             <port name="clk" is_clock="1"/>
             <port name="dataIn" clock="clk"/>

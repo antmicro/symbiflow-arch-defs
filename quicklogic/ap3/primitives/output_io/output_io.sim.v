@@ -26,9 +26,9 @@ module OUTPUT_IO (
 
         OUT_BUFF inst_buff(.A(OQI), .Q(F2A));
 
-    end else if (MODE == "out_reg") begin 
+    /*end else if (MODE == "out_reg") begin 
 
-        OUT_REG inst_reg(.dataIn(OQI), .sel(), .rst(QRT), .clk(IQC), .dataOut(F2A));
+        OUT_REG inst_reg(.dataIn(OQI), .sel(), .rst(QRT), .clk(IQC), .dataOut(F2A));*/
 
     end endgenerate
 

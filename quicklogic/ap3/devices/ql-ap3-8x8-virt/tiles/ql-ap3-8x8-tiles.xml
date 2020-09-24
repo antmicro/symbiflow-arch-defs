@@ -10,7 +10,7 @@
         <clock name="IQC" num_pins="1"/>
         <sub_tile name="input_io" capacity="8">
             <equivalent_sites>
-                <site pb_type="input" pin_mapping="direct"/>
+                <site pb_type="INPUT_IO" pin_mapping="direct"/>
             </equivalent_sites>
             <input name="A2F" num_pins="1" equivalent="none"/>
             <input name="QRT" num_pins="1" equivalent="none"/>
@@ -20,7 +20,7 @@
         </sub_tile>
         <sub_tile name="output_io" capacity="18">
             <equivalent_sites>
-                <site pb_type="output" pin_mapping="direct"/>
+                <site pb_type="OUTPUT_IO" pin_mapping="direct"/>
             </equivalent_sites>
             <input name="OQI" num_pins="1" equivalent="none"/>
             <input name="QRT" num_pins="1" equivalent="none"/>
@@ -30,7 +30,7 @@
         </sub_tile>
         <sub_tile name="const_io" capacity="4">
             <equivalent_sites>
-                <site pb_type="const_pad" pin_mapping="direct"/>
+                <site pb_type="CONST_PAD" pin_mapping="direct"/>
             </equivalent_sites>
             <output name="F2A_DEF" num_pins="1" equivalent="none"/>
             <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>

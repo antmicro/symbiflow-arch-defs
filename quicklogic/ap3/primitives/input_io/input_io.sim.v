@@ -26,9 +26,9 @@ module INPUT_IO (
 
         IN_BUFF inst_buff(.A(A2F), .Q(IQZ));
 
-    end else if (MODE == "in_reg") begin 
+    /*end else if (MODE == "in_reg") begin 
 
-        IN_REG inst_reg(.dataIn(A2F), .sel(), .rst(QRT), .hold(), .clk(IQC), .dataOut(IQZ));
+        IN_REG inst_reg(.dataIn(A2F), .sel(), .rst(QRT), .hold(), .clk(IQC), .dataOut(IQZ));*/
 
     end endgenerate
 
