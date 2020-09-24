@@ -26,8 +26,8 @@ quicklogic_define_device_type(
     DSP
     in_buff
     out_buff
-    in_reg
-    out_reg
+    #in_reg
+    #out_reg
     d_buff
     const_pad
     input_io
