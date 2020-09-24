@@ -35,7 +35,14 @@ def replace(parent_node, base_path):
                 if child_node.tag == "blif_model":
                     parent_node.set(child_node.tag, child_node.text)
                 else:
-                    parent_node.insert(child_index, child_node)
+                    if child_node.tag == "metadata":
+                        if parent_node.find(child_node.tag) is None:
+                            parent_node.insert(child_index, child_node)
+                        else:
+                            continue 
+                    else:
+                        parent_node.insert(child_index, child_node)
+
                 child_index += 1
                 replace(child_node, base_path)
 
