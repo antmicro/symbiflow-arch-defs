@@ -1,9 +1,10 @@
 `include "../out_buff/out_buff.sim.v"
-`include "../out_reg/out_reg.sim.v"
+//`include "../out_reg/out_reg.sim.v"
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODES="out_buff; out_reg" *)
+(* MODES="out_buff" *)
+//(* MODES="out_buff; out_reg" *)
 (* whitebox *)
 module OUTPUT_IO (
 	OQI,
