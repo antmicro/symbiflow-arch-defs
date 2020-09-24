@@ -103,22 +103,22 @@
   </directlist>
   <complexblocklist>
     <pb_type name="INPUT_IO">
-      <xi:include href="../../primitives/input_io/input_io.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/input_io/input_io.pb_type.xml"/>
     </pb_type>
     <pb_type name="OUTPUT_IO">
-      <xi:include href="../../primitives/output_io/output_io.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/output_io/output_io.pb_type.xml"/>
     </pb_type>
     <pb_type name="CONST_PAD">
-      <xi:include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/const_pad/const_pad.pb_type.xml"/>
     </pb_type>
     <pb_type name="SUPER_LOGIC_CELL">
-      <xi:include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
     </pb_type>
     <pb_type name="VCC">
-      <xi:include href="../../primitives/vcc/vcc.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/vcc/vcc.pb_type.xml"/>
     </pb_type>
     <pb_type name="GND">
-      <xi:include href="../../primitives/gnd/gnd.pb_type.xml"/>
+      <xi:include href="../../../../build/quicklogic/ap3/primitives/gnd/gnd.pb_type.xml"/>
     </pb_type>
   </complexblocklist>
 </architecture>
