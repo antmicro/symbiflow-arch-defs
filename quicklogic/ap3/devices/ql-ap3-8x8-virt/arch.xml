@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <architecture name="QL745A" xmlns:xi="http://www.w3.org/2001/XInclude">
   <models>
     <include href="./models/ql-ap3-8x8-models.xml" />
@@ -98,25 +99,25 @@
     </switchblock>
   </switchblocklist>
   <directlist>
-    <direct name="adder_carry" from_pin="SUPER_LOGIC_CELL.CO" to_pin="SUPER_LOGIC_CELL.CI" x_offset="0" y_offset="-1" z_offset="0"/>
+    <direct name="adder_carry" from_pin="super_logic_cell.CO" to_pin="super_logic_cell.CI" x_offset="0" y_offset="-1" z_offset="0"/>
   </directlist>
   <complexblocklist>
-    <pb_type name="INPUT_IO">
+    <pb_type name="INPUT_IO" num_pb="1">
       <include href="../../primitives/input_io/input_io.pb_type.xml"/>
     </pb_type>
-    <pb_type name="OUTPUT_IO">
+    <pb_type name="OUTPUT_IO" num_pb="1">
       <include href="../../primitives/output_io/output_io.pb_type.xml"/>
     </pb_type>
-    <pb_type name="CONST_PAD">
+    <pb_type name="CONST_PAD" num_pb="1">
       <include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
     </pb_type>
-    <pb_type name="SUPER_LOGIC_CELL">
+    <pb_type name="SUPER_LOGIC_CELL" num_pb="1">
       <include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
     </pb_type>
-    <pb_type name="VCC">
+    <pb_type name="VCC" num_pb="1">
       <include href="../../primitives/vcc/vcc.pb_type.xml"/>
     </pb_type>
-    <pb_type name="GND">
+    <pb_type name="GND" num_pb="1">
       <include href="../../primitives/gnd/gnd.pb_type.xml"/>
     </pb_type>
   </complexblocklist>

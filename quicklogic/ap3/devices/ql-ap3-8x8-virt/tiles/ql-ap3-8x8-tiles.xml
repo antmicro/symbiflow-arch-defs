@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <tiles>
     <tile name="io">
         <input name="A2F" num_pins="8" equivalent="none"/>
@@ -50,13 +51,13 @@
             <input name="L5I" num_pins="4" equivalent="full"/>
             <input name="L6I" num_pins="4" equivalent="full"/>
             <input name="L7I" num_pins="4" equivalent="full"/>
-            <!-- Carry input to the 1st logic cell -->
+                <!-- Carry input to the 1st logic cell -->
             <input name="CI" num_pins="1"/>
-            <!-- Flip-flop control signals -->
+                <!-- Flip-flop control signals -->
             <input name="QEN" num_pins="1"/>
             <input name="QST" num_pins="1"/>
             <input name="QRT" num_pins="1"/>
-            <!-- Carry output from the last logic cell -->
+                <!-- Carry output from the last logic cell -->
             <output name="CO" num_pins="1"/>
             <output name="FZ" num_pins="8" equivalent="none"/>
             <output name="AQZ" num_pins="8" equivalent="none"/>
