@@ -102,22 +102,22 @@
     <direct name="adder_carry" from_pin="super_logic_cell.CO" to_pin="super_logic_cell.CI" x_offset="0" y_offset="-1" z_offset="0"/>
   </directlist>
   <complexblocklist>
-    <pb_type name="INPUT_IO" num_pb="1">
+    <pb_type name="INPUT_IO">
       <include href="../../primitives/input_io/input_io.pb_type.xml"/>
     </pb_type>
-    <pb_type name="OUTPUT_IO" num_pb="1">
+    <pb_type name="OUTPUT_IO">
       <include href="../../primitives/output_io/output_io.pb_type.xml"/>
     </pb_type>
-    <pb_type name="CONST_PAD" num_pb="1">
+    <pb_type name="CONST_PAD">
       <include href="../../primitives/const_pad/const_pad.pb_type.xml"/>
     </pb_type>
-    <pb_type name="SUPER_LOGIC_CELL" num_pb="1">
+    <pb_type name="SUPER_LOGIC_CELL">
       <include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
     </pb_type>
-    <pb_type name="VCC" num_pb="1">
+    <pb_type name="VCC">
       <include href="../../primitives/vcc/vcc.pb_type.xml"/>
     </pb_type>
-    <pb_type name="GND" num_pb="1">
+    <pb_type name="GND">
       <include href="../../primitives/gnd/gnd.pb_type.xml"/>
     </pb_type>
   </complexblocklist>
