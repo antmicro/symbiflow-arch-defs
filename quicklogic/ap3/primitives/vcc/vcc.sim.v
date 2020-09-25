@@ -1,8 +1,10 @@
+`include "vcc_cell.sim.v"
+
 (* whitebox *)
 module VCC (
     output wire VCC
 );
 
-    assign VCC = 1'b1;
+    VCC_CELL vcc (.VCC(VCC));
 
 endmodule

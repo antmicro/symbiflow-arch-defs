@@ -1,8 +1,10 @@
+`include "./gnd_cell.sim.v"
+
 (* whitebox *)
 module GND (
     output wire GND
 );
 
-    assign GND = 1'b0;
+    GND_CELL gnd (.GND(GND));
 
 endmodule
