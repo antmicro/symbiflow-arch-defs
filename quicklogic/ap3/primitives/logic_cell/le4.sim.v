@@ -38,7 +38,7 @@ module LE4 (
     MUX #(.MODE(BQZ_MUX)) mux_bqz(.I0(ff_out), .I1(lut_out), .O(BQZ));
 
     parameter CQZ_MUX = "I0";
-    MUX #(.MODE(CQZ_MUX)) mux_cqz(.I0(ff_out), .I1(lut_out), .O(BQZ));
+    MUX #(.MODE(CQZ_MUX)) mux_cqz(.I0(ff_out), .I1(lut_out), .O(CQZ));
 
 endmodule
 

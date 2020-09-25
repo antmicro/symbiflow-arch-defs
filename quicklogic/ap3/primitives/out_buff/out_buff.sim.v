@@ -1,7 +1,4 @@
-`include "../vpr_pad/vpr_ipad.sim.v"
-
 `timescale 1ns/10ps
-(* FASM_PARAMS="" *)
 (* MODEL_NAME="OUT_BUFF" *)
 (* whitebox *)
 module OUT_BUFF (
@@ -10,14 +7,9 @@ module OUT_BUFF (
     );
 
     input wire A;
+	(* DELAY_CONST_A="1e-10" *)
     output wire Q;
 
-    (* pack="IPAD_TO_Q" *)
-    wire in_pad;
-
     assign Q = A;
-
-    (* keep *)
-    VPR_IPAD inpad(in_pad);
 
 endmodule

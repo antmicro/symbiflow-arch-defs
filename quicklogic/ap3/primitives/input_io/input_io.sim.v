@@ -1,3 +1,4 @@
+`include "../vpr_pad/vpr_ipad.sim.v"
 `include "../in_buff/in_buff.sim.v"
 //`include "../in_reg/in_reg.sim.v"
 
@@ -19,13 +20,20 @@ module INPUT_IO (
 
     input wire QRT;
 
+    (* CLOCK *)
     input wire IQC;
 
     output wire IQZ;
 
     generate if (MODE == "in_buff") begin
 
-        IN_BUFF inst_buff(.A(A2F), .Q(IQZ));
+        (* PACK="IPAD_TO_IBUF" *)
+        wire pad;
+
+        VPR_IPAD ipad (.inpad(pad));
+
+        (* keep *)
+        IN_BUFF inst_buff(.A(pad), .Q(IQZ));
 
     /*end else if (MODE == "in_reg") begin 
 

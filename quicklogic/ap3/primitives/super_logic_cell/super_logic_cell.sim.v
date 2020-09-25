@@ -25,7 +25,10 @@ module SUPER_LOGIC_CELL (
 );
 
     input wire [3:0] L0I, L1I, L2I, L3I, L4I, L5I, L6I, L7I;
-    input wire CI, QEN, QST, QRT, QCK;
+    input wire CI, QEN, QST, QRT;
+
+    (* CLOCK *)
+    input wire QCK;
 
     output wire [7:0] FZ, AQZ, BQZ, CQZ;
     output wire CO;
