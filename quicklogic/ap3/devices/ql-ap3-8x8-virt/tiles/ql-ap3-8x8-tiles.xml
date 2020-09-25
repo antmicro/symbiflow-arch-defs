@@ -1,16 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <tiles>
     <tile name="io">
-        <input name="A2F" num_pins="8" equivalent="none"/>
-        <input name="OQI" num_pins="18" equivalent="none"/>
-        <input name="QRT" num_pins="1" equivalent="none"/>
-        <output name="IQZ" num_pins="8" equivalent="none"/>
-        <output name="F2A" num_pins="18" equivalent="none"/>
-        <output name="F2A_DEF" num_pins="4" equivalent="none"/>
-        <clock name="IQC" num_pins="1"/>
         <sub_tile name="input_io" capacity="8">
             <equivalent_sites>
-                <site pb_type="INPUT_IO" pin_mapping="direct"/>
+                <site pb_type="INPUT_IO" pin_mapping="custom">
+                    <direct from="input_io.A2F" to="INPUT_IO.A2F"/>
+                    <direct from="input_io.QRT" to="INPUT_IO.QRT"/>
+                    <direct from="input_io.IQZ" to="INPUT_IO.IQZ"/>
+                    <direct from="input_io.IQC" to="INPUT_IO.IQC"/>
+                </site>
             </equivalent_sites>
             <input name="A2F" num_pins="1" equivalent="none"/>
             <input name="QRT" num_pins="1" equivalent="none"/>
@@ -20,7 +18,12 @@
         </sub_tile>
         <sub_tile name="output_io" capacity="18">
             <equivalent_sites>
-                <site pb_type="OUTPUT_IO" pin_mapping="direct"/>
+                <site pb_type="OUTPUT_IO" pin_mapping="custom">
+                    <direct from="output_io.OQI" to="OUTPUT_IO.OQI"/>
+                    <direct from="output_io.QRT" to="OUTPUT_IO.QRT"/>
+                    <direct from="output_io.F2A" to="OUTPUT_IO.F2A"/>
+                    <direct from="output_io.IQC" to="OUTPUT_IO.IQC"/>
+                </site>
             </equivalent_sites>
             <input name="OQI" num_pins="1" equivalent="none"/>
             <input name="QRT" num_pins="1" equivalent="none"/>
@@ -30,7 +33,9 @@
         </sub_tile>
         <sub_tile name="const_io" capacity="4">
             <equivalent_sites>
-                <site pb_type="CONST_PAD" pin_mapping="direct"/>
+                <site pb_type="CONST_PAD" pin_mapping="custom">
+                    <direct from="const_io.F2A_DEF" to="CONST_PAD.F2A_DEF"/>
+                </site>
             </equivalent_sites>
             <output name="F2A_DEF" num_pins="1" equivalent="none"/>
             <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
@@ -40,17 +45,36 @@
     <tile name="SUPER_LOGIC_CELL" area="3900">
         <sub_tile name="SUPER_LOGIC_CELL">
             <equivalent_sites>
-                <site pb_type="SUPER_LOGIC_CELL" pin_mapping="direct"/>
+                <site pb_type="SUPER_LOGIC_CELL" pin_mapping="custom">
+                    <direct from="SUPER_LOGIC_CELL.L0I" to="SUPER_LOGIC_CELL.L0I"/>
+                    <direct from="SUPER_LOGIC_CELL.L1I" to="SUPER_LOGIC_CELL.L1I"/>
+                    <direct from="SUPER_LOGIC_CELL.L2I" to="SUPER_LOGIC_CELL.L2I"/>
+                    <direct from="SUPER_LOGIC_CELL.L3I" to="SUPER_LOGIC_CELL.L3I"/>
+                    <direct from="SUPER_LOGIC_CELL.L4I" to="SUPER_LOGIC_CELL.L4I"/>
+                    <direct from="SUPER_LOGIC_CELL.L5I" to="SUPER_LOGIC_CELL.L5I"/>
+                    <direct from="SUPER_LOGIC_CELL.L6I" to="SUPER_LOGIC_CELL.L6I"/>
+                    <direct from="SUPER_LOGIC_CELL.L7I" to="SUPER_LOGIC_CELL.L7I"/>
+                    <direct from="SUPER_LOGIC_CELL.CI"  to="SUPER_LOGIC_CELL.CI"/>
+                    <direct from="SUPER_LOGIC_CELL.QEN" to="SUPER_LOGIC_CELL.QEN"/>
+                    <direct from="SUPER_LOGIC_CELL.QST" to="SUPER_LOGIC_CELL.QST"/>
+                    <direct from="SUPER_LOGIC_CELL.QRT" to="SUPER_LOGIC_CELL.QRT"/>
+                    <direct from="SUPER_LOGIC_CELL.CO"  to="SUPER_LOGIC_CELL.CO"/>
+                    <direct from="SUPER_LOGIC_CELL.FZ"  to="SUPER_LOGIC_CELL.FZ"/>
+                    <direct from="SUPER_LOGIC_CELL.AQZ" to="SUPER_LOGIC_CELL.AQZ"/>
+                    <direct from="SUPER_LOGIC_CELL.BQZ" to="SUPER_LOGIC_CELL.BQZ"/>
+                    <direct from="SUPER_LOGIC_CELL.CQZ" to="SUPER_LOGIC_CELL.CQZ"/>
+                    <direct from="SUPER_LOGIC_CELL.QCK" to="SUPER_LOGIC_CELL.QCK"/>
+                </site>
             </equivalent_sites>
             <!-- Data inputs to each logic cell -->
-            <input name="L0I" num_pins="4" equivalent="full"/>
-            <input name="L1I" num_pins="4" equivalent="full"/>
-            <input name="L2I" num_pins="4" equivalent="full"/>
-            <input name="L3I" num_pins="4" equivalent="full"/>
-            <input name="L4I" num_pins="4" equivalent="full"/>
-            <input name="L5I" num_pins="4" equivalent="full"/>
-            <input name="L6I" num_pins="4" equivalent="full"/>
-            <input name="L7I" num_pins="4" equivalent="full"/>
+            <input name="L0I" num_pins="4" equivalent="none"/>
+            <input name="L1I" num_pins="4" equivalent="none"/>
+            <input name="L2I" num_pins="4" equivalent="none"/>
+            <input name="L3I" num_pins="4" equivalent="none"/>
+            <input name="L4I" num_pins="4" equivalent="none"/>
+            <input name="L5I" num_pins="4" equivalent="none"/>
+            <input name="L6I" num_pins="4" equivalent="none"/>
+            <input name="L7I" num_pins="4" equivalent="none"/>
                 <!-- Carry input to the 1st logic cell -->
             <input name="CI" num_pins="1"/>
                 <!-- Flip-flop control signals -->
@@ -74,8 +98,8 @@
         <sub_tile name="ST-VCC" capacity="1">
             <output name="VCC" num_pins="1"/>
             <equivalent_sites>
-                <site pb_type="PB-VCC" pin_mapping="custom">
-                    <direct from="ST-VCC.VCC" to="PB-VCC.VCC"/>
+                <site pb_type="VCC" pin_mapping="custom">
+                    <direct from="ST-VCC.VCC" to="VCC.VCC"/>
                 </site>
             </equivalent_sites>
             <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
@@ -89,8 +113,8 @@
         <sub_tile name="ST-GND" capacity="1">
             <output name="GND" num_pins="1"/>
             <equivalent_sites>
-                <site pb_type="PB-GND" pin_mapping="custom">
-                    <direct from="ST-GND.GND" to="PB-GND.GND"/>
+                <site pb_type="GND" pin_mapping="custom">
+                    <direct from="ST-GND.GND" to="GND.GND"/>
                 </site>
             </equivalent_sites>
             <fc in_type="frac" in_val="0.200000" out_type="frac" out_val="0.200000"/>
