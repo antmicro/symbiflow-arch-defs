@@ -1,14 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <architecture name="QL745A" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <models>
-    <xi:include href="./models/ql-ap3-8x8-models.xml" />
-  </models>
-  <tiles>
-    <xi:include href="./tiles/ql-ap3-8x8-tiles.xml"/>
-  </tiles>
-  <layout>
-    <xi:include href="./layout/ql-ap3-8x8-layout.xml"/>
-  </layout>
+  <xi:include href="./models/ql-ap3-8x8-models.xml" />
+  <xi:include href="./tiles/ql-ap3-8x8-tiles.xml"/>
+  <xi:include href="./layout/ql-ap3-8x8-layout.xml"/>
   <device>
     <sizing R_minW_nmos="13090.000000" R_minW_pmos="19086.831111"/>
     <area grid_logic_tile_area="0"/>
@@ -103,22 +97,22 @@
   </directlist>
   <complexblocklist>
     <pb_type name="INPUT_IO">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/input_io/input_io.pb_type.xml"/>
+      <xi:include href="../../primitives/input_io/input_io.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
     <pb_type name="OUTPUT_IO">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/output_io/output_io.pb_type.xml"/>
+      <xi:include href="../../primitives/output_io/output_io.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
     <pb_type name="CONST_PAD">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/const_pad/const_pad.pb_type.xml"/>
+      <xi:include href="../../primitives/const_pad/const_pad.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
     <pb_type name="SUPER_LOGIC_CELL">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/super_logic_cell/super_logic_cell.pb_type.xml"/>
+      <xi:include href="../../primitives/super_logic_cell/super_logic_cell.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
     <pb_type name="VCC">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/vcc/vcc.pb_type.xml"/>
+      <xi:include href="../../primitives/vcc/vcc.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
     <pb_type name="GND">
-      <xi:include href="../../../../build/quicklogic/ap3/primitives/gnd/gnd.pb_type.xml"/>
+      <xi:include href="../../primitives/gnd/gnd.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
     </pb_type>
   </complexblocklist>
 </architecture>
