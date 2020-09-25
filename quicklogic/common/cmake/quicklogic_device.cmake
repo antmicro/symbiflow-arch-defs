@@ -12,11 +12,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   #   LIB_TIMING_FILES <list timing lib files [can be wildcard]>
   #   RAM_TIMING_SDF <name of the RAM timing data>
   #   RAM_PBTYPE_COPY <name of the RAM pb_type to use>
+  #   ARCH_XML_INCLUDES <file_name> <file_name> ...
   #   )
   # ~~~
   set(options)
   set(oneValueArgs FAMILY DEVICE ARCH GRID_LIMIT TECHFILE_NAME ROUTING_TIMING_FILE_NAME RAM_TIMING_SDF RAM_PBTYPE_COPY)
-  set(multiValueArgs PACKAGES PB_TYPES LIB_TIMING_FILES DONT_NORMALIZE_FILES)
+  set(multiValueArgs PACKAGES PB_TYPES LIB_TIMING_FILES DONT_NORMALIZE_FILES ARCH_XML_INCLUDES)
   cmake_parse_arguments(
     QUICKLOGIC_DEFINE_DEVICE_TYPE
     "${options}"
@@ -36,6 +37,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(DONT_NORMALIZE_FILES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_DONT_NORMALIZE_FILES})
   set(RAM_TIMING_SDF ${QUICKLOGIC_DEFINE_DEVICE_TYPE_RAM_TIMING_SDF})
   set(RAM_PBTYPE_COPY ${QUICKLOGIC_DEFINE_DEVICE_TYPE_RAM_PBTYPE_COPY})
+  set(ARCH_XML_INCLUDES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ARCH_XML_INCLUDES})
 
   set(DEVICE_TYPE ${DEVICE}-virt)
 
@@ -144,6 +146,19 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
     append_file_dependency(XML_DEPS ${MODEL_XML})
   endforeach()
 
+  # Add additional files included by arch.xml to its deps
+  foreach(INC_XML ${ARCH_XML_INCLUDES})
+
+    # Add the file target if does not exist
+    get_file_target(INC_XML_TARGET ${INC_XML})
+    if (NOT TARGET ${INC_XML_TARGET})
+      add_file_target(FILE ${INC_XML})
+    endif()
+
+    # Append to the list
+    append_file_dependency(XML_DEPS ${INC_XML})
+  endforeach()
+
   # Generate the arch.xml
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/arch_import.py)
 
@@ -222,16 +237,18 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         SCRIPT_DEPS TIMING_DEPS
       )
 
-  else()
-      add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_XML}
-        COMMAND ${PYTHON3} ${ARCH_IMPORT}
-          --vpr-db ${VPR_DB_FILE}
-          --arch-out ${ARCH_XML}
-          --device ${DEVICE}
-        DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET} 
-      )
-      add_file_target(FILE ${ARCH_XML} GENERATED)
+  elseif("${FAMILY}" STREQUAL "ap3")
+
+      # Add the arch.xml target
+      add_file_target(FILE ${ARCH_XML})
+
+      # Append arch.xml dependencies
+      get_file_target(ARCH_XML_TARGET ${ARCH_XML})
+      foreach(DEP ${XML_DEPS})
+        if(TARGET ${DEP})
+          add_dependencies(${ARCH_XML_TARGET} ${DEP})
+        endif()
+      endforeach()
 
       # Timing import stuff
       #set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
@@ -255,9 +272,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       define_device_type(
         DEVICE_TYPE ${DEVICE_TYPE}
         ARCH ${ARCH}
-        ARCH_XML ${ARCH_XML}
+        ARCH_XML ${ARCH_XML}        
       )
 
+  else()
+
+    message(FATAL_ERROR "Family '${FAMILY}' not supported!")
   endif()
 
   # Set the device type properties
@@ -275,12 +295,14 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         CELLS_SIM ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_SIM}
         CELLS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/${RAM_CELLS_MAP}
       )
-  else()
+  elseif("${FAMILY}" STREQUAL "ap3")
       set_target_properties(
         ${DEVICE_TYPE}
         PROPERTIES
         VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
       )
+  else()
+    message(FATAL_ERROR "Family '${FAMILY}' not supported!")
   endif()
 
 endfunction()
