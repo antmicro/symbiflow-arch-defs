@@ -1,3 +1,4 @@
+`include "../vpr_pad/vpr_opad.sim.v"
 `include "../out_buff/out_buff.sim.v"
 //`include "../out_reg/out_reg.sim.v"
 
@@ -19,13 +20,20 @@ module OUTPUT_IO (
 
     input wire QRT;
 
+    (* CLOCK *)
     input wire IQC;
 
     output wire F2A;
 
     generate if (MODE == "out_buff") begin
 
-        OUT_BUFF inst_buff(.A(OQI), .Q(F2A));
+        (* PACK="OBUF_TO_OPAD" *)
+        wire pad;
+
+        OUT_BUFF inst_buff(.A(OQI), .Q(pad));
+
+        (* keep *)
+        VPR_OPAD opad(.outpad(pad));
 
     /*end else if (MODE == "out_reg") begin 
 

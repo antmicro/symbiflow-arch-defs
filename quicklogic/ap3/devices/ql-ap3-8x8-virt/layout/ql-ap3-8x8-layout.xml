@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <layout>
     <!-- Define a fixed-layout for ap3 device, can be called by '-device' option using vpr -->
-    <fixed_layout name="10x10" width="10" height="10">
+    <fixed_layout name="ql-ap3-8x8" width="10" height="10">
         <!-- Bottom-left corner should be EMPTY -->
         <region type="EMPTY" priority="101" startx="0" endx="1" starty="0" endy="1"/>
         <!-- Bottom-right corner should be EMPTY -->
