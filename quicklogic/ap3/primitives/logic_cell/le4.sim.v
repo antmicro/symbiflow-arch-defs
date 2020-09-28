@@ -4,7 +4,7 @@
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* whitebox *)
+(* keep_hierarchy *)
 module LE4 (
         LI,
         QEN,

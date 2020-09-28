@@ -1,6 +1,6 @@
 `include "vcc_cell.sim.v"
 
-(* whitebox *)
+(* keep_hierarchy *)
 module VCC (
     output wire VCC
 );

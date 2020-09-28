@@ -2,7 +2,7 @@
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* whitebox *)
+(* keep_hierarchy *)
 module SUPER_LOGIC_CELL (
         L0I,
         L1I,
@@ -33,15 +33,50 @@ module SUPER_LOGIC_CELL (
     output wire [7:0] FZ, AQZ, BQZ, CQZ;
     output wire CO;
 
-    parameter [7:0] LC_MODE = "LUT_FF";
-    parameter [7:0] LC_QDI_MUX = "I0";
-    parameter [7:0] LC_BQZ_MUX = "I0";
-    parameter [7:0] LC_CQZ_MUX = "I0";
+    parameter LC0_MODE = "LUT_FF";
+    parameter LC0_QDI_MUX = "I0";
+    parameter LC0_BQZ_MUX = "I0";
+    parameter LC0_CQZ_MUX = "I0";
+
+    parameter LC1_MODE = "LUT_FF";
+    parameter LC1_QDI_MUX = "I0";
+    parameter LC1_BQZ_MUX = "I0";
+    parameter LC1_CQZ_MUX = "I0";
+
+    parameter LC2_MODE = "LUT_FF";
+    parameter LC2_QDI_MUX = "I0";
+    parameter LC2_BQZ_MUX = "I0";
+    parameter LC2_CQZ_MUX = "I0";
+
+    parameter LC3_MODE = "LUT_FF";
+    parameter LC3_QDI_MUX = "I0";
+    parameter LC3_BQZ_MUX = "I0";
+    parameter LC3_CQZ_MUX = "I0";
+
+    parameter LC4_MODE = "LUT_FF";
+    parameter LC4_QDI_MUX = "I0";
+    parameter LC4_BQZ_MUX = "I0";
+    parameter LC4_CQZ_MUX = "I0";
+
+    parameter LC5_MODE = "LUT_FF";
+    parameter LC5_QDI_MUX = "I0";
+    parameter LC5_BQZ_MUX = "I0";
+    parameter LC5_CQZ_MUX = "I0";
+
+    parameter LC6_MODE = "LUT_FF";
+    parameter LC6_QDI_MUX = "I0";
+    parameter LC6_BQZ_MUX = "I0";
+    parameter LC6_CQZ_MUX = "I0";
+
+    parameter LC7_MODE = "LUT_FF";
+    parameter LC7_QDI_MUX = "I0";
+    parameter LC7_BQZ_MUX = "I0";
+    parameter LC7_CQZ_MUX = "I0";
 
     wire [6:0] CO_int;
 
-    LOGIC_CELL #(.MODE(LC_MODE[0]), .LE_QDI_MUX(LC_QDI_MUX[0]),
-                 .LE_BQZ_MUX(LC_BQZ_MUX[0]), .LE_CQZ_MUX(LC_CQZ_MUX[0])) lc_0 (
+    LOGIC_CELL /*#(.MODE(LC0_MODE[0]), .LE_QDI_MUX(LC0_QDI_MUX[0]),
+                 .LE_BQZ_MUX(LC0_BQZ_MUX[0]), .LE_CQZ_MUX(LC0_CQZ_MUX[0]))*/ lc_0 (
             .LI(L0I),
             .CI(CI),
             .QEN(QEN),
@@ -55,8 +90,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[0])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[1]), .LE_QDI_MUX(LC_QDI_MUX[1]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[1]), .LE_CQZ_MUX(LC_CQZ_MUX[1])) lc_1 (
+    LOGIC_CELL /*#(.MODE(LC1_MODE[1]), .LE_QDI_MUX(LC1_QDI_MUX[1]),
+                .LE_BQZ_MUX(LC1_BQZ_MUX[1]), .LE_CQZ_MUX(LC1_CQZ_MUX[1]))*/ lc_1 (
             .LI(L1I),
             .CI(CO_int[0]),
             .QEN(QEN),
@@ -70,8 +105,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[1])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[2]), .LE_QDI_MUX(LC_QDI_MUX[2]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[2]), .LE_CQZ_MUX(LC_CQZ_MUX[2])) lc_2 (
+    LOGIC_CELL /*#(.MODE(LC2_MODE[2]), .LE_QDI_MUX(LC2_QDI_MUX[2]),
+                .LE_BQZ_MUX(LC2_BQZ_MUX[2]), .LE_CQZ_MUX(LC2_CQZ_MUX[2]))*/ lc_2 (
             .LI(L2I),
             .CI(CO_int[1]),
             .QEN(QEN),
@@ -85,8 +120,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[2])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[3]), .LE_QDI_MUX(LC_QDI_MUX[3]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[3]), .LE_CQZ_MUX(LC_CQZ_MUX[3])) lc_3 (
+    LOGIC_CELL /*#(.MODE(LC3_MODE[3]), .LE_QDI_MUX(LC3_QDI_MUX[3]),
+                .LE_BQZ_MUX(LC3_BQZ_MUX[3]), .LE_CQZ_MUX(LC3_CQZ_MUX[3]))*/ lc_3 (
             .LI(L3I),
             .CI(CO_int[2]),
             .QEN(QEN),
@@ -100,8 +135,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[3])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[4]), .LE_QDI_MUX(LC_QDI_MUX[4]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[4]), .LE_CQZ_MUX(LC_CQZ_MUX[4])) lc_4 (
+    LOGIC_CELL /*#(.MODE(LC4_MODE[4]), .LE_QDI_MUX(LC4_QDI_MUX[4]),
+                .LE_BQZ_MUX(LC4_BQZ_MUX[4]), .LE_CQZ_MUX(LC4_CQZ_MUX[4]))*/ lc_4 (
             .LI(L4I),
             .CI(CO_int[3]),
             .QEN(QEN),
@@ -115,8 +150,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[4])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[5]), .LE_QDI_MUX(LC_QDI_MUX[5]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[5]), .LE_CQZ_MUX(LC_CQZ_MUX[5])) lc_5 (
+    LOGIC_CELL /*#(.MODE(LC5_MODE[5]), .LE_QDI_MUX(LC5_QDI_MUX[5]),
+                .LE_BQZ_MUX(LC5_BQZ_MUX[5]), .LE_CQZ_MUX(LC5_CQZ_MUX[5]))*/ lc_5 (
             .LI(L5I),
             .CI(CO_int[4]),
             .QEN(QEN),
@@ -130,8 +165,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[5])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[6]), .LE_QDI_MUX(LC_QDI_MUX[6]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[6]), .LE_CQZ_MUX(LC_CQZ_MUX[6])) lc_6 (
+    LOGIC_CELL /*#(.MODE(LC6_MODE[6]), .LE_QDI_MUX(LC6_QDI_MUX[6]),
+                .LE_BQZ_MUX(LC6_BQZ_MUX[6]), .LE_CQZ_MUX(LC6_CQZ_MUX[6]))*/ lc_6 (
             .LI(L6I),
             .CI(CO_int[5]),
             .QEN(QEN),
@@ -145,8 +180,8 @@ module SUPER_LOGIC_CELL (
             .CO(CO_int[6])
         );
 
-    LOGIC_CELL #(.MODE(LC_MODE[7]), .LE_QDI_MUX(LC_QDI_MUX[7]),
-                .LE_BQZ_MUX(LC_BQZ_MUX[7]), .LE_CQZ_MUX(LC_CQZ_MUX[7])) lc_7 (
+    LOGIC_CELL /*#(.MODE(LC7_MODE[7]), .LE_QDI_MUX(LC7_QDI_MUX[7]),
+                .LE_BQZ_MUX(LC7_BQZ_MUX[7]), .LE_CQZ_MUX(LC7_CQZ_MUX[7]))*/ lc_7 (
         .LI(L7I),
         .CI(CO_int[6]),
         .QEN(QEN),
