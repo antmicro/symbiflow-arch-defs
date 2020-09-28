@@ -93,7 +93,7 @@
     </switchblock>
   </switchblocklist>
   <directlist>
-    <direct name="adder_carry" from_pin="super_logic_cell.CO" to_pin="super_logic_cell.CI" x_offset="0" y_offset="-1" z_offset="0"/>
+    <direct name="adder_carry" from_pin="SUPER_LOGIC_CELL.CO" to_pin="SUPER_LOGIC_CELL.CI" x_offset="0" y_offset="-1" z_offset="0"/>
   </directlist>
   <complexblocklist>
     <pb_type name="INPUT_IO">
