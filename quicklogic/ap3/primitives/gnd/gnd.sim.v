@@ -1,6 +1,6 @@
 `include "./gnd_cell.sim.v"
 
-(* whitebox *)
+(* keep_hierarchy *)
 module GND (
     output wire GND
 );

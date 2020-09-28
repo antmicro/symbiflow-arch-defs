@@ -4,8 +4,8 @@
 
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
-(* MODES="LUT_FF; LUT_FF_Separate; ADDER" *)
-(* whitebox *)
+(* MODES="LUT_FF;LUT_FF_Separate;LUT_ADDER" *)
+(* keep_hierarchy *)
 module LOGIC_CELL (
         LI,
         CI,
@@ -34,7 +34,7 @@ module LOGIC_CELL (
     generate if (MODE == "LUT_FF") begin
         // LOGIC Cell used as LUT+FF where LUT output is input to FF
 
-        LE4 #(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) le4_inst(
+        LE4 /*#(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX))*/ le4_inst(
                 .LI(LI),
                 .QEN(QEN),
                 .QST(QST),
@@ -47,7 +47,7 @@ module LOGIC_CELL (
         );
     end else if (MODE == "LUT_FF_Separate") begin 
             
-        LE4_QDI #(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) le4_qdi_inst(
+        LE4_QDI /*#(.BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX))*/ le4_qdi_inst(
                 .LI(LI),
                 .QEN(QEN),
                 .QST(QST),
@@ -61,7 +61,7 @@ module LOGIC_CELL (
     
     end else if (MODE == "LUT_ADDER") begin 
     
-        BADDER #(.QDI_MUX(LE_QDI_MUX), .BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX)) add_inst(
+        BADDER /*#(.QDI_MUX(LE_QDI_MUX), .BQZ_MUX(LE_BQZ_MUX), .CQZ_MUX(LE_CQZ_MUX))*/ add_inst(
                 .LI(LI),
                 .CI(CI),
                 .QEN(QEN),

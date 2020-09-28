@@ -6,7 +6,7 @@
 (* FASM_PARAMS="" *)
 (* MODES="out_buff" *)
 //(* MODES="out_buff; out_reg" *)
-(* whitebox *)
+(* keep_hierarchy *)
 module OUTPUT_IO (
 	OQI,
 	QRT,

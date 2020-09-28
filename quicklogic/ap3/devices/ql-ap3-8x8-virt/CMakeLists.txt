@@ -23,7 +23,6 @@ quicklogic_define_device_type(
     CONST_PAD
   ARCH_XML_INCLUDES
     "layout/ql-ap3-8x8-layout.xml"
-    "models/ql-ap3-8x8-models.xml"
     "tiles/ql-ap3-8x8-tiles.xml"
 )
     #RAM

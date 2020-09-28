@@ -6,7 +6,7 @@
 (* FASM_PARAMS="" *)
 (* MODES="in_buff" *)
 //(* MODES="in_buff;in_reg" *)
-(* whitebox *)
+(* keep_hierarchy *)
 module INPUT_IO (
 	A2F,
 	QRT,

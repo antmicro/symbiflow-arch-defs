@@ -5,7 +5,7 @@
 `timescale 1ns/10ps
 (* FASM_PARAMS="" *)
 (* MODEL_NAME="D_BUFF" *)
-(* whitebox *)
+(* keep_hierarchy *)
 module D_BUFF (
 	Q
 );
