@@ -16,6 +16,7 @@ from utils import fixup_pin_name
 
 from rr_utils import add_node, add_track, add_edge, connect
 from switchbox_model import SwitchboxModel, QmuxSwitchboxModel
+from import_routing import import_routing
 
 # =============================================================================
 
@@ -1025,7 +1026,7 @@ def populate_const_connections(graph, switchbox_models, tile_types, tile_grid,
         tile_type = tile_types[tile.type]
         if tile_type.fake_const_pin:
             tile_node = tile_pin_to_node[loc]["FAKE_CONST"]
-            
+
             for const in ["GND", "VCC"]:
                 const_node = const_node_map[const][loc]
                 connect(
@@ -1274,7 +1275,7 @@ def main():
     )
 
     parser.add_argument(
-        "--vpr-db", type=str, required=True, help="VPR database file"
+        "--vpr-db", type=str, help="VPR database file"
     )
     parser.add_argument(
         "--rr-graph-in",
@@ -1288,24 +1289,33 @@ def main():
         default="rr_graph.xml",
         help="Output RR graph XML file (def. rr_graph.xml)"
     )
+    parser.add_argument(
+        "--techfile",
+        type=str,
+        help="Quicklogic 'TechFile' XML file"
+    )
 
     args = parser.parse_args()
 
-    # Load data from the database
-    print("Loading database...")
-    with open(args.vpr_db, "rb") as fp:
-        db = pickle.load(fp)
+    if args.vpr_db is not None:
+        # Load data from the database
+        print("Loading database...")
+        with open(args.vpr_db, "rb") as fp:
+            db = pickle.load(fp)
 
-        vpr_quadrants = db["vpr_quadrants"]
-        vpr_clock_cells = db["vpr_clock_cells"]
-        loc_map = db["loc_map"]
-        vpr_tile_types = db["vpr_tile_types"]
-        vpr_tile_grid = db["vpr_tile_grid"]
-        vpr_switchbox_types = db["vpr_switchbox_types"]
-        vpr_switchbox_grid = db["vpr_switchbox_grid"]
-        connections = db["connections"]
-        segments = db["segments"]
-        switches = db["switches"]
+            vpr_quadrants = db["vpr_quadrants"]
+            vpr_clock_cells = db["vpr_clock_cells"]
+            loc_map = db["loc_map"]
+            vpr_tile_types = db["vpr_tile_types"]
+            vpr_tile_grid = db["vpr_tile_grid"]
+            vpr_switchbox_types = db["vpr_switchbox_types"]
+            vpr_switchbox_grid = db["vpr_switchbox_grid"]
+            connections = db["connections"]
+            segments = db["segments"]
+            switches = db["switches"]
+
+    if args.techfile is not None:
+        import_routing(args.techfile)
 
     # Load the routing graph, build SOURCE -> OPIN and IPIN -> SINK edges.
     print("Loading rr graph...")
