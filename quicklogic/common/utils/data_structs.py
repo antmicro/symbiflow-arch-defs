@@ -222,7 +222,7 @@ class Switchbox(object):
 
         def __init__(self, id, switch):
             self.id = id  # The mux ID
-            self.switch = switch  # Parent switch od
+            self.switch = switch  # Parent switch id
             self.inputs = {}  # Input pins by their IDs
             self.output = None  # The output pin
             self.timing = {}  # Input timing (per input)
@@ -236,6 +236,9 @@ class Switchbox(object):
                 yield pin
 
             yield self.output
+
+        def __str__(self):
+            return 'mux ID:'+str(self.id)
 
     class Switch(object):
         """
@@ -255,6 +258,15 @@ class Switchbox(object):
             for mux in self.muxes.values():
                 yield from mux.pins
 
+        def __str__(self):
+            curr_str = 'switch ID:'+str(self.id)+' stage ID:'+str(self.stage)+' muxes:'
+            for mux in self.muxes.values():
+                curr_str += "\n\t"
+                curr_str += mux.__str__()
+
+            curr_str += '\n'
+            return curr_str
+
     class Stage(object):
         """
         Represents a routing stage which has some attributes and consists of
@@ -273,6 +285,15 @@ class Switchbox(object):
             """
             for switch in self.switches.values():
                 yield from switch.pins
+
+        def __str__(self):
+            curr_str = 'Stage ID:' + str(self.id) + ' stage type:' + str(self.type) + ' switches:'
+            for switch in self.switches.values():
+                curr_str += "\n\t"
+                curr_str += switch.__str__()
+
+            curr_str += '\n'
+            return curr_str
 
     # ...............................................................
 
@@ -294,6 +315,14 @@ class Switchbox(object):
         for pin in self.outputs.values():
             yield pin
 
+    def __str__(self):
+        curr_str = 'switchbox type:'+self.type+" stages:"
+        for stage in self.stages.values():
+            curr_str += "\n\t"
+            curr_str += stage.__str__()
+
+        curr_str += '\n'
+        return curr_str
 
 # =============================================================================
 """
