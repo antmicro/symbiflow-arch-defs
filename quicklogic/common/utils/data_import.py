@@ -834,8 +834,9 @@ def parse_switchbox_ap3(xml_sbox, xml_common=None):
                 # Add internal connection
                 if stage_type == "STREET":
                     if xml_input.get("Stage", None) is not None:
-                        if xml_input.get("Stage") is not None:
-                            conn_stage_id = int(xml_input.attrib["Stage"])
+                        conn_stage_id = int(xml_input.attrib["Stage"])
+
+                        if conn_stage_id >= 0:
                             conn_switch_id = int(xml_input.attrib["SwitchNum"])
                             conn_pin_id = int(xml_input.attrib["SwitchOutputNum"])
 
