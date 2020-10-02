@@ -466,7 +466,7 @@ class Grid(object):
 
         for site in sites:
             key = (site.name, site.x, site.y,)
-            assert key in split_map, key
+            assert key in split_map, (key, list(split_map.keys()),)
 
             offset = split_map[key]
             new_tiles[offset].sites.append(site)
@@ -638,10 +638,17 @@ class Grid(object):
             Tile to merge
         merge_direction : Direction
             Direction to merge tiles.
+
+        Returns
+        -------
+        tile_type_pkey : pkey of the tile type that the merge went into.
+        merged_sites : A set of sites that were merged in (i.e are new).
         """
         assert merge_direction in tile.neighboors, (tile, merge_direction)
 
         merge_into = tile.neighboors[merge_direction]
+
+        merged_sites = set(tile.sites)
 
         merge_into.root_phy_tile_pkeys.extend(tile.root_phy_tile_pkeys)
         merge_into.phy_tile_pkeys.extend(tile.phy_tile_pkeys)
@@ -652,6 +659,8 @@ class Grid(object):
         tile.root_phy_tile_pkeys = list()
         tile.phy_tile_pkeys = list()
 
+        return merge_into.tile_type_pkey, merged_sites
+
     def merge_tile_type(self, tile_type_pkey, merge_direction):
         """ Merge tile types in specified direction.
 
@@ -661,10 +670,26 @@ class Grid(object):
         merge_direction : Direction
             Direction to merge tiles.
 
+        Returns
+        -------
+        merged_sites : A dict of sets (as tuples (name, x, y)) containing sites
+        that were merged in (i.e are new to) the tile that was merged indexed
+        by tile type pkeys of merge destination tiles.
         """
+
+        merged_sites = {}
+
         for tile in self.items:
             if tile.tile_type_pkey == tile_type_pkey:
-                self.merge_in_dir(tile, merge_direction)
+                pkey, sites = self.merge_in_dir(tile, merge_direction)
+                sites = set([(s.name, s.x, s.y) for s in sites])
+
+                if pkey not in merged_sites:
+                    merged_sites[pkey] = sites
+                else:
+                    assert merged_sites[pkey] == sites, (pkey, merged_sites[pkey], sites,)
+
+        return merged_sites
 
     def output_grid(self):
         """ Convert grid back to coordinate lookup form.
