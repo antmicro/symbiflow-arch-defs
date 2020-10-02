@@ -425,32 +425,36 @@ class Grid(object):
             in split_direction will become tile_type_pkeys[1], etc.
         split_direction : Direction
             Which direction from tile should the split occur.
-        split_map : Dict of (int, int) to int
-            Mapping of site location (x, y) to tile_type_pkey indicies.
-            This enables control over which sites go to which tiles based on
-            their coordinate.
-
-            min(split_map.values()) >= 0
-            max(split_map.values()) < len(tile_type_pkeys)
-
+        split_map : Dict
+            A map describing which site should go to which tile after the
+            split. Contains new tile offsets w.r.t. the original one and is
+            indexed by tuples (site.name, site.x, site.y). The dict must
+            include all sites of the original tile!
         """
         sites = tile.sites
         tile.tile_type_pkey = self.empty_tile_type_pkey
+        tile.sites = []
         phy_tile_pkeys = set(tile.phy_tile_pkeys)
-        new_tiles = []
+        new_tiles = {}
+
+        max_offset = max(list(split_map.values()))
+        offsets = sorted(list(set(split_map.values())))
 
         for idx, tile in enumerate(tile.walk_in_direction(split_direction)):
+            if idx > max_offset:
+                break
+
             assert tile.tile_type_pkey == self.empty_tile_type_pkey, (
                 tile.tile_type_pkey
             )
+
+            if idx not in offsets:
+                continue
+
             tile.phy_tile_pkeys = []
+            new_tiles[idx] = tile
 
-            new_tiles.append(tile)
-
-            if idx + 1 >= len(tile_type_pkeys):
-                break
-
-        for tile, new_tile_type_pkey in zip(new_tiles, tile_type_pkeys):
+        for tile, new_tile_type_pkey in zip(new_tiles.values(), tile_type_pkeys):
             assert tile.tile_type_pkey == self.empty_tile_type_pkey
 
             tile.tile_type_pkey = new_tile_type_pkey
@@ -461,11 +465,12 @@ class Grid(object):
             tile.split_sites = True
 
         for site in sites:
-            site_idx = split_map[site.x, site.y]
-            assert site_idx < len(tile_type_pkeys), (
-                site, site_idx, tile_type_pkeys
-            )
-            new_tiles[site_idx].sites.append(site)
+            key = (site.name, site.x, site.y,)
+            assert key in split_map, key
+
+            offset = split_map[key]
+            new_tiles[offset].sites.append(site)
+
 
     def insert_empty(self, top, insert_in_direction):
         """ Insert empty row/colum.
@@ -531,15 +536,16 @@ class Grid(object):
         split_direction : Direction
             Direction to insert perform split.  New row/column will be inserted
             in that direction to accomidate the tile split.
-        split_map : Dict of (int, int) to int
-            Mapping of site location (x, y) to tile_type_pkey indicies.
-            This enables control over which sites go to which tiles based on
-            their coordinate.
-
+        split_map : Dict
+            A map describing which site should go to which tile after the
+            split. Contains new tile offsets w.r.t. the original one and is
+            indexed by tuples (site.name, site.x, site.y). The dict must
+            include all sites of the original tile!
         """
         next_dir = SPLIT_NEXT_DIRECTIONS[split_direction]
 
         # Find how many empty tiles are required to support the split
+        max_offset = max(list(split_map.values()))
         num_to_insert = 0
         for tile in top.walk_in_direction(next_dir):
             if tile.tile_type_pkey != tile_type_pkey:
@@ -553,7 +559,7 @@ class Grid(object):
                     if tile_in_split.tile_type_pkey != self.empty_tile_type_pkey:
                         num_to_insert = max(num_to_insert, idx)
 
-                    if idx + 1 >= len(tile_type_pkeys):
+                    if idx >= max_offset:
                         break
 
         for _ in range(num_to_insert):

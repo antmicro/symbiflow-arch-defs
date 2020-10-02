@@ -1724,7 +1724,35 @@ SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT
                 tile_type_pkeys = [slice_types[t] for t in tile_type_names]
 
                 for site in sites:
-                    tile_split_map[site.x, site.y] = ys.index(site.y)
+                    tile_split_map[(site.name, site.x, site.y)] = ys.index(site.y)
+            elif split_styles[tile_type_name][0] == 'explicit':
+
+                # Sort split tile offsets
+                styles = split_styles[tile_type_name][1]
+                keys = sorted(list(styles.keys()))
+
+                # Get new tile types and their pkeys
+                tile_type_names = [
+                    styles[k][0] for k in keys
+                ]
+                tile_type_pkeys = [
+                    slice_types[t] for t in tile_type_names
+                ]
+
+                # Site by name dict
+                sites_by_name = {
+                    "{}_X{}Y{}".format(site.name, site.x, site.y): site
+                    for site in sites
+                }
+
+                # Populate the split map
+                for offset in keys:
+                    for site_name in styles[offset][1]:
+
+                        assert site_name in sites_by_name, (site_name, list(sites_by_name.keys()),)
+                        site = sites_by_name[site_name]
+                        tile_split_map[(site.name, site.x, site.y)] = offset
+
             else:
                 assert False, split_styles[tile_type_name]
 
