@@ -2,9 +2,10 @@ name: symbiflow_arch_def_base
 channels:
   - defaults
   - symbiflow
+  - quicklogic-corp/label/ql
 dependencies:
-  - symbiflow-yosys=0.8_6021_gd8b2d1a2=20200708_083630
-  - symbiflow-yosys-plugins=1.0.0.7_0159_g4243dae=20201002_094407
+  - yosys=0.8.0_0002_gc3b38fdc=20200901_073908
+  - yosys-plugins=1.2.0_0009_g9ab211c=20201001_121833
   - symbiflow-vtr=8.0.0.rc2_5097_gf1a3bcc2a=20200916_072439
   - zachjs-sv2v=0.0.5_0018_ga170536
   - cmake
