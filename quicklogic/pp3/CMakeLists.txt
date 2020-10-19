@@ -25,9 +25,6 @@ set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 #set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property_required(QLFASM env QLFASM)
-
-get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
 
 # Add the below option in the above variable to enable detailed timing report with routing delay information
 #--timing_report_detail detailed
@@ -77,14 +74,13 @@ define_arch(
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
 
   FASM_TO_BIT
-    ${QLFASM}
+    qlfasm
   FASM_TO_BIT_CMD "\${PYTHON3} \
-    \${QLFASM} \
+    qlfasm \
         \${OUT_FASM}
         \${OUT_BITSTREAM}
         \${FASM_TO_BIT_EXTRA_ARGS}"
   FASM_TO_BIT_DEPS
-    ${QLFASM_TARGET}
   BITSTREAM_EXTENSION bit
 
   CELLS_SIM

@@ -1,7 +1,4 @@
 include(common/cmake/quicklogic_fasm.cmake)
-add_quicklogic_fasm_package()
-
-include(common/cmake/quicklogic_timings.cmake)
 
 add_custom_target(QL_CELLS_SIM_DEPS)
 
