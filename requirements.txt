@@ -15,6 +15,7 @@ pyyaml
 scipy
 simplejson
 svgwrite
+termcolor
 textx
 tinyfpgab
 tinyprog
