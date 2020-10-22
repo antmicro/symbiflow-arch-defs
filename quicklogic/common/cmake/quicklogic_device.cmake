@@ -126,7 +126,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
       --vpr-db ${VPR_DB_FILE}
       --sdf-dir ${SDF_TIMING_DIR} 
       ${GRID_LIMIT_ARGS}
-    DEPENDS ${PHY_DB_FILE} sdf_timing ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE}
+    DEPENDS ${PHY_DB_FILE} sdf ${SDF_FILE_TARGETS} ${PREPARE_VPR_DATABASE}
   )
   add_file_target(FILE ${VPR_DB_FILE} GENERATED)
 
@@ -203,7 +203,7 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
         --input_arch /dev/stdin \
     ")
 
-  set(TIMING_DEPS sdf_timing ${SDF_FILE_TARGETS} ${BELS_MAP})
+  set(TIMING_DEPS sdf ${SDF_FILE_TARGETS} ${BELS_MAP})
 
   # Define the device type
   define_device_type(
