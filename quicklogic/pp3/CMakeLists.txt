@@ -31,6 +31,11 @@ get_target_property_required(PYTHON3 env PYTHON3)
 
   set(YOSYS_SYNTH_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/synth.tcl)
   set(YOSYS_CONV_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/conv.tcl)
+  set(QLFASM ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/qlfasm.py)
+  add_custom_target(
+    qlfasm
+    DEPENDS ${QLFASM} ${PYTHON3}
+  )
 
 define_arch(
   ARCH ql-s3
@@ -73,14 +78,8 @@ define_arch(
         --o /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
 
-  FASM_TO_BIT
-    qlfasm
-  FASM_TO_BIT_CMD "\${PYTHON3} \
-    qlfasm \
-        \${OUT_FASM}
-        \${OUT_BITSTREAM}
-        \${FASM_TO_BIT_EXTRA_ARGS}"
-  FASM_TO_BIT_DEPS
+  FASM_TO_BIT qlfasm
+  FASM_TO_BIT_CMD "\${PYTHON3} \${QLFASM} \${OUT_FASM} \${OUT_BITSTREAM} \${FASM_TO_BIT_EXTRA_ARGS}"
   BITSTREAM_EXTENSION bit
 
   CELLS_SIM
