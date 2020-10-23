@@ -25,15 +25,17 @@ set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 #set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
 get_target_property_required(PYTHON3 env PYTHON3)
-get_target_property_required(QLFASM env QLFASM)
-
-get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
 
 # Add the below option in the above variable to enable detailed timing report with routing delay information
 #--timing_report_detail detailed
 
   set(YOSYS_SYNTH_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/synth.tcl)
   set(YOSYS_CONV_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/yosys/conv.tcl)
+  set(QLFASM ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/common/utils/quicklogic-fasm/quicklogic_fasm/qlfasm.py)
+  add_custom_target(
+    qlfasm
+    DEPENDS ${QLFASM} ${PYTHON3}
+  )
 
 define_arch(
   ARCH ql-s3
@@ -76,15 +78,8 @@ define_arch(
         --o /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
 
-  FASM_TO_BIT
-    ${QLFASM}
-  FASM_TO_BIT_CMD "\${PYTHON3} \
-    \${QLFASM} \
-        \${OUT_FASM}
-        \${OUT_BITSTREAM}
-        \${FASM_TO_BIT_EXTRA_ARGS}"
-  FASM_TO_BIT_DEPS
-    ${QLFASM_TARGET}
+  FASM_TO_BIT qlfasm
+  FASM_TO_BIT_CMD "\${PYTHON3} \${QLFASM} \${OUT_FASM} \${OUT_BITSTREAM} \${FASM_TO_BIT_EXTRA_ARGS}"
   BITSTREAM_EXTENSION bit
 
   CELLS_SIM
