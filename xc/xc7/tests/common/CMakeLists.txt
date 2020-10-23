@@ -5,6 +5,7 @@ add_file_target(FILE basys3.xdc)
 add_file_target(FILE basys3_pmod.pcf)
 
 # BASYS3 (bottom clock regions: X0Y0, X1Y0) constraint files
+add_file_target(FILE basys3_bottom.pcf)
 add_file_target(FILE basys3_bottom_pmod.pcf)
 
 # ARTY constraint files
