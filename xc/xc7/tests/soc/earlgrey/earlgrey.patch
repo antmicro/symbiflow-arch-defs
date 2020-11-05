@@ -1,0 +1,304 @@
+diff --git a/hw/ip/prim/abstract/prim_ram_2p.sv b/hw/ip/prim/abstract/prim_ram_2p.sv
+index cab45d73..97cbdf76 100644
+--- a/hw/ip/prim/abstract/prim_ram_2p.sv
++++ b/hw/ip/prim/abstract/prim_ram_2p.sv
+@@ -55,23 +55,29 @@ module prim_ram_2p #(
+       .b_rdata_o
+     );
+   end else if (Impl == ImplXilinx) begin : gen_mem_xilinx
+-    prim_xilinx_ram_2p #(
++    prim_xilinx_ram_1p #(
+       .Width(Width),
+       .Depth(Depth)
+-    ) u_impl_xilinx (
+-      .clk_a_i,
+-      .clk_b_i,
+-      .a_req_i,
+-      .a_write_i,
+-      .a_addr_i,
+-      .a_wdata_i,
+-      .a_rdata_o,
+-      .b_req_i,
+-      .b_write_i,
+-      .b_addr_i,
+-      .b_wdata_i,
+-      .b_rdata_o
+-    );
++   ) u_impl_xilinx_1(
++      .clk_a_i(clk_a_i),
++      .a_req_i(a_req_i),
++      .a_write_i(a_write_i),
++      .a_addr_i(a_addr_i),
++      .a_wdata_i(a_wdata_i),
++      .a_rdata_o(a_rdata_o)
++   );
++
++    prim_xilinx_ram_1p #(
++      .Width(Width),
++      .Depth(Depth)
++   ) u_impl_xilinx_2(
++      .clk_a_i(clk_b_i),
++      .a_req_i(b_req_i),
++      .a_write_i(b_write_i),
++      .a_addr_i(b_addr_i),
++      .a_wdata_i(b_wdata_i),
++      .a_rdata_o(b_rdata_o)
++   );
+   end else begin : gen_failure
+     // TODO: Find code that works across tools and causes a compile failure
+   end
+diff --git a/hw/ip/prim/rtl/prim_lfsr.sv b/hw/ip/prim/rtl/prim_lfsr.sv
+index 3c162bee..0049bdae 100644
+--- a/hw/ip/prim/rtl/prim_lfsr.sv
++++ b/hw/ip/prim/rtl/prim_lfsr.sv
+@@ -299,7 +299,7 @@ module prim_lfsr #(
+   ////////////////
+   // Galois XOR //
+   ////////////////
+-  if (64'(LfsrType) == 64'("GAL_XOR")) begin : gen_gal_xor
++  if (LfsrType == "GAL_XOR") begin : gen_gal_xor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -324,7 +324,7 @@ module prim_lfsr #(
+   ////////////////////
+   // Fibonacci XNOR //
+   ////////////////////
+-  end else if (64'(LfsrType) == "FIB_XNOR") begin : gen_fib_xnor
++  end else if (LfsrType == "FIB_XNOR") begin : gen_fib_xnor
+ 
+     // if custom polynomial is provided
+     if (CustomCoeffs > 0) begin : gen_custom
+@@ -389,7 +389,7 @@ module prim_lfsr #(
+     logic state0;
+ 
+     // Galois XOR
+-    if (64'(LfsrType) == 64'("GAL_XOR")) begin
++    if (LfsrType == "GAL_XOR") begin
+       if (state == 0) begin
+         state = DefaultSeed;
+       end else begin
+@@ -399,7 +399,7 @@ module prim_lfsr #(
+         state ^= LfsrDw'(entropy);
+       end
+     // Fibonacci XNOR
+-    end else if (64'(LfsrType) == "FIB_XNOR") begin
++    end else if (LfsrType == "FIB_XNOR") begin
+       if (&state) begin
+         state = DefaultSeed;
+       end else begin
+diff --git a/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv b/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
+index ca1dc9f5..44d7cb88 100644
+--- a/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
++++ b/hw/ip/prim_generic/rtl/prim_generic_pad_wrapper.sv
+@@ -33,7 +33,7 @@ module prim_generic_pad_wrapper #(
+   assign oe       = oe_i & ((od & ~out) | ~od);
+ 
+ // driving strength attributes are not supported by verilator
+-`ifdef VERILATOR
++`ifdef SYNTHESIS
+   assign inout_io = (oe) ? out : 1'bz;
+ `else
+   // different driver types
+diff --git a/hw/ip/spi_device/rtl/spi_fwm_txf_ctrl.sv b/hw/ip/spi_device/rtl/spi_fwm_txf_ctrl.sv
+index 239654fb..5d5dbfd7 100644
+--- a/hw/ip/spi_device/rtl/spi_fwm_txf_ctrl.sv
++++ b/hw/ip/spi_device/rtl/spi_fwm_txf_ctrl.sv
+@@ -84,6 +84,7 @@ module spi_fwm_txf_ctrl #(
+   // State Machine next , output logic
+   always_comb begin
+     // default output value
++    st_next     = StIdle;
+     sram_req_d  = 1'b0;
+     update_rptr = 1'b0;
+     latch_wptr  = 1'b0;
+@@ -134,7 +135,7 @@ module spi_fwm_txf_ctrl #(
+           fifo_valid = 1'b1;
+           txf_sel = 1'b1; // select sram_rdata_q
+           cnt_incr = 1'b1;
+-        end else if (fifo_ready && cnt_eq_end) begin
++        end else begin //if (fifo_ready && cnt_eq_end) begin
+           // current SRAM word is written to FIFO
+           st_next = StUpdate;
+         end
+diff --git a/hw/top_earlgrey/rtl/clkgen_xil7series.sv b/hw/top_earlgrey/rtl/clkgen_xil7series.sv
+index 03dab4be..c0e892d5 100644
+--- a/hw/top_earlgrey/rtl/clkgen_xil7series.sv
++++ b/hw/top_earlgrey/rtl/clkgen_xil7series.sv
+@@ -31,10 +31,10 @@ module clkgen_xil7series (
+     .DIVCLK_DIVIDE        (1),
+     .CLKFBOUT_MULT        (12),
+     .CLKFBOUT_PHASE       (0.000),
+-    .CLKOUT0_DIVIDE       (24),
++    .CLKOUT0_DIVIDE       (48),
+     .CLKOUT0_PHASE        (0.000),
+     .CLKOUT0_DUTY_CYCLE   (0.500),
+-    .CLKOUT1_DIVIDE       (25),
++    .CLKOUT1_DIVIDE       (50),
+     .CLKOUT1_PHASE        (0.000),
+     .CLKOUT1_DUTY_CYCLE   (0.500),
+     .CLKIN1_PERIOD        (10.000)
+diff --git a/hw/top_earlgrey/rtl/top_earlgrey_nexysvideo.sv b/hw/top_earlgrey/rtl/top_earlgrey_nexysvideo.sv
+index dc3df9c4..4166ed74 100644
+--- a/hw/top_earlgrey/rtl/top_earlgrey_nexysvideo.sv
++++ b/hw/top_earlgrey/rtl/top_earlgrey_nexysvideo.sv
+@@ -103,69 +103,82 @@ module top_earlgrey_nexysvideo (
+     .rst_sys_n(rst_sys_n)
+   );
+ 
+-  // pad control
+-  padctl padctl (
+-    // UART
+-    .cio_uart_rx_p2d,
+-    .cio_uart_tx_d2p,
+-    .cio_uart_tx_en_d2p,
+-    // USB
+-    .cio_usbdev_sense_p2d(cio_usbdev_sense_p2d),
+-    .cio_usbdev_pullup_d2p(cio_usbdev_pullup_d2p),
+-    .cio_usbdev_pullup_en_d2p(cio_usbdev_pullup_en_d2p),
+-    .cio_usbdev_dp_p2d(cio_usbdev_dp_p2d),
+-    .cio_usbdev_dp_d2p(cio_usbdev_dp_d2p),
+-    .cio_usbdev_dp_en_d2p(cio_usbdev_dp_en_d2p),
+-    .cio_usbdev_dn_p2d(cio_usbdev_dn_p2d),
+-    .cio_usbdev_dn_d2p(cio_usbdev_dn_d2p),
+-    .cio_usbdev_dn_en_d2p(cio_usbdev_dn_en_d2p),
+-    // GPIO
+-    .cio_gpio_p2d,
+-    .cio_gpio_d2p,
+-    .cio_gpio_en_d2p,
+-    // pads
+-    .IO_URX,
+-    .IO_UTX,
+-    .IO_USB_DP0,
+-    .IO_USB_DN0,
+-    .IO_USB_SENSE0,
+-    .IO_USB_PULLUP0,
+-    .IO_GP0,
+-    .IO_GP1,
+-    .IO_GP2,
+-    .IO_GP3,
+-    .IO_GP4,
+-    .IO_GP5,
+-    .IO_GP6,
+-    .IO_GP7,
+-    .IO_GP8,
+-    .IO_GP9,
+-    .IO_GP10,
+-    .IO_GP11,
+-    .IO_GP12,
+-    .IO_GP13,
+-    .IO_GP14,
+-    .IO_GP15,
+-
+-    .cio_spi_device_sck_p2d,
+-    .cio_spi_device_csb_p2d,
+-    .cio_spi_device_mosi_p2d,
+-    .cio_spi_device_miso_d2p,
+-    .cio_spi_device_miso_en_d2p,
+-    .cio_jtag_tck_p2d,
+-    .cio_jtag_tms_p2d,
+-    .cio_jtag_trst_n_p2d,
+-    .cio_jtag_srst_n_p2d,
+-    .cio_jtag_tdi_p2d,
+-    .cio_jtag_tdo_d2p,
+-    .IO_DPS0,
+-    .IO_DPS1,
+-    .IO_DPS2,
+-    .IO_DPS3,
+-    .IO_DPS4,
+-    .IO_DPS5,
+-    .IO_DPS6,
+-    .IO_DPS7
+-  );
++  // USB
++  assign cio_usbdev_sense_p2d = IO_USB_SENSE0;
++  assign IO_USB_PULLUP0       = cio_usbdev_pullup_en_d2p ? cio_usbdev_pullup_d2p : 1'bz;
++
++  assign IO_USB_DP0 = cio_usbdev_dp_en_d2p ? cio_usbdev_dp_d2p : 1'bz;
++  assign IO_USB_DN0 = cio_usbdev_dn_en_d2p ? cio_usbdev_dn_d2p : 1'bz;
++
++  // Note that while transmitting, the receive (p2d) line must be fixed.
++  // Otherwise you are trying to regenerate the bit clock from the bit
++  // clock you are regenerating, rather than just holding the phase.
++  assign cio_usbdev_dp_p2d = cio_usbdev_dp_en_d2p ? 1'b1 : IO_USB_DP0;
++  assign cio_usbdev_dn_p2d = cio_usbdev_dn_en_d2p ? 1'b0 : IO_USB_DN0;
++
++  // JTAG or SPI mux to the FTDI MSEE pins DPS0-DPS6
++  logic    jtag_spi_n, dps2, dps2_en;
++  logic    boot_strap;
++
++  assign  cio_uart_rx_p2d = IO_URX;
++  assign  IO_UTX = cio_uart_tx_en_d2p ? cio_uart_tx_d2p : 1'bz;
++
++  assign  cio_gpio_p2d = {
++      14'h0,      // unpopulated
++      boot_strap, // Use GPIO17 to pass rom boot_strap indication
++      jtag_spi_n, // Use GPIO16 to pass SPI/JTAG control flag
++      IO_GP15,
++      IO_GP14,
++      IO_GP13,
++      IO_GP12,
++      IO_GP11,
++      IO_GP10,
++      IO_GP9,
++      IO_GP8,
++      IO_GP7,
++      IO_GP6,
++      IO_GP5,
++      IO_GP4,
++      IO_GP3,
++      IO_GP2,
++      IO_GP1,
++      IO_GP0
++  };
++
++  assign  IO_GP0  = cio_gpio_en_d2p[0]  ? cio_gpio_d2p[0]  : 1'bz;
++  assign  IO_GP1  = cio_gpio_en_d2p[1]  ? cio_gpio_d2p[1]  : 1'bz;
++  assign  IO_GP2  = cio_gpio_en_d2p[2]  ? cio_gpio_d2p[2]  : 1'bz;
++  assign  IO_GP3  = cio_gpio_en_d2p[3]  ? cio_gpio_d2p[3]  : 1'bz;
++  assign  IO_GP4  = cio_gpio_en_d2p[4]  ? cio_gpio_d2p[4]  : 1'bz;
++  assign  IO_GP5  = cio_gpio_en_d2p[5]  ? cio_gpio_d2p[5]  : 1'bz;
++  assign  IO_GP6  = cio_gpio_en_d2p[6]  ? cio_gpio_d2p[6]  : 1'bz;
++  assign  IO_GP7  = cio_gpio_en_d2p[7]  ? cio_gpio_d2p[7]  : 1'bz;
++  assign  IO_GP8  = cio_gpio_en_d2p[8]  ? cio_gpio_d2p[8]  : 1'bz;
++  assign  IO_GP9  = cio_gpio_en_d2p[9]  ? cio_gpio_d2p[9]  : 1'bz;
++  assign  IO_GP10 = cio_gpio_en_d2p[10] ? cio_gpio_d2p[10] : 1'bz;
++  assign  IO_GP11 = cio_gpio_en_d2p[11] ? cio_gpio_d2p[11] : 1'bz;
++  assign  IO_GP12 = cio_gpio_en_d2p[12] ? cio_gpio_d2p[12] : 1'bz;
++  assign  IO_GP13 = cio_gpio_en_d2p[13] ? cio_gpio_d2p[13] : 1'bz;
++  assign  IO_GP14 = cio_gpio_en_d2p[14] ? cio_gpio_d2p[14] : 1'bz;
++  assign  IO_GP15 = cio_gpio_en_d2p[15] ? cio_gpio_d2p[15] : 1'bz;
++
++  assign jtag_spi_n = IO_DPS6;
++  assign boot_strap = IO_DPS7;
++
++  assign cio_spi_device_sck_p2d  = jtag_spi_n ?  0         : IO_DPS0;
++  assign cio_jtag_tck_p2d        = jtag_spi_n ?  IO_DPS0   : 0;
++  assign cio_spi_device_mosi_p2d = jtag_spi_n ?  0         : IO_DPS1;
++  assign cio_jtag_tdi_p2d        = jtag_spi_n ?  IO_DPS1   : 0;
++
++
++  assign dps2    = jtag_spi_n ?    cio_jtag_tdo_d2p : cio_spi_device_miso_d2p;
++  assign dps2_en = jtag_spi_n ?    1                : cio_spi_device_miso_en_d2p;
++  assign IO_DPS2 = dps2_en ? dps2 : 1'bz;
++
++  assign cio_spi_device_csb_p2d  = jtag_spi_n ?  1         : IO_DPS3;
++  assign cio_jtag_tms_p2d        = jtag_spi_n ?  IO_DPS3   : 0;
++
++  assign cio_jtag_trst_n_p2d     = jtag_spi_n ?  IO_DPS4   : 1;
++  assign cio_jtag_srst_n_p2d     = jtag_spi_n ?  IO_DPS5   : 1;
+ 
+ endmodule
+diff --git a/hw/vendor/lowrisc_ibex/shared/rtl/fpga/xilinx/clkgen_xil7series.sv b/hw/vendor/lowrisc_ibex/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
+index e41b4b02..c510d0a7 100644
+--- a/hw/vendor/lowrisc_ibex/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
++++ b/hw/vendor/lowrisc_ibex/shared/rtl/fpga/xilinx/clkgen_xil7series.sv
+@@ -28,7 +28,7 @@ module clkgen_xil7series (
+     .DIVCLK_DIVIDE        (1),
+     .CLKFBOUT_MULT        (12),
+     .CLKFBOUT_PHASE       (0.000),
+-    .CLKOUT0_DIVIDE       (24),
++    .CLKOUT0_DIVIDE       (48),
+     .CLKOUT0_PHASE        (0.000),
+     .CLKOUT0_DUTY_CYCLE   (0.500)
+   ) pll (

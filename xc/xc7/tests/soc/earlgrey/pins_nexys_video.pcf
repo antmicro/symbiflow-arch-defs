@@ -1,0 +1,45 @@
+## Clock Signal
+set_io IO_CLK R4
+
+## LEDs
+set_io IO_GP8 T14 
+set_io IO_GP9 T15
+set_io IO_GP10 T16
+set_io IO_GP11 U16
+set_io IO_GP12 V15
+set_io IO_GP13 W16
+set_io IO_GP14 W15
+set_io IO_GP15 Y13
+
+## Buttons
+set_io IO_RST_N G4
+
+## Switches
+set_io IO_GP0 E22
+set_io IO_GP1 F21
+set_io IO_GP2 G21
+set_io IO_GP3 G22
+set_io IO_GP4 H17
+set_io IO_GP5 J16
+set_io IO_GP6 K13
+set_io IO_GP7 M17
+
+## Pmod header JB
+set_io IO_USB_DP0 V9
+set_io IO_USB_DN0 V8
+set_io IO_USB_PULLUP0 V7
+set_io IO_USB_SENSE0 W7
+
+## UART
+set_io IO_UTX AA19
+set_io IO_URX V18
+
+## DPTI/DSPI
+set_io IO_DPS0 U20
+set_io IO_DPS1 P14
+set_io IO_DPS2 P15
+set_io IO_DPS3 U17
+set_io IO_DPS4 R17
+set_io IO_DPS5 P16
+set_io IO_DPS6 R18
+set_io IO_DPS7 N14
