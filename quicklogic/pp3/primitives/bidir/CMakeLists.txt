@@ -5,4 +5,4 @@ v2x(NAME bidir_cell SRCS bidir_cell.sim.v)
 v2x(NAME bidir SRCS bidir.sim.v)
 
 add_to_cells_sim(bidir_cell.sim.v)
-
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_bidir_bidir)

@@ -1,3 +1,5 @@
+add_custom_target(all_ql_primitives)
+
 add_subdirectory(vpr_pad)
 add_subdirectory(vcc)
 add_subdirectory(gnd)

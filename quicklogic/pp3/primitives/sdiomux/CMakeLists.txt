@@ -6,3 +6,5 @@ v2x(NAME sdiomux SRCS sdiomux.sim.v)
 
 add_to_cells_sim(sdiomux_cell.sim.v)
 
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_sdiomux_sdiomux_cell)
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_sdiomux_sdiomux)

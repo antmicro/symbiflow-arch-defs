@@ -8,3 +8,7 @@ v2x(NAME gmux SRCS gmux.sim.v)
 
 add_to_cells_sim(gmux_ip.sim.v)
 add_to_cells_sim(gmux_ic.sim.v)
+
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_gmux_gmux_ip)
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_gmux_gmux_ic)
+add_dependencies(all_ql_primitives v2x_quicklogic_pp3_primitives_gmux_gmux)
