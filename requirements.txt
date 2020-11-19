@@ -18,6 +18,7 @@ svgwrite
 textx
 tinyfpgab
 tinyprog
+jinja2
 yapf==0.26.0
 -e third_party/fasm
 -e third_party/xc-fasm
