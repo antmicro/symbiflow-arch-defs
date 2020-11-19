@@ -166,6 +166,7 @@ function(ADD_XC_ARCH_DEFINE)
         --arch \${DEVICE_MERGED_FILE_LOCATION} \
         --blif \${OUT_EBLIF} \
         --input /dev/stdin \
+	--allow-bufg-logic-sources \
         --output /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION bit
