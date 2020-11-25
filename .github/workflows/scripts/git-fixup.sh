@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .github/travis/common.sh
+source .github/workflows/scripts/common.sh
 set -e
 
 # Git repo fixup
@@ -15,9 +15,9 @@ $SPACER
 set -x
 git remote -v
 git branch -v
-git branch -D $TRAVIS_BRANCH
+git branch -D ${GITHUB_REF}
 CURRENT_GITREV="$(git rev-parse HEAD)"
-git checkout -b $TRAVIS_BRANCH $CURRENT_GITREV
+git checkout -b ${GITHUB_REF} ${GITHUB_SHA}
 git tag -l
 git describe --long --always
 set +x
