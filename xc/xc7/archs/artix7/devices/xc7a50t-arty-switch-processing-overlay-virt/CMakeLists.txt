@@ -8,6 +8,7 @@ add_xc_device_define_type(
     CLBLM_L
     CLBLM_R
     BRAM_L
+    BRAM_R
     LIOPAD_M
     LIOPAD_S
     LIOPAD_SING
