@@ -1,5 +1,12 @@
 yosys -import
 
+# Load plugins
+plugin -i get_count
+plugin -i ql-iob
+
+# Import plugin commands to the TCL interpreter
+yosys -import
+
 # Read VPR cells library
 read_verilog -lib $::env(TECHMAP_PATH)/cells_sim.v
 # Read device specific cells library
@@ -18,7 +25,6 @@ stat
 
 # Assing parameters to IO cells basing on constraints and package pinmap
 if { $::env(PCF_FILE) != "" && $::env(PINMAP_FILE) != ""} {
-    plugin -i ql-iob
     quicklogic_iob $::env(PCF_FILE) $::env(PINMAP_FILE)
 }
 
