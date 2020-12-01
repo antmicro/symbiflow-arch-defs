@@ -104,19 +104,19 @@ def main():
     parser.add_argument("--load",             action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq",     default=60e6,        help="System clock frequency (default: 60MHz)")
     parser.add_argument("--with-ethernet",    action="store_true", help="Enable Ethernet support")
-    parser.add_argument("--builddir",         default="arty_soc",  help="Build directory name")
+    parser.add_argument("--output_dir",       default="arty_soc",  help="Build directory name")
     builder_args(parser)
     soc_sdram_args(parser)
     args = parser.parse_args()
 
-    assert not (args.with_ethernet and args.with_etherbone)
+    assert not (args.with_ethernet)
     soc = BaseSoC(
         toolchain      = args.toolchain,
         sys_clk_freq   = int(float(args.sys_clk_freq)),
         with_ethernet  = args.with_ethernet,
         **soc_sdram_argdict(args)
     )
-    builder = Builder(soc, output_dir=args.builddir)
+    builder = Builder(soc, **builder_argdict(args))
     builder_kwargs = {}
     builder.build(**builder_kwargs, run=args.build)
 
