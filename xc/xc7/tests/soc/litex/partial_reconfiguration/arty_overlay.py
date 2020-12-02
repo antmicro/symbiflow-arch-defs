@@ -9,6 +9,7 @@ import arty_prm_platform
 
 from litex.soc.cores.clock import *
 from litex.soc.cores.prm import *
+from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc_sdram import *
 from litex.soc.integration.builder import *
@@ -94,6 +95,10 @@ class BaseSoC(SoCCore):
         # PRM -------------------------------------------------------------------------------------
         self.submodules.prm = PRIOInterfacer(
             pads         = platform.request("synthio_bus"))
+
+        self.add_csr("prm")
+        prm_region = SoCRegion(origin=self.mem_map.get("prm", None), size=0x1000, cached=False)
+        self.bus.add_slave(name="prm", slave=self.prm.bus, region=prm_region)
 
 # Build --------------------------------------------------------------------------------------------
 
