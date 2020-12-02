@@ -151,7 +151,7 @@ _io = [
 
     ("synthio_bus", 0,
         Subsignal("adr",    Pins(
-            "SYN2 SYN3 SYN4 SYN5 SYN6 SYN7 SYN8 SYN9",
+            "SYN4 SYN5 SYN6 SYN7 SYN8 SYN9",
             "SYN10 SYN11 SYN12 SYN13 SYN14 SYN15 SYN16 SYN17",
             "SYN18 SYN19 SYN20 SYN21 SYN22 SYN23 SYN24 SYN25",
             "SYN26 SYN27 SYN28 SYN29 SYN30 SYN31 SYN32 SYN33")),
@@ -173,7 +173,6 @@ _io = [
         Subsignal("cti",    Pins("SYN73 SYN74 SYN75 ")),
         Subsignal("bte",    Pins("SYN76 SYN77 ")),
         Subsignal("err",    Pins("SYN111 ")),
-        IOStandard("LVCMOS33"),
      ),
 ]
 
