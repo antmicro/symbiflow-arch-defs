@@ -95,8 +95,9 @@ class BaseSoC(SoCCore):
         # PRM -------------------------------------------------------------------------------------
         self.submodules.prm = PRIOInterfacer(
             bus_pads         = platform.request("synthio_bus"),
-            roi_input_pads       = platform.request("synthio_in"),
-            roi_output_pads      = platform.request("synthio_out"))
+            roi_input_pads   = platform.request("synthio_in"),
+            roi_output_pads  = platform.request("synthio_out"),
+            mode             = "master")
 
         self.add_csr("prm")
         prm_region = SoCRegion(origin=self.mem_map.get("prm", None), size=0x1000, cached=False)
