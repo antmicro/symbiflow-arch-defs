@@ -3,7 +3,7 @@
 	url = https://github.com/nturley/netlistsvg.git
 [submodule "third_party/prjxray"]
 	path = third_party/prjxray
-	url = https://github.com/SymbiFlow/prjxray.git
+	url = https://github.com/antmicro/prjxray.git
 [submodule "third_party/icestorm"]
 	path = third_party/icestorm
 	url = https://github.com/cliffordwolf/icestorm.git
@@ -27,7 +27,7 @@
 	url = https://github.com/SymbiFlow/make-env.git
 [submodule "third_party/xc-fasm"]
 	path = third_party/xc-fasm
-	url = https://github.com/SymbiFlow/xc-fasm.git
+	url = https://github.com/antmicro/xc-fasm.git
 [submodule "third_party/symbiflow-xc-fasm2bels"]
 	path = third_party/symbiflow-xc-fasm2bels
 	url = https://github.com/SymbiFlow/symbiflow-xc-fasm2bels.git
@@ -42,7 +42,7 @@
 	url = https://github.com/enjoy-digital/litedram
 [submodule "third_party/litex"]
 	path = third_party/litex
-	url = https://github.com/enjoy-digital/litex
+	url = https://github.com/antmicro/litex
 [submodule "third_party/liteeth"]
 	path = third_party/liteeth
 	url = https://github.com/enjoy-digital/liteeth
