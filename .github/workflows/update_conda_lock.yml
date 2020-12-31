@@ -1,0 +1,31 @@
+name: update_conda_lock
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-locks:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules:  'recursive'
+        ref:         'master'    # It will be the PR's base
+
+    - name: Update Lock and Issue a Pull Request
+      id: update-lock
+      uses: antmicro/actions/update_conda_lock@ae1b1b9
+      with:
+        branch_name:      'update_conda_lock'
+        conda_lock_file:  'conda_lock.yml'
+        environment_file: 'environment.yml'
+        github_token:      ${{ secrets.GITHUB_TOKEN }}
+        pr_title:         '[BOT] Bump conda_lock.yml'
