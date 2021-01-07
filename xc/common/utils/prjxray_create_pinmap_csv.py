@@ -109,7 +109,7 @@ def main():
                     )
                 )
 
-    if not args.synth_tiles or args.overlay:
+    if not args.synth_tiles or args.overlay or True:
         for line in csv.DictReader(args.package_pins):
 
             # Skip PS7 MIO and DDR pads as they are not routable
