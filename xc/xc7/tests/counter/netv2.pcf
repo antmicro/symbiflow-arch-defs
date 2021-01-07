@@ -1,0 +1,5 @@
+set_io clk PIN177
+set_io led[0] M21
+set_io led[1] N20
+set_io led[2] L21
+set_io led[3] AA21
