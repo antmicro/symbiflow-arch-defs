@@ -697,9 +697,11 @@ def main():
         help='BLIF / eBLIF file'
     )
     parser.add_argument('--roi', action='store_true', help='Using ROI')
+
+    # WIP: changed this to stored false to always allow BUFG driven by logic sources
     parser.add_argument(
         "--allow-bufg-logic-sources",
-        action="store_true",
+        action="store_false",
         help="When set allows BUFGs to be driven by logic"
     )
     parser.add_argument('--graph_limit', help='Graph limit parameters')

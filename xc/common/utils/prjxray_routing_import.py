@@ -842,7 +842,7 @@ WHERE
                 )
             elif wire == 'outpad' and num_outpad > 1:
                 pin_name = graph.create_pin_name_from_tile_type_sub_tile_num_and_pin(
-                    tile_type, (pin['z_loc'] - num_inpad), wire
+                    tile_type, (pin['z_loc']), wire
                 )
             else:
                 pin_name = graph.create_pin_name_from_tile_type_and_pin(

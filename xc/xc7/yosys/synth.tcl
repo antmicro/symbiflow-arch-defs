@@ -16,24 +16,26 @@ source [file join [file normalize [info script]] .. utils.tcl]
 # Some of symbiflow expects eblifs with only one module.
 #
 # Do not infer IOBs for targets that use a ROI.
-if { $::env(USE_ROI) == "TRUE" } {
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -noiopad -nowidelut
-} else {
-    # Read Yosys baseline library first.
-    read_verilog -lib -specify +/xilinx/cells_sim.v
-    read_verilog -lib +/xilinx/cells_xtra.v
+#
+# WIP: temporarily skip the ROI synthesis
+#if { $::env(USE_ROI) == "TRUE" } {
+#    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -noiopad -nowidelut
+#} else {
+# Read Yosys baseline library first.
+read_verilog -lib -specify +/xilinx/cells_sim.v
+read_verilog -lib +/xilinx/cells_xtra.v
 
-    # Overwrite some models (e.g. IBUF with more parameters)
-    read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
+# Overwrite some models (e.g. IBUF with more parameters)
+read_verilog -lib $::env(TECHMAP_PATH)/iobs.v
 
-    # Re-targetting FD to FDREs
-    techmap -map  $::env(TECHMAP_PATH)/retarget.v
+# Re-targetting FD to FDREs
+techmap -map  $::env(TECHMAP_PATH)/retarget.v
 
-    hierarchy -check -auto-top
+hierarchy -check -auto-top
 
-    # Start flow after library reading
-    synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
-}
+# Start flow after library reading
+synth_xilinx -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad -nowidelut -run prepare:check
+#}
 
 # Check that post-synthesis cells match libraries.
 hierarchy -check

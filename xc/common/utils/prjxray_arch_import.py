@@ -176,7 +176,8 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
         }
     )
 
-    if is_overlay:
+    # WIP: output SYN ibufs to have them also in ROI archs
+    if is_overlay or True:
         # Add model for SYN_IBUF
         ibuf_model = ET.SubElement(model_xml, 'model', {'name': 'SYN_IBUF'})
 
@@ -294,7 +295,8 @@ def create_synth_pb_types(model_xml, complexblocklist_xml, is_overlay=False):
         }
     )
 
-    if is_overlay:
+    # WIP: output SYN obufs to have them also in ROI archs
+    if is_overlay or True:
         direct_xml_out = ET.SubElement(
             interconnect_xml_out, 'direct', {
                 'name': '{}_to_{}'.format('SYN-OBUF.O', 'outpad.outpad'),

@@ -14,6 +14,11 @@ add_xc_device_define_type(
     RIOPAD_M
     RIOPAD_S
     RIOPAD_SING
+    CLK_BUFG_BOT_R
+    CLK_BUFG_TOP_R
+    CMT_TOP_L_UPPER_T
+    CMT_TOP_R_UPPER_T
+    HCLK_IOI3
   PB_TYPES
     SLICEL
     SLICEM
@@ -21,4 +26,7 @@ add_xc_device_define_type(
     IOPAD
     IOPAD_M
     IOPAD_S
+    BUFGCTRL
+    PLLE2_ADV
+    HCLK_IOI3
 )

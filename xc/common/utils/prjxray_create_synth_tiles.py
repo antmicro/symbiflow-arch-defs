@@ -230,7 +230,12 @@ def main():
                     is_clock = False
                     port_type = 'output' if not args.overlay else 'input'
                 elif port['type'] == 'clk':
-                    port_type = 'output' if not args.overlay else 'input'
+                    if port['name'].startswith('clki'):
+                        port_type = 'input'
+                    elif port['name'].startswith('clko'):
+                        port_type = 'output'
+                    else:
+                        port_type = 'output' if not args.overlay else 'input'
                     is_clock = True
                 else:
                     assert False, port
@@ -372,6 +377,11 @@ def main():
                         },
                     ],
             }
+
+    for tile in synth_tiles['tiles']:
+        pins = synth_tiles['tiles'][tile]['pins']
+        synth_tiles['tiles'][tile]['pins'] = sorted(pins, key = lambda k: k['z_loc'])
+
 
     with open(args.synth_tiles, 'w') as f:
         json.dump(synth_tiles, f, indent=2)

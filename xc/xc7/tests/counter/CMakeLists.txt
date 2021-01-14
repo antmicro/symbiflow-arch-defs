@@ -164,3 +164,13 @@ add_vivado_target(
   NAME counter_pynqz1_vivado
   PARENT_NAME counter_pynqz1
 )
+
+add_file_target(FILE counter_netv2.v SCANNER_TYPE verilog)
+add_file_target(FILE netv2.pcf)
+add_fpga_target(
+  NAME counter_netv2
+  BOARD netv2-pcie
+  SOURCES counter_netv2.v
+  INPUT_IO_FILE netv2.pcf
+  EXPLICIT_ADD_FILE_TARGET
+)
