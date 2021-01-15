@@ -9,4 +9,5 @@ These documents outline the development practices for the project.
 
    structure
    vtr_notes
+   arch_notes
 
