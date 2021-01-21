@@ -14,13 +14,13 @@ dependencies:
   - litex-hub::vtr-optimized=v8.0.0_3049_g64d15e2dd=20201217_025303
   - litex-hub::yosys=0.9_5007_g2116c585=20201202_112618
   - litex-hub::zachjs-sv2v=0.0.5_0025_ge9f9696=20201120_205532
+  # libxml2 2.9.10 contains an integer overflow fix required for arch-defs.
+  - litex-hub::libxml2>=2.9.10
   - cmake
   - make
   - flake8
   - nodejs
   - libiconv
-  # libxml2 2.9.10 contains an integer overflow fix required for arch-defs.
-  - libxml2>=2.9.10
   # openjdk, libuuid, pkg-config, and cython are required to build the fasm package's ANTLR backend.
   # They can be removed if fasm is packaged as a binary e.g. a wheel or Conda package.
   - openjdk
