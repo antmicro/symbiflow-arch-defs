@@ -1,0 +1,254 @@
+<models>
+  <model name="GTPE2_CHANNEL_VPR">
+    <input_ports>
+      <port name="CFGRESET"/>
+      <port name="CLKRSVD0" is_clock="1"/>
+      <port name="CLKRSVD1" is_clock="1"/>
+      <port name="DMONFIFORESET"/>
+      <port name="DMONITORCLK" is_clock="1"/>
+      <port name="DRPADDR"/>
+      <port name="DRPCLK" is_clock="1"/>
+      <port name="DRPDI"/>
+      <port name="DRPEN"/>
+      <port name="DRPWE"/>
+      <port name="EYESCANMODE"/>
+      <port name="EYESCANRESET"/>
+      <port name="EYESCANTRIGGER"/>
+      <port name="GTPRXN"/>
+      <port name="GTPRXP"/>
+      <port name="GTRESETSEL"/>
+      <port name="GTRSVD"/>
+      <port name="GTRXRESET"/>
+      <port name="GTTXRESET"/>
+      <port name="LOOPBACK"/>
+      <port name="PCSRSVDIN"/>
+      <port name="PLL0CLK" is_clock="1"/>
+      <port name="PLL0REFCLK" is_clock="1"/>
+      <port name="PLL1CLK" is_clock="1"/>
+      <port name="PLL1REFCLK" is_clock="1"/>
+      <port name="PMARSVDIN"/>
+      <port name="PMASCANCLK0" is_clock="1"/>
+      <port name="PMASCANCLK1" is_clock="1"/>
+      <port name="PMASCANCLK2" is_clock="1"/>
+      <port name="PMASCANCLK3" is_clock="1"/>
+      <port name="PMASCANENB"/>
+      <port name="PMASCANIN"/>
+      <port name="PMASCANMODEB"/>
+      <port name="PMASCANRSTEN"/>
+      <port name="RESETOVRD"/>
+      <port name="RX8B10BEN"/>
+      <port name="RXADAPTSELTEST"/>
+      <port name="RXBUFRESET"/>
+      <port name="RXCDRFREQRESET"/>
+      <port name="RXCDRHOLD"/>
+      <port name="RXCDROVRDEN"/>
+      <port name="RXCDRRESET"/>
+      <port name="RXCDRRESETRSV"/>
+      <port name="RXCHBONDEN"/>
+      <port name="RXCHBONDI"/>
+      <port name="RXCHBONDLEVEL"/>
+      <port name="RXCHBONDMASTER"/>
+      <port name="RXCHBONDSLAVE"/>
+      <port name="RXCOMMADET"/>
+      <port name="RXCOMMADETEN"/>
+      <port name="RXDDIEN"/>
+      <port name="RXDEBUGPULSE"/>
+      <port name="RXDFEXYDEN"/>
+      <port name="RXDLYBYPASS"/>
+      <port name="RXDLYEN"/>
+      <port name="RXDLYOVRDEN"/>
+      <port name="RXDLYTESTENB"/>
+      <port name="RXELECIDLE"/>
+      <port name="RXELECIDLEMODE"/>
+      <port name="RXGEARBOXSLIP"/>
+      <port name="RXLPMHFHOLD"/>
+      <port name="RXLPMHFOVRDEN"/>
+      <port name="RXLPMLFHOLD"/>
+      <port name="RXLPMLFOVRDEN"/>
+      <port name="RXLPMOSINTNTRLEN"/>
+      <port name="RXLPMRESET"/>
+      <port name="RXMCOMMAALIGNEN"/>
+      <port name="RXOOBRESET"/>
+      <port name="RXOSCALRESET"/>
+      <port name="RXOSHOLD"/>
+      <port name="RXOSINTCFG"/>
+      <port name="RXOSINTEN"/>
+      <port name="RXOSINTHOLD"/>
+      <port name="RXOSINTID"/>
+      <port name="RXOSINTNTRLEN"/>
+      <port name="RXOSINTOVRDEN"/>
+      <port name="RXOSINTPD"/>
+      <port name="RXOSINTTESTOVRDEN"/>
+      <port name="RXOSOVRDEN"/>
+      <port name="RXOUTCLK" is_clock="1"/>
+      <port name="RXOUTCLKSEL"/>
+      <port name="RXPCOMMAALIGNEN"/>
+      <port name="RXPCSRESET"/>
+      <port name="RXPD"/>
+      <port name="RXPHALIGN"/>
+      <port name="RXPHALIGNEN"/>
+      <port name="RXPHDLYPD"/>
+      <port name="RXPHDLYRESET"/>
+      <port name="RXPHOVRDEN"/>
+      <port name="RXPOLARITY"/>
+      <port name="RXPRBSCNTRESET"/>
+      <port name="RXPRBSSEL"/>
+      <port name="RXRATE"/>
+      <port name="RXRATEMODE"/>
+      <port name="RXSLIDE"/>
+      <port name="RXSYNCALLIN"/>
+      <port name="RXSYNCIN"/>
+      <port name="RXSYNCMODE"/>
+      <port name="RXSYSCLKSEL"/>
+      <port name="RXUSERRDY"/>
+      <port name="RXUSRCLK" is_clock="1"/>
+      <port name="RXUSRCLK2" is_clock="1"/>
+      <port name="SCANCLK" is_clock="1"/>
+      <port name="SCANENB"/>
+      <port name="SCANIN"/>
+      <port name="SCANMODEB"/>
+      <port name="SETERRSTATUS"/>
+      <port name="SIGVALIDCLK" is_clock="1"/>
+      <port name="TSTCLK0" is_clock="1"/>
+      <port name="TSTCLK1" is_clock="1"/>
+      <port name="TSTIN"/>
+      <port name="TSTPD"/>
+      <port name="TSTPDOVRDB"/>
+      <port name="TX8B1BBYPASS"/>
+      <port name="TX8B0BBYPASS"/>
+      <port name="TX8B10BBYPASS"/>
+      <port name="TX8B10BEN"/>
+      <port name="TXBUFDIFFCTRL"/>
+      <port name="TXCHARDISPMODE"/>
+      <port name="TXCHARDISPVAL"/>
+      <port name="TXCHARISK"/>
+      <port name="TXCOMINIT"/>
+      <port name="TXCOMSAS"/>
+      <port name="TXCOMWAKE"/>
+      <port name="TXDATA"/>
+      <port name="TXDEEMPH"/>
+      <port name="TXDETECTRX"/>
+      <port name="TXDIFFCTRL"/>
+      <port name="TXDIFFPD"/>
+      <port name="TXDLYBYPASS"/>
+      <port name="TXDLYEN"/>
+      <port name="TXDLYHOLD"/>
+      <port name="TXDLYOVRDEN"/>
+      <port name="TXDLYTESTENB"/>
+      <port name="TXDLYUPDOWN"/>
+      <port name="TXELECIDLE"/>
+      <port name="TXHEADER"/>
+      <port name="TXINHIBIT"/>
+      <port name="TXMAINCURSOR"/>
+      <port name="TXMARGIN"/>
+      <port name="TXOUTCLK" is_clock="1"/>
+      <port name="TXOUTCLKSEL"/>
+      <port name="TXPCSRESET"/>
+      <port name="TXPD"/>
+      <port name="TXPDELECIDLEMODE"/>
+      <port name="TXPHALIGN"/>
+      <port name="TXPHALIGNEN"/>
+      <port name="TXPHDLYPD"/>
+      <port name="TXPHDLYRESET"/>
+      <port name="TXPHDLYTSTCLK" is_clock="1"/>
+      <port name="TXPHOVRDEN"/>
+      <port name="TXPIPPMEN"/>
+      <port name="TXPIPPMOVRDEN"/>
+      <port name="TXPIPPMPD"/>
+      <port name="TXPIPPMSEL"/>
+      <port name="TXPIPPMSTEPSIZE"/>
+      <port name="TXPISOPD"/>
+      <port name="TXPOLARITY"/>
+      <port name="TXPOSTCURSOR"/>
+      <port name="TXPOSTCURSORINV"/>
+      <port name="TXPRBSFORCEERR"/>
+      <port name="TXPRBSSEL"/>
+      <port name="TXPRECURSOR"/>
+      <port name="TXPRECURSORINV"/>
+      <port name="TXRATE"/>
+      <port name="TXRATEMODE"/>
+      <port name="TXSEQUENCE"/>
+      <port name="TXSTARTSEQ"/>
+      <port name="TXSWING"/>
+      <port name="TXSYNCALLIN"/>
+      <port name="TXSYNCIN"/>
+      <port name="TXSYNCMODE"/>
+      <port name="TXSYSCLKSEL"/>
+      <port name="TXUSERRDY"/>
+      <port name="TXUSRCLK" is_clock="1"/>
+      <port name="TXUSRCLK2" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="DMONITOROUT"/>
+      <port name="DRPDO"/>
+      <port name="DRPRDY"/>
+      <port name="EYESCANDATAERROR"/>
+      <port name="GTPTXN"/>
+      <port name="GTPTXP"/>
+      <port name="PCSRSVDOUT"/>
+      <port name="PHYSTATUS"/>
+      <port name="PMARSVDOUT"/>
+      <port name="PMASCANOUT"/>
+      <port name="RXBUFSTATUS"/>
+      <port name="RXBYTEISALIGNED"/>
+      <port name="RXBYTEREALIGN"/>
+      <port name="RXCDRLOCK"/>
+      <port name="RXCHANBONDSEQ"/>
+      <port name="RXCHANISALIGNED"/>
+      <port name="RXCHANREALIGN"/>
+      <port name="RXCHARISCOMMA"/>
+      <port name="RXCHARISK"/>
+      <port name="RXCHBONDO"/>
+      <port name="RXCLKCORCNT"/>
+      <port name="RXCOMINITDET"/>
+      <port name="RXCOMSASDET"/>
+      <port name="RXCOMWAKEDET"/>
+      <port name="RXDATA"/>
+      <port name="RXDATAVALID"/>
+      <port name="RXDISPERR"/>
+      <port name="RXDLYSRESET"/>
+      <port name="RXDLYSRESETDONE"/>
+      <port name="RXHEADER"/>
+      <port name="RXHEADERVALID"/>
+      <port name="RXNOTINTABLE"/>
+      <port name="RXOSINTDONE"/>
+      <port name="RXOSINTSTARTED"/>
+      <port name="RXOSINTSTROBE"/>
+      <port name="RXOSINTSTROBEDONE"/>
+      <port name="RXOSINTSTROBESTARTED"/>
+      <port name="RXOUTCLKFABRIC"/>
+      <port name="RXOUTCLKPCS"/>
+      <port name="RXPHALIGNDONE"/>
+      <port name="RXPHMONITOR"/>
+      <port name="RXPHSLIPMONITOR"/>
+      <port name="RXPMARESET"/>
+      <port name="RXPMARESETDONE"/>
+      <port name="RXPRBSERR"/>
+      <port name="RXRATEDONE"/>
+      <port name="RXRESETDONE"/>
+      <port name="RXSTARTOFSEQ"/>
+      <port name="RXSTATUS"/>
+      <port name="RXSYNCDONE"/>
+      <port name="RXSYNCOUT"/>
+      <port name="RXVALID"/>
+      <port name="SCANOUT"/>
+      <port name="TXBUFSTATUS"/>
+      <port name="TXCOMFINISH"/>
+      <port name="TXDLYSRESET"/>
+      <port name="TXDLYSRESETDONE"/>
+      <port name="TXGEARBOXREADY"/>
+      <port name="TXOUTCLKFABRIC"/>
+      <port name="TXOUTCLKPCS"/>
+      <port name="TXPHALIGNDONE"/>
+      <port name="TXPHINIT"/>
+      <port name="TXPHINITDONE"/>
+      <port name="TXPMARESET"/>
+      <port name="TXPMARESETDONE"/>
+      <port name="TXRATEDONE"/>
+      <port name="TXRESETDONE"/>
+      <port name="TXRUNDISP"/>
+      <port name="TXSYNCDONE"/>
+      <port name="TXSYNCOUT"/>
+    </output_ports>
+  </model>
+</models>
