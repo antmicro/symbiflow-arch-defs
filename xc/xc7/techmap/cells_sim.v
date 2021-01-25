@@ -2098,3 +2098,574 @@ parameter INTERNAL_VREF = "";
 parameter NUMBER = "";
 
 endmodule
+
+module GTPE2_COMMON_VPR (
+  input BGBYPASSB,
+  input BGMONITORENB,
+  input BGPDB,
+  input [6:0] BGRCALOVRD,
+  input BGRCALOVRDENB,
+  output [8:0] DMONITOROUT,
+  input [8:0] DRPADDR,
+  input DRPCLK,
+  input [16:0] DRPDI,
+  output [16:0] DRPDO,
+  input DRPEN,
+  output DRPRDY,
+  input DRPWE,
+  input GTEASTREFCLK0,
+  input GTEASTREFCLK1,
+  input GTGREFCLK0,
+  input GTGREFCLK1,
+  input GTREFCLK0,
+  input GTREFCLK1,
+  input GTWESTREFCLK0,
+  input GTWESTREFCLK1,
+  output PLL0FBCLKLOST,
+  input [3:0] PLL0LOCK,
+  input PLL0LOCKDETCLK,
+  input PLL0LOCKEN,
+  output PLL0OUTCLK,
+  output PLL0OUTREFCLK,
+  input PLL0PD,
+  output PLL0REFCLKLOST,
+  output PLLREFCLKSEL,
+  input [3:0] PLL0REFCLKSEL,
+  input PLL0RESET,
+  output PLL1FBCLKLOST,
+  input [3:0] PLL1LOCK,
+  input PLL1LOCKDETCLK,
+  input PLL1LOCKEN,
+  output PLL1OUTCLK,
+  output PLL1OUTREFCLK,
+  input PLL1PD,
+  output PLL1REFCLKLOST,
+  input [3:0] PLL1REFCLKSEL,
+  input PLL1RESET,
+  input PLLCLKSPARE,
+  input [21:0] PLLRSVD,
+  output [24:0] PMARSVD,
+  output [16:0] PMARSVDOUT,
+  input PMASCANCLK0,
+  input PMASCANCLK1,
+  input PMASCANENB,
+  input [5:0] PMASCANIN,
+  output [5:0] PMASCANOUT,
+  input QDPMASCANMODEB,
+  input QDPMASCANRSTEN,
+  input RCALENB,
+  output [2:0] REFCLKOUTMONITOR
+);
+  parameter [63:0] BIAS_CFG = 64'h0000000000000000;
+  parameter [31:0] COMMON_CFG = 32'h00000000;
+  parameter [26:0] PLL0_CFG = 27'h01F03DC;
+  parameter [0:0] PLL0_DMON_CFG = 1'b0;
+  parameter integer PLL0_FBDIV = 4;
+  parameter integer PLL0_FBDIV_45 = 5;
+  parameter [23:0] PLL0_INIT_CFG = 24'h00001E;
+  parameter [8:0] PLL0_LOCK_CFG = 9'h1E8;
+  parameter integer PLL0_REFCLK_DIV = 1;
+  parameter [26:0] PLL1_CFG = 27'h01F03DC;
+  parameter [0:0] PLL1_DMON_CFG = 1'b0;
+  parameter integer PLL1_FBDIV = 4;
+  parameter integer PLL1_FBDIV_45 = 5;
+  parameter [23:0] PLL1_INIT_CFG = 24'h00001E;
+  parameter [8:0] PLL1_LOCK_CFG = 9'h1E8;
+  parameter integer PLL1_REFCLK_DIV = 1;
+  parameter [7:0] PLL_CLKOUT_CFG = 8'b00000000;
+  parameter [15:0] RSVD_ATTR0 = 16'h0000;
+  parameter [15:0] RSVD_ATTR1 = 16'h0000;
+  parameter IS_DRPCLK_INVERTED = 1'b0;
+  parameter IS_PLL0LOCKDETCLK_INVERTED = 1'b0;
+  parameter IS_PLL1LOCKDETCLK_INVERTED = 1'b0;
+  parameter IS_GTGREFCLK0_INVERTED = 1'b0;
+  parameter IS_GTGREFCLK1_INVERTED = 1'b0;
+  parameter ZINV_DRPCLK = 1'b0;
+  parameter ZINV_PLL1LOCKDETCLK = 1'b0;
+  parameter ZINV_PLL1LOCKDETCLK = 1'b0;
+  parameter INV_GTGREFCLK0 = 1'b0;
+  parameter INV_GTGREFCLK1 = 1'b0;
+  parameter IN_USE = 1'b0;
+endmodule
+
+module GTPE2_CHANNEL_VPR (
+  input CFGRESET,
+  input CLKRSVD0,
+  input CLKRSVD1,
+  input DMONFIFORESET,
+  input DMONITORCLK,
+  output [15:0] DMONITOROUT,
+  input [9:0] DRPADDR,
+  input DRPCLK,
+  input [16:0] DRPDI,
+  output [16:0] DRPDO,
+  input DRPEN,
+  output DRPRDY,
+  input DRPWE,
+  output EYESCANDATAERROR,
+  input EYESCANMODE,
+  input EYESCANRESET,
+  input EYESCANTRIGGER,
+  input GTPRXN,
+  input GTPRXP,
+  output GTPTXN,
+  output GTPTXP,
+  input GTRESETSEL,
+  input [16:0] GTRSVD,
+  input GTRXRESET,
+  input GTTXRESET,
+  input [3:0] LOOPBACK,
+  input [16:0] PCSRSVDIN,
+  output [16:0] PCSRSVDOUT,
+  output PHYSTATUS,
+  input PLL0CLK,
+  input PLL0REFCLK,
+  input PLL1CLK,
+  input PLL1REFCLK,
+  input [5:0] PMARSVDIN,
+  output [2:0] PMARSVDOUT,
+  input PMASCANCLK0,
+  input PMASCANCLK1,
+  input PMASCANCLK2,
+  input PMASCANCLK3,
+  input PMASCANENB,
+  input [7:0] PMASCANIN,
+  input PMASCANMODEB,
+  output [7:0] PMASCANOUT,
+  input PMASCANRSTEN,
+  input RESETOVRD,
+  input RX8B10BEN,
+  input [14:0] RXADAPTSELTEST,
+  input RXBUFRESET,
+  output [3:0] RXBUFSTATUS,
+  output RXBYTEISALIGNED,
+  output RXBYTEREALIGN,
+  input RXCDRFREQRESET,
+  input RXCDRHOLD,
+  output RXCDRLOCK,
+  input RXCDROVRDEN,
+  input [2:0] RXCDRRESET,
+  input RXCDRRESETRSV,
+  output RXCHANBONDSEQ,
+  output RXCHANISALIGNED,
+  output RXCHANREALIGN,
+  output [4:0] RXCHARISCOMMA,
+  output [4:0] RXCHARISK,
+  input RXCHBONDEN,
+  input [4:0] RXCHBONDI,
+  input [3:0] RXCHBONDLEVEL,
+  input RXCHBONDMASTER,
+  output [4:0] RXCHBONDO,
+  input RXCHBONDSLAVE,
+  output [2:0] RXCLKCORCNT,
+  output RXCOMINITDET,
+  input [2:0] RXCOMMADET,
+  input RXCOMMADETEN,
+  output RXCOMSASDET,
+  output RXCOMWAKEDET,
+  output [34:0] RXDATA,
+  output [2:0] RXDATAVALID,
+  input RXDDIEN,
+  input RXDEBUGPULSE,
+  input RXDFEXYDEN,
+  output [4:0] RXDISPERR,
+  input RXDLYBYPASS,
+  input RXDLYEN,
+  input RXDLYOVRDEN,
+  output [2:0] RXDLYSRESET,
+  output RXDLYSRESETDONE,
+  input RXDLYTESTENB,
+  input [3:0] RXELECIDLE,
+  input [2:0] RXELECIDLEMODE,
+  input RXGEARBOXSLIP,
+  output [4:0] RXHEADER,
+  output RXHEADERVALID,
+  input RXLPMHFHOLD,
+  input RXLPMHFOVRDEN,
+  input RXLPMLFHOLD,
+  input RXLPMLFOVRDEN,
+  input RXLPMOSINTNTRLEN,
+  input RXLPMRESET,
+  input RXMCOMMAALIGNEN,
+  output [4:0] RXNOTINTABLE,
+  input RXOOBRESET,
+  input RXOSCALRESET,
+  input RXOSHOLD,
+  input [4:0] RXOSINTCFG,
+  output RXOSINTDONE,
+  input RXOSINTEN,
+  input RXOSINTHOLD,
+  input [4:0] RXOSINTID,
+  input RXOSINTNTRLEN,
+  input RXOSINTOVRDEN,
+  input RXOSINTPD,
+  output RXOSINTSTARTED,
+  output [3:0] RXOSINTSTROBE,
+  output RXOSINTSTROBEDONE,
+  output RXOSINTSTROBESTARTED,
+  input RXOSINTTESTOVRDEN,
+  input RXOSOVRDEN,
+  input [6:0] RXOUTCLK,
+  output RXOUTCLKFABRIC,
+  output RXOUTCLKPCS,
+  input [3:0] RXOUTCLKSEL,
+  input RXPCOMMAALIGNEN,
+  input RXPCSRESET,
+  input [2:0] RXPD,
+  input [3:0] RXPHALIGN,
+  output RXPHALIGNDONE,
+  input RXPHALIGNEN,
+  input RXPHDLYPD,
+  input RXPHDLYRESET,
+  output [5:0] RXPHMONITOR,
+  input RXPHOVRDEN,
+  output [5:0] RXPHSLIPMONITOR,
+  output [2:0] RXPMARESET,
+  output RXPMARESETDONE,
+  input RXPOLARITY,
+  input RXPRBSCNTRESET,
+  output RXPRBSERR,
+  input [3:0] RXPRBSSEL,
+  input [5:0] RXRATE,
+  output RXRATEDONE,
+  input RXRATEMODE,
+  output RXRESETDONE,
+  input RXSLIDE,
+  output [2:0] RXSTARTOFSEQ,
+  output [3:0] RXSTATUS,
+  input RXSYNCALLIN,
+  output RXSYNCDONE,
+  input RXSYNCIN,
+  input RXSYNCMODE,
+  output RXSYNCOUT,
+  input [2:0] RXSYSCLKSEL,
+  input RXUSERRDY,
+  input [2:0] RXUSRCLK,
+  input RXUSRCLK2,
+  output RXVALID,
+  input [5:0] SCANCLK,
+  input [2:0] SCANENB,
+  input [13:0] SCANIN,
+  input [2:0] SCANMODEB,
+  output [13:0] SCANOUT,
+  input SETERRSTATUS,
+  input SIGVALIDCLK,
+  input TSTCLK0,
+  input TSTCLK1,
+  input [20:0] TSTIN,
+  input [6:0] TSTPD,
+  input TSTPDOVRDB,
+  input TX8B1BBYPASS,
+  input TX8B0BBYPASS,
+  input [4:0] TX8B10BBYPASS,
+  input TX8B10BEN,
+  input [3:0] TXBUFDIFFCTRL,
+  output [2:0] TXBUFSTATUS,
+  input [4:0] TXCHARDISPMODE,
+  input [4:0] TXCHARDISPVAL,
+  input [4:0] TXCHARISK,
+  output TXCOMFINISH,
+  input TXCOMINIT,
+  input TXCOMSAS,
+  input TXCOMWAKE,
+  input [32:0] TXDATA,
+  input TXDEEMPH,
+  input TXDETECTRX,
+  input [4:0] TXDIFFCTRL,
+  input TXDIFFPD,
+  input TXDLYBYPASS,
+  input TXDLYEN,
+  input TXDLYHOLD,
+  input TXDLYOVRDEN,
+  output [2:0] TXDLYSRESET,
+  output TXDLYSRESETDONE,
+  input TXDLYTESTENB,
+  input TXDLYUPDOWN,
+  input TXELECIDLE,
+  output TXGEARBOXREADY,
+  input [3:0] TXHEADER,
+  input TXINHIBIT,
+  input [7:0] TXMAINCURSOR,
+  input [3:0] TXMARGIN,
+  input [6:0] TXOUTCLK,
+  output TXOUTCLKFABRIC,
+  output TXOUTCLKPCS,
+  input [3:0] TXOUTCLKSEL,
+  input TXPCSRESET,
+  input [3:0] TXPD,
+  input TXPDELECIDLEMODE,
+  input [3:0] TXPHALIGN,
+  output TXPHALIGNDONE,
+  input TXPHALIGNEN,
+  input TXPHDLYPD,
+  input TXPHDLYRESET,
+  input TXPHDLYTSTCLK,
+  output [2:0] TXPHINIT,
+  output TXPHINITDONE,
+  input TXPHOVRDEN,
+  input TXPIPPMEN,
+  input TXPIPPMOVRDEN,
+  input TXPIPPMPD,
+  input TXPIPPMSEL,
+  input [5:0] TXPIPPMSTEPSIZE,
+  input TXPISOPD,
+  output [2:0] TXPMARESET,
+  output TXPMARESETDONE,
+  input TXPOLARITY,
+  input [6:0] TXPOSTCURSOR,
+  input TXPOSTCURSORINV,
+  input TXPRBSFORCEERR,
+  input [3:0] TXPRBSSEL,
+  input [6:0] TXPRECURSOR,
+  input TXPRECURSORINV,
+  input [5:0] TXRATE,
+  output TXRATEDONE,
+  input TXRATEMODE,
+  output TXRESETDONE,
+  output [4:0] TXRUNDISP,
+  input [7:0] TXSEQUENCE,
+  input TXSTARTSEQ,
+  input TXSWING,
+  input TXSYNCALLIN,
+  output TXSYNCDONE,
+  input TXSYNCIN,
+  input TXSYNCMODE,
+  output TXSYNCOUT,
+  input [2:0] TXSYSCLKSEL,
+  input TXUSERRDY,
+  input [2:0] TXUSRCLK,
+  input TXUSRCLK2
+);
+  parameter [0:0] ACJTAG_DEBUG_MODE = 1'b0;
+  parameter [0:0] ACJTAG_MODE = 1'b0;
+  parameter [0:0] ACJTAG_RESET = 1'b0;
+  parameter [19:0] ADAPT_CFG0 = 20'b00000000000000000000;
+  parameter ALIGN_COMMA_DOUBLE = "FALSE";
+  parameter [9:0] ALIGN_COMMA_ENABLE = 10'b0001111111;
+  parameter integer ALIGN_COMMA_WORD = 1;
+  parameter ALIGN_MCOMMA_DET = "TRUE";
+  parameter [9:0] ALIGN_MCOMMA_VALUE = 10'b1010000011;
+  parameter ALIGN_PCOMMA_DET = "TRUE";
+  parameter [9:0] ALIGN_PCOMMA_VALUE = 10'b0101111100;
+  parameter CBCC_DATA_SOURCE_SEL = "DECODED";
+  parameter [42:0] CFOK_CFG = 43'b1001001000000000000000001000000111010000000;
+  parameter [6:0] CFOK_CFG2 = 7'b0100000;
+  parameter [6:0] CFOK_CFG3 = 7'b0100000;
+  parameter [0:0] CFOK_CFG4 = 1'b0;
+  parameter [1:0] CFOK_CFG5 = 2'b00;
+  parameter [3:0] CFOK_CFG6 = 4'b0000;
+  parameter CHAN_BOND_KEEP_ALIGN = "FALSE";
+  parameter integer CHAN_BOND_MAX_SKEW = 7;
+  parameter [9:0] CHAN_BOND_SEQ_1_1 = 10'b0101111100;
+  parameter [9:0] CHAN_BOND_SEQ_1_2 = 10'b0000000000;
+  parameter [9:0] CHAN_BOND_SEQ_1_3 = 10'b0000000000;
+  parameter [9:0] CHAN_BOND_SEQ_1_4 = 10'b0000000000;
+  parameter [3:0] CHAN_BOND_SEQ_1_ENABLE = 4'b1111;
+  parameter [9:0] CHAN_BOND_SEQ_2_1 = 10'b0100000000;
+  parameter [9:0] CHAN_BOND_SEQ_2_2 = 10'b0100000000;
+  parameter [9:0] CHAN_BOND_SEQ_2_3 = 10'b0100000000;
+  parameter [9:0] CHAN_BOND_SEQ_2_4 = 10'b0100000000;
+  parameter [3:0] CHAN_BOND_SEQ_2_ENABLE = 4'b1111;
+  parameter CHAN_BOND_SEQ_2_USE = "FALSE";
+  parameter integer CHAN_BOND_SEQ_LEN = 1;
+  parameter [0:0] CLK_COMMON_SWING = 1'b0;
+  parameter CLK_CORRECT_USE = "TRUE";
+  parameter CLK_COR_KEEP_IDLE = "FALSE";
+  parameter integer CLK_COR_MAX_LAT = 20;
+  parameter integer CLK_COR_MIN_LAT = 18;
+  parameter CLK_COR_PRECEDENCE = "TRUE";
+  parameter integer CLK_COR_REPEAT_WAIT = 0;
+  parameter [9:0] CLK_COR_SEQ_1_1 = 10'b0100011100;
+  parameter [9:0] CLK_COR_SEQ_1_2 = 10'b0000000000;
+  parameter [9:0] CLK_COR_SEQ_1_3 = 10'b0000000000;
+  parameter [9:0] CLK_COR_SEQ_1_4 = 10'b0000000000;
+  parameter [3:0] CLK_COR_SEQ_1_ENABLE = 4'b1111;
+  parameter [9:0] CLK_COR_SEQ_2_1 = 10'b0100000000;
+  parameter [9:0] CLK_COR_SEQ_2_2 = 10'b0100000000;
+  parameter [9:0] CLK_COR_SEQ_2_3 = 10'b0100000000;
+  parameter [9:0] CLK_COR_SEQ_2_4 = 10'b0100000000;
+  parameter [3:0] CLK_COR_SEQ_2_ENABLE = 4'b1111;
+  parameter CLK_COR_SEQ_2_USE = "FALSE";
+  parameter integer CLK_COR_SEQ_LEN = 1;
+  parameter DEC_MCOMMA_DETECT = "TRUE";
+  parameter DEC_PCOMMA_DETECT = "TRUE";
+  parameter DEC_VALID_COMMA_ONLY = "TRUE";
+  parameter [23:0] DMONITOR_CFG = 24'h000A00;
+  parameter [0:0] ES_CLK_PHASE_SEL = 1'b0;
+  parameter [5:0] ES_CONTROL = 6'b000000;
+  parameter ES_ERRDET_EN = "FALSE";
+  parameter ES_EYE_SCAN_EN = "FALSE";
+  parameter [11:0] ES_HORZ_OFFSET = 12'h010;
+  parameter [9:0] ES_PMA_CFG = 10'b0000000000;
+  parameter [4:0] ES_PRESCALE = 5'b00000;
+  parameter [79:0] ES_QUALIFIER = 80'h00000000000000000000;
+  parameter [79:0] ES_QUAL_MASK = 80'h00000000000000000000;
+  parameter [79:0] ES_SDATA_MASK = 80'h00000000000000000000;
+  parameter [8:0] ES_VERT_OFFSET = 9'b000000000;
+  parameter [3:0] FTS_DESKEW_SEQ_ENABLE = 4'b1111;
+  parameter [3:0] FTS_LANE_DESKEW_CFG = 4'b1111;
+  parameter FTS_LANE_DESKEW_EN = "FALSE";
+  parameter [2:0] GEARBOX_MODE = 3'b000;
+  parameter [0:0] LOOPBACK_CFG = 1'b0;
+  parameter [1:0] OUTREFCLK_SEL_INV = 2'b11;
+  parameter PCS_PCIE_EN = "FALSE";
+  parameter [47:0] PCS_RSVD_ATTR = 48'h000000000000;
+  parameter [11:0] PD_TRANS_TIME_FROM_P2 = 12'h03C;
+  parameter [7:0] PD_TRANS_TIME_NONE_P2 = 8'h19;
+  parameter [7:0] PD_TRANS_TIME_TO_P2 = 8'h64;
+  parameter [0:0] PMA_LOOPBACK_CFG = 1'b0;
+  parameter [31:0] PMA_RSV = 32'h00000333;
+  parameter [31:0] PMA_RSV2 = 32'h00002050;
+  parameter [1:0] PMA_RSV3 = 2'b00;
+  parameter [3:0] PMA_RSV4 = 4'b0000;
+  parameter [0:0] PMA_RSV5 = 1'b0;
+  parameter [0:0] PMA_RSV6 = 1'b0;
+  parameter [0:0] PMA_RSV7 = 1'b0;
+  parameter [4:0] RXBUFRESET_TIME = 5'b00001;
+  parameter RXBUF_ADDR_MODE = "FULL";
+  parameter [3:0] RXBUF_EIDLE_HI_CNT = 4'b1000;
+  parameter [3:0] RXBUF_EIDLE_LO_CNT = 4'b0000;
+  parameter RXBUF_EN = "TRUE";
+  parameter RXBUF_RESET_ON_CB_CHANGE = "TRUE";
+  parameter RXBUF_RESET_ON_COMMAALIGN = "FALSE";
+  parameter RXBUF_RESET_ON_EIDLE = "FALSE";
+  parameter RXBUF_RESET_ON_RATE_CHANGE = "TRUE";
+  parameter integer RXBUF_THRESH_OVFLW = 61;
+  parameter RXBUF_THRESH_OVRD = "FALSE";
+  parameter integer RXBUF_THRESH_UNDFLW = 4;
+  parameter [4:0] RXCDRFREQRESET_TIME = 5'b00001;
+  parameter [4:0] RXCDRPHRESET_TIME = 5'b00001;
+  parameter [82:0] RXCDR_CFG = 83'h0000107FE406001041010;
+  parameter [0:0] RXCDR_FR_RESET_ON_EIDLE = 1'b0;
+  parameter [0:0] RXCDR_HOLD_DURING_EIDLE = 1'b0;
+  parameter [5:0] RXCDR_LOCK_CFG = 6'b001001;
+  parameter [0:0] RXCDR_PH_RESET_ON_EIDLE = 1'b0;
+  parameter [15:0] RXDLY_CFG = 16'h0010;
+  parameter [8:0] RXDLY_LCFG = 9'h020;
+  parameter [15:0] RXDLY_TAP_CFG = 16'h0000;
+  parameter RXGEARBOX_EN = "FALSE";
+  parameter [4:0] RXISCANRESET_TIME = 5'b00001;
+  parameter [6:0] RXLPMRESET_TIME = 7'b0001111;
+  parameter [0:0] RXLPM_BIAS_STARTUP_DISABLE = 1'b0;
+  parameter [3:0] RXLPM_CFG = 4'b0110;
+  parameter [0:0] RXLPM_CFG1 = 1'b0;
+  parameter [0:0] RXLPM_CM_CFG = 1'b0;
+  parameter [8:0] RXLPM_GC_CFG = 9'b111100010;
+  parameter [2:0] RXLPM_GC_CFG2 = 3'b001;
+  parameter [13:0] RXLPM_HF_CFG = 14'b00001111110000;
+  parameter [4:0] RXLPM_HF_CFG2 = 5'b01010;
+  parameter [3:0] RXLPM_HF_CFG3 = 4'b0000;
+  parameter [0:0] RXLPM_HOLD_DURING_EIDLE = 1'b0;
+  parameter [0:0] RXLPM_INCM_CFG = 1'b0;
+  parameter [0:0] RXLPM_IPCM_CFG = 1'b0;
+  parameter [17:0] RXLPM_LF_CFG = 18'b000000001111110000;
+  parameter [4:0] RXLPM_LF_CFG2 = 5'b01010;
+  parameter [2:0] RXLPM_OSINT_CFG = 3'b100;
+  parameter [6:0] RXOOB_CFG = 7'b0000110;
+  parameter RXOOB_CLK_CFG = "PMA";
+  parameter [4:0] RXOSCALRESET_TIME = 5'b00011;
+  parameter [4:0] RXOSCALRESET_TIMEOUT = 5'b00000;
+  parameter integer RXOUT_DIV = 2;
+  parameter [4:0] RXPCSRESET_TIME = 5'b00001;
+  parameter [23:0] RXPHDLY_CFG = 24'h084000;
+  parameter [23:0] RXPH_CFG = 24'hC00002;
+  parameter [4:0] RXPH_MONITOR_SEL = 5'b00000;
+  parameter [2:0] RXPI_CFG0 = 3'b000;
+  parameter [0:0] RXPI_CFG1 = 1'b0;
+  parameter [0:0] RXPI_CFG2 = 1'b0;
+  parameter [4:0] RXPMARESET_TIME = 5'b00011;
+  parameter [0:0] RXPRBS_ERR_LOOPBACK = 1'b0;
+  parameter integer RXSLIDE_AUTO_WAIT = 7;
+  parameter RXSLIDE_MODE = "OFF";
+  parameter [0:0] RXSYNC_MULTILANE = 1'b0;
+  parameter [0:0] RXSYNC_OVRD = 1'b0;
+  parameter [0:0] RXSYNC_SKIP_DA = 1'b0;
+  parameter [15:0] RX_BIAS_CFG = 16'b0000111100110011;
+  parameter [5:0] RX_BUFFER_CFG = 6'b000000;
+  parameter integer RX_CLK25_DIV = 7;
+  parameter [0:0] RX_CLKMUX_EN = 1'b1;
+  parameter [1:0] RX_CM_SEL = 2'b11;
+  parameter [3:0] RX_CM_TRIM = 4'b0100;
+  parameter integer RX_DATA_WIDTH = 20;
+  parameter [5:0] RX_DDI_SEL = 6'b000000;
+  parameter [13:0] RX_DEBUG_CFG = 14'b00000000000000;
+  parameter RX_DEFER_RESET_BUF_EN = "TRUE";
+  parameter RX_DISPERR_SEQ_MATCH = "TRUE";
+  parameter [12:0] RX_OS_CFG = 13'b0001111110000;
+  parameter integer RX_SIG_VALID_DLY = 10;
+  parameter RX_XCLK_SEL = "RXREC";
+  parameter integer SAS_MAX_COM = 64;
+  parameter integer SAS_MIN_COM = 36;
+  parameter [3:0] SATA_BURST_SEQ_LEN = 4'b1111;
+  parameter [2:0] SATA_BURST_VAL = 3'b100;
+  parameter [2:0] SATA_EIDLE_VAL = 3'b100;
+  parameter integer SATA_MAX_BURST = 8;
+  parameter integer SATA_MAX_INIT = 21;
+  parameter integer SATA_MAX_WAKE = 7;
+  parameter integer SATA_MIN_BURST = 4;
+  parameter integer SATA_MIN_INIT = 12;
+  parameter integer SATA_MIN_WAKE = 4;
+  parameter SATA_PLL_CFG = "VCO_3000MHZ";
+  parameter SHOW_REALIGN_COMMA = "TRUE";
+  parameter SIM_RECEIVER_DETECT_PASS = "TRUE";
+  parameter SIM_RESET_SPEEDUP = "TRUE";
+  parameter SIM_TX_EIDLE_DRIVE_LEVEL = "X";
+  parameter SIM_VERSION = "1.0";
+  parameter [14:0] TERM_RCAL_CFG = 15'b100001000010000;
+  parameter [2:0] TERM_RCAL_OVRD = 3'b000;
+  parameter [7:0] TRANS_TIME_RATE = 8'h0E;
+  parameter [31:0] TST_RSV = 32'h00000000;
+  parameter TXBUF_EN = "TRUE";
+  parameter TXBUF_RESET_ON_RATE_CHANGE = "FALSE";
+  parameter [15:0] TXDLY_CFG = 16'h0010;
+  parameter [8:0] TXDLY_LCFG = 9'h020;
+  parameter [15:0] TXDLY_TAP_CFG = 16'h0000;
+  parameter TXGEARBOX_EN = "FALSE";
+  parameter [0:0] TXOOB_CFG = 1'b0;
+  parameter integer TXOUT_DIV = 2;
+  parameter [4:0] TXPCSRESET_TIME = 5'b00001;
+  parameter [23:0] TXPHDLY_CFG = 24'h084000;
+  parameter [15:0] TXPH_CFG = 16'h0400;
+  parameter [4:0] TXPH_MONITOR_SEL = 5'b00000;
+  parameter [1:0] TXPI_CFG0 = 2'b00;
+  parameter [1:0] TXPI_CFG1 = 2'b00;
+  parameter [1:0] TXPI_CFG2 = 2'b00;
+  parameter [0:0] TXPI_CFG3 = 1'b0;
+  parameter [0:0] TXPI_CFG4 = 1'b0;
+  parameter [2:0] TXPI_CFG5 = 3'b000;
+  parameter [0:0] TXPI_GREY_SEL = 1'b0;
+  parameter [0:0] TXPI_INVSTROBE_SEL = 1'b0;
+  parameter TXPI_PPMCLK_SEL = "TXUSRCLK2";
+  parameter [7:0] TXPI_PPM_CFG = 8'b00000000;
+  parameter [2:0] TXPI_SYNFREQ_PPM = 3'b000;
+  parameter [4:0] TXPMARESET_TIME = 5'b00001;
+  parameter [0:0] TXSYNC_MULTILANE = 1'b0;
+  parameter [0:0] TXSYNC_OVRD = 1'b0;
+  parameter [0:0] TXSYNC_SKIP_DA = 1'b0;
+  parameter integer TX_CLK25_DIV = 7;
+  parameter [0:0] TX_CLKMUX_EN = 1'b1;
+  parameter integer TX_DATA_WIDTH = 20;
+  parameter [5:0] TX_DEEMPH0 = 6'b000000;
+  parameter [5:0] TX_DEEMPH1 = 6'b000000;
+  parameter TX_DRIVE_MODE = "DIRECT";
+  parameter [2:0] TX_EIDLE_ASSERT_DELAY = 3'b110;
+  parameter [2:0] TX_EIDLE_DEASSERT_DELAY = 3'b100;
+  parameter TX_LOOPBACK_DRIVE_HIZ = "FALSE";
+  parameter [0:0] TX_MAINCURSOR_SEL = 1'b0;
+  parameter [6:0] TX_MARGIN_FULL_0 = 7'b1001110;
+  parameter [6:0] TX_MARGIN_FULL_1 = 7'b1001001;
+  parameter [6:0] TX_MARGIN_FULL_2 = 7'b1000101;
+  parameter [6:0] TX_MARGIN_FULL_3 = 7'b1000010;
+  parameter [6:0] TX_MARGIN_FULL_4 = 7'b1000000;
+  parameter [6:0] TX_MARGIN_LOW_0 = 7'b1000110;
+  parameter [6:0] TX_MARGIN_LOW_1 = 7'b1000100;
+  parameter [6:0] TX_MARGIN_LOW_2 = 7'b1000010;
+  parameter [6:0] TX_MARGIN_LOW_3 = 7'b1000000;
+  parameter [6:0] TX_MARGIN_LOW_4 = 7'b1000000;
+  parameter [0:0] TX_PREDRIVER_MODE = 1'b0;
+  parameter [13:0] TX_RXDETECT_CFG = 14'h1832;
+  parameter [2:0] TX_RXDETECT_REF = 3'b100;
+  parameter TX_XCLK_SEL = "TXUSR";
+  parameter [0:0] UCODEER_CLR = 1'b0;
+  parameter [0:0] USE_PCS_CLK_PHASE_SEL = 1'b0;
+endmodule
