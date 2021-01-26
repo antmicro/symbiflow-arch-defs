@@ -4,11 +4,8 @@
       <port name="BGBYPASSB"/>
       <port name="BGMONITORENB"/>
       <port name="BGPDB"/>
-      <port name="BGRCALOVRD"/>
       <port name="BGRCALOVRDENB"/>
-      <port name="DRPADDR"/>
       <port name="DRPCLK" is_clock="1"/>
-      <port name="DRPDI"/>
       <port name="DRPEN"/>
       <port name="DRPWE"/>
       <port name="GTEASTREFCLK0" is_clock="1"/>
@@ -19,45 +16,41 @@
       <port name="GTREFCLK1" is_clock="1"/>
       <port name="GTWESTREFCLK0" is_clock="1"/>
       <port name="GTWESTREFCLK1" is_clock="1"/>
-      <port name="PLL0LOCK"/>
       <port name="PLL0LOCKDETCLK" is_clock="1"/>
       <port name="PLL0LOCKEN"/>
       <port name="PLL0PD"/>
-      <port name="PLL0REFCLKSEL"/>
       <port name="PLL0RESET"/>
-      <port name="PLL1LOCK"/>
       <port name="PLL1LOCKDETCLK" is_clock="1"/>
       <port name="PLL1LOCKEN"/>
       <port name="PLL1PD"/>
-      <port name="PLL1REFCLKSEL"/>
       <port name="PLL1RESET"/>
-      <port name="PLLCLKSPARE"/>
-      <port name="PLLRSVD"/>
-      <port name="PMASCANCLK0" is_clock="1"/>
-      <port name="PMASCANCLK1" is_clock="1"/>
-      <port name="PMASCANENB"/>
-      <port name="PMASCANIN"/>
-      <port name="QDPMASCANMODEB"/>
-      <port name="QDPMASCANRSTEN"/>
       <port name="RCALENB"/>
+      <port name="DRPDI"/>
+      <port name="PLLRSVD1"/>
+      <port name="PLL0REFCLKSEL"/>
+      <port name="PLL1REFCLKSEL"/>
+      <port name="BGRCALOVRD"/>
+      <port name="PLLRSVD2"/>
+      <port name="DRPADDR"/>
+      <port name="PMARSVD"/>
     </input_ports>
     <output_ports>
-      <port name="DMONITOROUT"/>
-      <port name="DRPDO"/>
       <port name="DRPRDY"/>
       <port name="PLL0FBCLKLOST"/>
+      <port name="PLL0LOCK"/>
       <port name="PLL0OUTCLK" is_clock="1"/>
       <port name="PLL0OUTREFCLK" is_clock="1"/>
       <port name="PLL0REFCLKLOST"/>
-      <port name="PLLREFCLKSEL"/>
       <port name="PLL1FBCLKLOST"/>
+      <port name="PLL1LOCK"/>
       <port name="PLL1OUTCLK" is_clock="1"/>
       <port name="PLL1OUTREFCLK" is_clock="1"/>
       <port name="PLL1REFCLKLOST"/>
-      <port name="PMARSVD"/>
+      <port name="REFCLKOUTMONITOR0"/>
+      <port name="REFCLKOUTMONITOR1"/>
+      <port name="DRPDO"/>
       <port name="PMARSVDOUT"/>
-      <port name="PMASCANOUT"/>
-      <port name="REFCLKOUTMONITOR"/>
+      <port name="DMONITOROUT"/>
     </output_ports>
   </model>
 </models>

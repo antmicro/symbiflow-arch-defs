@@ -1,16 +1,26 @@
 <pb_type name="GTPE2_COMMON" num_pb="1" blif_model=".subckt GTPE2_COMMON_VPR">
+  <output name="DRPRDY" num_pins="1"/>
+  <output name="PLL0FBCLKLOST" num_pins="1"/>
+  <output name="PLL0LOCK" num_pins="1"/>
+  <output name="PLL0OUTCLK" num_pins="1"/>
+  <output name="PLL0OUTREFCLK" num_pins="1"/>
+  <output name="PLL0REFCLKLOST" num_pins="1"/>
+  <output name="PLL1FBCLKLOST" num_pins="1"/>
+  <output name="PLL1LOCK" num_pins="1"/>
+  <output name="PLL1OUTCLK" num_pins="1"/>
+  <output name="PLL1OUTREFCLK" num_pins="1"/>
+  <output name="PLL1REFCLKLOST" num_pins="1"/>
+  <output name="REFCLKOUTMONITOR0" num_pins="1"/>
+  <output name="REFCLKOUTMONITOR1" num_pins="1"/>
+  <output name="DRPDO" num_pins="15"/>
+  <output name="PMARSVDOUT" num_pins="15"/>
+  <output name="DMONITOROUT" num_pins="7"/>
   <input name="BGBYPASSB" num_pins="1"/>
   <input name="BGMONITORENB" num_pins="1"/>
   <input name="BGPDB" num_pins="1"/>
-  <input name="BGRCALOVRD" num_pins="6"/>
   <input name="BGRCALOVRDENB" num_pins="1"/>
-  <output name="DMONITOROUT" num_pins="8"/>
-  <input name="DRPADDR" num_pins="8"/>
   <clock name="DRPCLK" num_pins="1"/>
-  <input name="DRPDI" num_pins="16"/>
-  <output name="DRPDO" num_pins="16"/>
   <input name="DRPEN" num_pins="1"/>
-  <output name="DRPRDY" num_pins="1"/>
   <input name="DRPWE" num_pins="1"/>
   <clock name="GTEASTREFCLK0" num_pins="1"/>
   <clock name="GTEASTREFCLK1" num_pins="1"/>
@@ -20,40 +30,23 @@
   <clock name="GTREFCLK1" num_pins="1"/>
   <clock name="GTWESTREFCLK0" num_pins="1"/>
   <clock name="GTWESTREFCLK1" num_pins="1"/>
-  <output name="PLL0FBCLKLOST" num_pins="1"/>
-  <input name="PLL0LOCK" num_pins="3"/>
   <clock name="PLL0LOCKDETCLK" num_pins="1"/>
   <input name="PLL0LOCKEN" num_pins="1"/>
-  <clock name="PLL0OUTCLK" num_pins="1"/>
-  <clock name="PLL0OUTREFCLK" num_pins="1"/>
   <input name="PLL0PD" num_pins="1"/>
-  <output name="PLL0REFCLKLOST" num_pins="1"/>
-  <output name="PLLREFCLKSEL" num_pins="0"/>
-  <input name="PLL0REFCLKSEL" num_pins="3"/>
   <input name="PLL0RESET" num_pins="1"/>
-  <output name="PLL1FBCLKLOST" num_pins="1"/>
-  <input name="PLL1LOCK" num_pins="3"/>
   <clock name="PLL1LOCKDETCLK" num_pins="1"/>
   <input name="PLL1LOCKEN" num_pins="1"/>
-  <clock name="PLL1OUTCLK" num_pins="1"/>
-  <clock name="PLL1OUTREFCLK" num_pins="1"/>
   <input name="PLL1PD" num_pins="1"/>
-  <output name="PLL1REFCLKLOST" num_pins="1"/>
-  <input name="PLL1REFCLKSEL" num_pins="3"/>
   <input name="PLL1RESET" num_pins="1"/>
-  <input name="PLLCLKSPARE" num_pins="1"/>
-  <input name="PLLRSVD" num_pins="21"/>
-  <output name="PMARSVD" num_pins="24"/>
-  <output name="PMARSVDOUT" num_pins="16"/>
-  <clock name="PMASCANCLK0" num_pins="1"/>
-  <clock name="PMASCANCLK1" num_pins="1"/>
-  <input name="PMASCANENB" num_pins="1"/>
-  <input name="PMASCANIN" num_pins="5"/>
-  <output name="PMASCANOUT" num_pins="5"/>
-  <input name="QDPMASCANMODEB" num_pins="1"/>
-  <input name="QDPMASCANRSTEN" num_pins="1"/>
   <input name="RCALENB" num_pins="1"/>
-  <output name="REFCLKOUTMONITOR" num_pins="2"/>
+  <input name="DRPDI" num_pins="15"/>
+  <input name="PLLRSVD1" num_pins="15"/>
+  <input name="PLL0REFCLKSEL" num_pins="2"/>
+  <input name="PLL1REFCLKSEL" num_pins="2"/>
+  <input name="BGRCALOVRD" num_pins="4"/>
+  <input name="PLLRSVD2" num_pins="4"/>
+  <input name="DRPADDR" num_pins="7"/>
+  <input name="PMARSVD" num_pins="7"/>
   <metadata>
     <meta name="fasm_params">
       BIAS_CFG[63:0] = BIAS_CFG
@@ -75,6 +68,17 @@
       PLL_CLKOUT_CFG[7:0] = PLL_CLKOUT_CFG
       RSVD_ATTR0[15:0] = RSVD_ATTR0
       RSVD_ATTR1[15:0] = RSVD_ATTR1
+      IS_DRPCLK_INVERTED = IS_DRPCLK_INVERTED
+      IS_PLL0LOCKDETCLK_INVERTED = IS_PLL0LOCKDETCLK_INVERTED
+      IS_PLL1LOCKDETCLK_INVERTED = IS_PLL1LOCKDETCLK_INVERTED
+      IS_GTGREFCLK0_INVERTED = IS_GTGREFCLK0_INVERTED
+      IS_GTGREFCLK1_INVERTED = IS_GTGREFCLK1_INVERTED
+      ZINV_DRPCLK = ZINV_DRPCLK
+      ZINV_PLL1LOCKDETCLK = ZINV_PLL1LOCKDETCLK
+      ZINV_PLL1LOCKDETCLK = ZINV_PLL1LOCKDETCLK
+      INV_GTGREFCLK0 = INV_GTGREFCLK0
+      INV_GTGREFCLK1 = INV_GTGREFCLK1
+      IN_USE = IN_USE
     </meta>
   </metadata>
 </pb_type>
