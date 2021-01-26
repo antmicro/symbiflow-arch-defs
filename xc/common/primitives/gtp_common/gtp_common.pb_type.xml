@@ -12,16 +12,31 @@
   <output name="PLL1REFCLKLOST" num_pins="1"/>
   <output name="REFCLKOUTMONITOR0" num_pins="1"/>
   <output name="REFCLKOUTMONITOR1" num_pins="1"/>
-  <output name="DRPDO" num_pins="15"/>
-  <output name="PMARSVDOUT" num_pins="15"/>
-  <output name="DMONITOROUT" num_pins="7"/>
+  <output name="DRPDO" num_pins="16"/>
+  <output name="PMARSVDOUT" num_pins="16"/>
+  <output name="DMONITOROUT" num_pins="8"/>
   <input name="BGBYPASSB" num_pins="1"/>
   <input name="BGMONITORENB" num_pins="1"/>
   <input name="BGPDB" num_pins="1"/>
   <input name="BGRCALOVRDENB" num_pins="1"/>
-  <clock name="DRPCLK" num_pins="1"/>
   <input name="DRPEN" num_pins="1"/>
   <input name="DRPWE" num_pins="1"/>
+  <input name="PLL0LOCKEN" num_pins="1"/>
+  <input name="PLL0PD" num_pins="1"/>
+  <input name="PLL0RESET" num_pins="1"/>
+  <input name="PLL1LOCKEN" num_pins="1"/>
+  <input name="PLL1PD" num_pins="1"/>
+  <input name="PLL1RESET" num_pins="1"/>
+  <input name="RCALENB" num_pins="1"/>
+  <input name="DRPDI" num_pins="16"/>
+  <input name="PLLRSVD1" num_pins="16"/>
+  <input name="PLL0REFCLKSEL" num_pins="3"/>
+  <input name="PLL1REFCLKSEL" num_pins="3"/>
+  <input name="BGRCALOVRD" num_pins="5"/>
+  <input name="PLLRSVD2" num_pins="5"/>
+  <input name="DRPADDR" num_pins="8"/>
+  <input name="PMARSVD" num_pins="8"/>
+  <clock name="DRPCLK" num_pins="1"/>
   <clock name="GTEASTREFCLK0" num_pins="1"/>
   <clock name="GTEASTREFCLK1" num_pins="1"/>
   <clock name="GTGREFCLK0" num_pins="1"/>
@@ -31,22 +46,7 @@
   <clock name="GTWESTREFCLK0" num_pins="1"/>
   <clock name="GTWESTREFCLK1" num_pins="1"/>
   <clock name="PLL0LOCKDETCLK" num_pins="1"/>
-  <input name="PLL0LOCKEN" num_pins="1"/>
-  <input name="PLL0PD" num_pins="1"/>
-  <input name="PLL0RESET" num_pins="1"/>
   <clock name="PLL1LOCKDETCLK" num_pins="1"/>
-  <input name="PLL1LOCKEN" num_pins="1"/>
-  <input name="PLL1PD" num_pins="1"/>
-  <input name="PLL1RESET" num_pins="1"/>
-  <input name="RCALENB" num_pins="1"/>
-  <input name="DRPDI" num_pins="15"/>
-  <input name="PLLRSVD1" num_pins="15"/>
-  <input name="PLL0REFCLKSEL" num_pins="2"/>
-  <input name="PLL1REFCLKSEL" num_pins="2"/>
-  <input name="BGRCALOVRD" num_pins="4"/>
-  <input name="PLLRSVD2" num_pins="4"/>
-  <input name="DRPADDR" num_pins="7"/>
-  <input name="PMARSVD" num_pins="7"/>
   <metadata>
     <meta name="fasm_params">
       BIAS_CFG[63:0] = BIAS_CFG
