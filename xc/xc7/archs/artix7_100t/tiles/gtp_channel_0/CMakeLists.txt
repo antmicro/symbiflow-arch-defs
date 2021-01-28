@@ -1,0 +1,5 @@
+project_ray_tile(
+  ARCH artix7
+  TILE GTP_CHANNEL_0
+  SITE_TYPES GTP_CHANNEL_0/GTP_CHANNEL_0
+  )

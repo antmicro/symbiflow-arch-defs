@@ -1,0 +1,6 @@
+project_ray_tile(
+  ARCH artix7_100t
+  TILE GTP_COMMON
+  SITE_TYPES GTPE2_COMMON/GTPE2_COMMON
+  FUSED_SITES
+  )
