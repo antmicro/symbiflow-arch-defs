@@ -11,10 +11,10 @@ add_subdirectory(clk_bufg_bot_r)
 add_subdirectory(bufgctrl)
 add_subdirectory(hclk_ioi3)
 add_subdirectory(gtp_common)
-#add_subdirectory(gtp_channel_0)
-#add_subdirectory(gtp_channel_1)
-#add_subdirectory(gtp_channel_2)
-#add_subdirectory(gtp_channel_3)
+add_subdirectory(gtp_channel_0)
+add_subdirectory(gtp_channel_1)
+add_subdirectory(gtp_channel_2)
+add_subdirectory(gtp_channel_3)
 
 set(IOPAD_SITES IOB33 IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_S_SITES IOB33S IDELAYE2 ILOGICE3 OLOGICE3)
@@ -36,12 +36,3 @@ project_ray_equiv_tile(
   PB_TYPES PLLE2_ADV
   PB_TYPE_SITES PLLE2_ADV_SITES
   )
-
-#set(GTPE2_COMMON_SITES GTPE2_COMMON)
-#
-#project_ray_equiv_tile(
-#  ARCH artix7
-#  TILES GTP_COMMON
-#  PB_TYPES GTPE2_COMMON
-#  PB_TYPE_SITES GTPE2_COMMON_SITES
-#  )
