@@ -2395,7 +2395,6 @@ module GTPE2_CHANNEL_VPR (
   input [31:0] TXDATA,
   input [3:0] RXCHBONDI,
   input [3:0] RXOSINTCFG,
-  input [3:0] RXOSINTID0,
   input [3:0] TX8B10BBYPASS,
   input [3:0] TXCHARDISPMODE,
   input [3:0] TXCHARDISPVAL,
