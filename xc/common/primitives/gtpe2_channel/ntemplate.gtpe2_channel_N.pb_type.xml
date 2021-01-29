@@ -66,7 +66,11 @@
   <output name="RXPHMONITOR" num_pins="5"/>
   <output name="RXPHSLIPMONITOR" num_pins="5"/>
   <input name="CFGRESET" num_pins="1"/>
+  <clock name="CLKRSVD0" num_pins="1"/>
+  <clock name="CLKRSVD1" num_pins="1"/>
   <input name="DMONFIFORESET" num_pins="1"/>
+  <clock name="DMONITORCLK" num_pins="1"/>
+  <clock name="DRPCLK" num_pins="1"/>
   <input name="DRPEN" num_pins="1"/>
   <input name="DRPWE" num_pins="1"/>
   <input name="EYESCANMODE" num_pins="1"/>
@@ -77,6 +81,10 @@
   <input name="GTRESETSEL" num_pins="1"/>
   <input name="GTRXRESET" num_pins="1"/>
   <input name="GTTXRESET" num_pins="1"/>
+  <clock name="PLL0CLK" num_pins="1"/>
+  <clock name="PLL0REFCLK" num_pins="1"/>
+  <clock name="PLL1CLK" num_pins="1"/>
+  <clock name="PLL1REFCLK" num_pins="1"/>
   <input name="PMARSVDIN0" num_pins="1"/>
   <input name="PMARSVDIN1" num_pins="1"/>
   <input name="PMARSVDIN2" num_pins="1"/>
@@ -135,7 +143,10 @@
   <input name="RXSYNCIN" num_pins="1"/>
   <input name="RXSYNCMODE" num_pins="1"/>
   <input name="RXUSERRDY" num_pins="1"/>
+  <clock name="RXUSRCLK2" num_pins="1"/>
+  <clock name="RXUSRCLK" num_pins="1"/>
   <input name="SETERRSTATUS" num_pins="1"/>
+  <clock name="SIGVALIDCLK" num_pins="1"/>
   <input name="TX8B10BEN" num_pins="1"/>
   <input name="TXCOMINIT" num_pins="1"/>
   <input name="TXCOMSAS" num_pins="1"/>
@@ -157,6 +168,7 @@
   <input name="TXPHALIGNEN" num_pins="1"/>
   <input name="TXPHDLYPD" num_pins="1"/>
   <input name="TXPHDLYRESET" num_pins="1"/>
+  <clock name="TXPHDLYTSTCLK" num_pins="1"/>
   <input name="TXPHINIT" num_pins="1"/>
   <input name="TXPHOVRDEN" num_pins="1"/>
   <input name="TXPIPPMEN" num_pins="1"/>
@@ -176,6 +188,8 @@
   <input name="TXSYNCIN" num_pins="1"/>
   <input name="TXSYNCMODE" num_pins="1"/>
   <input name="TXUSERRDY" num_pins="1"/>
+  <clock name="TXUSRCLK2" num_pins="1"/>
+  <clock name="TXUSRCLK" num_pins="1"/>
   <input name="RXADAPTSELTEST" num_pins="14"/>
   <input name="DRPDI" num_pins="16"/>
   <input name="GTRSVD" num_pins="16"/>
@@ -200,7 +214,7 @@
   <input name="TXDATA" num_pins="32"/>
   <input name="RXCHBONDI" num_pins="4"/>
   <input name="RXOSINTCFG" num_pins="4"/>
-  <input name="RXOSINTID0" num_pins="4"/>
+   <!--<input name="RXOSINTID0" num_pins="4"/>-->
   <input name="TX8B10BBYPASS" num_pins="4"/>
   <input name="TXCHARDISPMODE" num_pins="4"/>
   <input name="TXCHARDISPVAL" num_pins="4"/>
@@ -212,20 +226,6 @@
   <input name="TXMAINCURSOR" num_pins="7"/>
   <input name="TXSEQUENCE" num_pins="7"/>
   <input name="DRPADDR" num_pins="9"/>
-  <clock name="CLKRSVD0" num_pins="1"/>
-  <clock name="CLKRSVD1" num_pins="1"/>
-  <clock name="DMONITORCLK" num_pins="1"/>
-  <clock name="DRPCLK" num_pins="1"/>
-  <clock name="PLL0CLK" num_pins="1"/>
-  <clock name="PLL0REFCLK" num_pins="1"/>
-  <clock name="PLL1CLK" num_pins="1"/>
-  <clock name="PLL1REFCLK" num_pins="1"/>
-  <clock name="RXUSRCLK2" num_pins="1"/>
-  <clock name="RXUSRCLK" num_pins="1"/>
-  <clock name="SIGVALIDCLK" num_pins="1"/>
-  <clock name="TXPHDLYTSTCLK" num_pins="1"/>
-  <clock name="TXUSRCLK2" num_pins="1"/>
-  <clock name="TXUSRCLK" num_pins="1"/>
   <metadata>
     <meta name="fasm_params">
       ACJTAG_DEBUG_MODE[0:0] = ACJTAG_DEBUG_MODE

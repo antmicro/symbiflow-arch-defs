@@ -150,7 +150,6 @@
       <port name="TXDATA"/>
       <port name="RXCHBONDI"/>
       <port name="RXOSINTCFG"/>
-      <port name="RXOSINTID0"/>
       <port name="TX8B10BBYPASS"/>
       <port name="TXCHARDISPMODE"/>
       <port name="TXCHARDISPVAL"/>
