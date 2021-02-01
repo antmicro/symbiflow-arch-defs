@@ -1,2 +1,6 @@
 add_file_target(FILE gtpe2_common.model.xml SCANNER_TYPE xml)
 add_file_target(FILE gtpe2_common.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE gtpe2_common_mid_left.model.xml SCANNER_TYPE xml)
+add_file_target(FILE gtpe2_common_mid_left.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE gtpe2_common_mid_right.model.xml SCANNER_TYPE xml)
+add_file_target(FILE gtpe2_common_mid_right.pb_type.xml SCANNER_TYPE xml)
