@@ -50,7 +50,7 @@ class BaseSoC(SoCCore):
                 ident_version  = True,
                 **kwargs
             )
-            self.submodules.crg = nexys_video_CRG(platform, sys_clk_freq)
+            self.submodules.crg = nexys_video_CRG(platform, sys_clk_freq, toolchain)
 
 
         # DDR3 SDRAM -------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ add_litex_test(
   FIXUP_SCRIPT ${FIXUP_XDC}
   FLAGS
     --integrated-rom-size 0x10000
+    --with-ram
     --with-sata
   USE_XDC
 )
